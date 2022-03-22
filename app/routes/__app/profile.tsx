@@ -1,9 +1,7 @@
-import { data } from 'msw/lib/types/context'
-import { Form, json, Link, LoaderFunction, useLoaderData } from 'remix'
-import Avatar from '~/components/Avatar/Avatar'
-import Header from '~/components/Typography/Header'
+import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 
 import { requireUser } from '~/session.server'
+import Avatar from '~/components/Avatar/Avatar'
 
 type LoaderData = {
   user: Awaited<ReturnType<typeof requireUser>>

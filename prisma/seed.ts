@@ -36,9 +36,19 @@ const createUser = async (
 
 async function seed() {
   // // cleanup the existing database
-  // await prisma.user.delete({ where: { email } }).catch(() => {
-  //   // no worries if it doesn't exist yet
-  // })
+
+  const emails = ['rachel@palanaeum.club', 'kevin@palanaeum.club']
+  await prisma.user
+    .deleteMany({
+      where: {
+        email: {
+          in: emails,
+        },
+      },
+    })
+    .catch(() => {
+      // no worries if it doesn't exist yet
+    })
 
   const user1 = await createUser(
     'rachel@palanaeum.club',
