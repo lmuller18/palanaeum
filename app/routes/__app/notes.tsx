@@ -3,16 +3,17 @@ import type { LoaderFunction } from 'remix'
 
 import { requireUserId } from '~/session.server'
 import { useUser } from '~/utils'
-import { getNoteListItems } from '~/models/note.server'
+// import { getNoteListItems } from '~/models/note.server'
 
 type LoaderData = {
-  noteListItems: Awaited<ReturnType<typeof getNoteListItems>>
+  // noteListItems: Awaited<ReturnType<typeof getNoteListItems>>
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request)
-  const noteListItems = await getNoteListItems({ userId })
-  return json<LoaderData>({ noteListItems })
+  // const noteListItems = await getNoteListItems({ userId })
+  // return json<LoaderData>({ noteListItems })
+  return json({})
 }
 
 export default function NotesPage() {
@@ -44,7 +45,7 @@ export default function NotesPage() {
 
           <hr />
 
-          {data.noteListItems.length === 0 ? (
+          {/* {data.noteListItems.length === 0 ? (
             <p className="p-4">No notes yet</p>
           ) : (
             <ol>
@@ -61,7 +62,7 @@ export default function NotesPage() {
                 </li>
               ))}
             </ol>
-          )}
+          )} */}
         </div>
 
         <div className="flex-1 p-6">
