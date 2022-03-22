@@ -1,0 +1,24 @@
+{
+  "css.customData": [".vscode/css_custom_data.json"],
+  "search.exclude": {
+    ".cache": true,
+    "build": true,
+    "prisma/migrations": true,
+    "public/build": true,
+    "yarn.lock": true,
+    "package-lock.json": true,
+    "api/_build": true,
+    "/postgres-data": true,
+    "app/styles": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "node_modules": true,
+    "/postgres-data": true
+  }
+}
