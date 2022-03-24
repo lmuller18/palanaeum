@@ -1,8 +1,8 @@
 import { prisma } from '~/db.server'
 
-export function getClub({ id }: { userId: string; id: string }) {
-  return prisma.club.findUnique({
-    where: { id },
+export function getClub({ userId, id }: { userId: string; id: string }) {
+  return prisma.club.findFirst({
+    where: { id, members: { some: { userId } } },
   })
 }
 

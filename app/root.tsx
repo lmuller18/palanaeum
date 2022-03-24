@@ -19,7 +19,7 @@ import {
 
 export const links: LinksFunction = () => {
   return [
-    { rel: 'stylesheet', href: 'https://rsms.me/inter/inter.css', as:'' },
+    { rel: 'stylesheet', href: 'https://rsms.me/inter/inter.css', as: '' },
     { rel: 'stylesheet', href: tailwindStylesheetUrl },
   ]
 }
@@ -45,12 +45,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function App() {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="min-h-full">
       <head>
         <Meta />
         <Links />
       </head>
-      <body className="h-full">
+      <body className="min-h-full">
         <Outlet />
         <ScrollRestoration />
         <Scripts />

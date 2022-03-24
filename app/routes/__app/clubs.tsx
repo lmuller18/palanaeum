@@ -2,9 +2,9 @@ import type { LoaderFunction } from 'remix'
 import { json, useLoaderData, Link } from 'remix'
 
 import { useUser } from '~/utils'
-import Badge from '~/components/Badge'
-import Avatar from '~/components/Avatar/Avatar'
+import Badge from '~/components/elements/Badge'
 import { requireUserId } from '~/session.server'
+import Avatar from '~/components/elements/Avatar'
 import { getClubListItems } from '~/models/club.server'
 
 type LoaderData = {
@@ -21,20 +21,21 @@ export default function NotesPage() {
   const data = useLoaderData() as LoaderData
   const user = useUser()
 
+  const backgroundImage =
+    user.background ?? data.clubListItems?.[0]?.image ?? null
+
   return (
     <>
       <div
         className="h-48 bg-purple-400 bg-cover bg-center md:h-56 lg:h-64"
         style={{
-          backgroundImage: user.background
-            ? `url(${user.background})`
-            : data.clubListItems?.[0]?.image
-            ? `url(${data.clubListItems?.[0]?.image})`
+          backgroundImage: backgroundImage
+            ? `url(${backgroundImage})`
             : undefined,
         }}
       />
 
-      <div className="lg:-mt-26 -mt-8 flex justify-center md:-mt-12">
+      <div className="-mt-8 flex justify-center md:-mt-12 lg:-mt-16">
         <Link to="/profile">
           <Avatar src={user.avatar} />
         </Link>

@@ -32,8 +32,6 @@ export const action: ActionFunction = async ({ request }) => {
   const password = formData.get('password')
   const redirectTo = formData.get('redirectTo')
 
-  console.log('redirectTo: ', redirectTo)
-
   if (!validateEmail(email)) {
     return json<ActionData>(
       { errors: { email: 'Email is invalid' } },

@@ -1,7 +1,7 @@
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 
 import { requireUser } from '~/session.server'
-import Avatar from '~/components/Avatar/Avatar'
+import Avatar from '~/components/elements/Avatar'
 
 type LoaderData = {
   user: Awaited<ReturnType<typeof requireUser>>
