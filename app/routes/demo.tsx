@@ -1,8 +1,8 @@
 import { Disclosure, Transition } from '@headlessui/react'
 
-import Badge from '~/components/elements/Badge'
-import Progress from '~/components/elements/Progress'
-import Header from '~/components/elements/Typography/Header'
+import Badge from '~/elements/Badge'
+import Progress from '~/elements/Progress'
+import Header from '~/elements/Typography/Header'
 
 export default function Demo() {
   return (

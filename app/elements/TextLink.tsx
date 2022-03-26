@@ -37,7 +37,7 @@ const colors = {
   cyan: 'text-cyan-500 hover:text-cyan-400',
   sky: 'text-sky-500 hover:text-sky-400',
   blue: 'text-blue-500 hover:text-blue-400',
-  indigo: 'text-indigo-500 hover:text-indigo-400',
+  indigo: 'text-indigo-400 hover:text-indigo-300',
   violet: 'text-violet-500 hover:text-violet-400',
   purple: 'text-purple-500 hover:text-purple-400',
   fuchsia: 'text-fuchsia-500 hover:text-fuchsia-400',

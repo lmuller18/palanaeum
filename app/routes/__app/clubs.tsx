@@ -2,9 +2,9 @@ import type { LoaderFunction } from 'remix'
 import { json, useLoaderData, Link } from 'remix'
 
 import { useUser } from '~/utils'
-import Badge from '~/components/elements/Badge'
+import Badge from '~/elements/Badge'
+import Avatar from '~/elements/Avatar'
 import { requireUserId } from '~/session.server'
-import Avatar from '~/components/elements/Avatar'
 import { getClubListItems } from '~/models/club.server'
 
 type LoaderData = {
