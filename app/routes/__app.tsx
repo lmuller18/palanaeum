@@ -1,30 +1,38 @@
-import { Form, Outlet } from 'remix'
-import Header from '~/components/Typography/Header'
+import { Link, Outlet } from 'remix'
+
+import { useUser } from '~/utils'
 
 export default function AppLayout() {
+  const user = useUser()
   return (
-    <div className="flex h-full min-h-screen flex-col">
-      <header
-        style={{
-          backdropFilter: 'blur(2px)',
-        }}
-        className="fixed top-0 right-0 flex h-16 w-full items-center justify-between bg-background-secondary bg-opacity-50 p-4 text-white"
-      >
-        <Header size="h3">Palanaeum</Header>
-        <Form action="/logout" method="post">
-          <button
-            type="submit"
-            className="rounded bg-slate-600 py-2 px-4 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
-          >
-            Logout
-          </button>
-        </Form>
-        <div className="absolute inset-0 h-full w-full blur-lg" />
+    <>
+      <header className="sticky top-0 z-50 w-full sm:fixed">
+        <div
+          className="absolute inset-0 h-16 bg-background-secondary bg-opacity-50 shadow-lg sm:shadow-none"
+          style={{
+            backdropFilter: 'blur(20px)',
+          }}
+        />
+        <nav className="relative flex items-start justify-between">
+          <div className="flex h-16 flex-1 items-center px-2">
+            <Link to="/">
+              <img
+                src="/images/inline.svg"
+                className="w-52"
+                width={208}
+                height={36}
+              />
+            </Link>
+          </div>
+          <div className="absolute right-0 top-0 mt-2 mr-2 h-24 w-24 rounded-full p-1">
+            <img
+              className="relative h-full w-full rounded-full"
+              src={user.avatar}
+            />
+          </div>
+        </nav>
       </header>
-
-      <main className="h-full">
-        <Outlet />
-      </main>
-    </div>
+      <Outlet />
+    </>
   )
 }

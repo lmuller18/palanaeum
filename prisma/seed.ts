@@ -34,9 +34,20 @@ const createUser = async (
   })
 }
 
+const createChapters = async (clubId: string, count = 5) => {
+  for (let i = 0; i < count; i++) {
+    await prisma.chapter.create({
+      data: {
+        order: i,
+        title: `Chapter ${i + 1}`,
+        club: { connect: { id: clubId } },
+      },
+    })
+  }
+}
+
 async function seed() {
   // // cleanup the existing database
-
   const emails = ['rachel@palanaeum.club', 'kevin@palanaeum.club']
 
   for (const email of emails) {
@@ -71,6 +82,7 @@ async function seed() {
 
   await createMember(user1, club)
   await createMember(user2, club)
+  await createChapters(club.id, 5)
 
   console.log(`Database has been seeded. 🌱`)
 }

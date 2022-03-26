@@ -25,7 +25,7 @@ export default function Index() {
       ) : (
         <div className="flex flex-col items-start gap-2">
           <Link to="/join">Sign Up</Link>
-          <Link to="/join">Log in</Link>
+          <Link to="/login">Log in</Link>
         </div>
       )}
       <Link to="/clubs">Clubs</Link>
