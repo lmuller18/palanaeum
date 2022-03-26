@@ -6,6 +6,7 @@ import Badge from '~/elements/Badge'
 import Avatar from '~/elements/Avatar'
 import { requireUserId } from '~/session.server'
 import { getClubListItems } from '~/models/club.server'
+import TextLink from '~/elements/TextLink'
 
 type LoaderData = {
   clubListItems: Awaited<ReturnType<typeof getClubListItems>>
@@ -17,7 +18,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({ clubListItems })
 }
 
-export default function NotesPage() {
+export default function ClubsPage() {
   const data = useLoaderData() as LoaderData
   const user = useUser()
 
@@ -42,6 +43,12 @@ export default function NotesPage() {
       </div>
 
       <div className="mx-auto max-w-screen-md p-4">
+        <p className="mb-4">
+          <TextLink to="new" size="4xl" color="indigo">
+            New Club
+          </TextLink>
+        </p>
+
         {data.clubListItems.length === 0 ? (
           <p className="p-4">No clubs yet</p>
         ) : (

@@ -28,11 +28,11 @@ export default function ClubIndexPage() {
   return (
     <div>
       <div className="overflow-hidden shadow sm:rounded-md">
-        <div className="px-2">
+        <div className="px-4">
           <NextChapterSection chapter={data.nextChapter} />
         </div>
 
-        <div className="px-2">
+        <div className="px-4">
           <ul
             role="list"
             className="divide-y divide-gray-200 border border-gray-200"

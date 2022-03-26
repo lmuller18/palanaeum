@@ -1,5 +1,41 @@
 import { prisma } from '~/db.server'
 
+export async function createClub({
+  title,
+  image,
+  chapterCount,
+  userId,
+}: {
+  title: string
+  image: string
+  chapterCount: number
+  userId: string
+}) {
+  const chapters = Array.from(Array(chapterCount).keys()).map(i => ({
+    order: i,
+    title: `Chapter ${i + 1}`,
+  }))
+
+  return prisma.club.create({
+    data: {
+      title,
+      image,
+      ownerId: userId,
+      members: {
+        create: {
+          isOwner: true,
+          userId,
+        },
+      },
+      chapters: {
+        createMany: {
+          data: chapters,
+        },
+      },
+    },
+  })
+}
+
 export function getClub({ userId, id }: { userId: string; id: string }) {
   return prisma.club.findFirst({
     where: { id, members: { some: { userId } } },

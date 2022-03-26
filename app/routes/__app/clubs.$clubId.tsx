@@ -23,6 +23,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function ClubPageLayout() {
   const data = useLoaderData() as LoaderData
+
   return (
     <div className="mb-16">
       <div
