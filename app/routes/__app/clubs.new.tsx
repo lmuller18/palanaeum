@@ -50,7 +50,7 @@ export const action: ActionFunction = async ({ request }) => {
     title,
     chapterCount,
     userId,
-    image: ' https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
+    image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
   })
   return redirect(`/clubs/${club.id}`)
 }

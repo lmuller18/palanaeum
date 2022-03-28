@@ -22,7 +22,8 @@ const NextChapterSection = ({ chapter }: NextChapterSectionProps) => {
       animate={{ x: '0%' }}
       key={chapter?.id ?? 'complete'}
       layoutId={chapter?.id ?? 'complete'}
-      className="mx-auto mb-4 max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl lg:max-w-screen-lg lg:text-5xl"
+      data-cy="next-chapter"
+      className="mx-auto mb-4 max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl lg:max-w-screen-lg"
     >
       {chapter ? <NextChapter chapter={chapter} /> : <NoChapter />}
     </motion.div>
@@ -92,10 +93,21 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
             chapter.status === 'all_complete'
           }
           name="_action"
-          className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"
+          className="mt-3 w-full rounded bg-gradient-to-l from-fuchsia-300 to-blue-400 py-2 px-4 font-bold text-white hover:from-fuchsia-400 focus:from-fuchsia-200 focus:to-blue-300 disabled:opacity-30 md:mr-2 md:w-48"
           value="MARK_READ"
         >
           {state === 'submitting' ? 'Completing...' : 'Complete'}
+        </button>
+        <button
+          onClick={() =>
+            document
+              .querySelector(`#${chapter.id}`)
+              ?.scrollIntoView({ behavior: 'smooth' })
+          }
+          type="button"
+          className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"
+        >
+          Go To
         </button>
       </fetcher.Form>
     </>

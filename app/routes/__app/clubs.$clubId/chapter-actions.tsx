@@ -27,10 +27,8 @@ export const action: ActionFunction = async ({ params, request }) => {
           success: true,
         })
       } catch (e) {
-        return json(
-          { error: getErrorMessage(e, 'Failed to mark chapter read') },
-          { status: 500 },
-        )
+        console.error(getErrorMessage(e, 'Failed to mark chapter read'))
+        return json({ error: 'Failed to complete chapter' }, { status: 500 })
       }
 
     case 'MARK_UNREAD':
@@ -44,10 +42,8 @@ export const action: ActionFunction = async ({ params, request }) => {
           success: true,
         })
       } catch (e) {
-        return json(
-          { error: getErrorMessage(e, 'Failed to mark chapter unread') },
-          { status: 500 },
-        )
+        console.error(getErrorMessage(e, 'Failed to mark chapter unread'))
+        return json({ error: 'Failed to mark chapter unread' }, { status: 500 })
       }
 
     default:

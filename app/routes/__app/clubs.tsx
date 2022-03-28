@@ -4,9 +4,9 @@ import { json, useLoaderData, Link } from 'remix'
 import { useUser } from '~/utils'
 import Badge from '~/elements/Badge'
 import Avatar from '~/elements/Avatar'
+import TextLink from '~/elements/TextLink'
 import { requireUserId } from '~/session.server'
 import { getClubListItems } from '~/models/club.server'
-import TextLink from '~/elements/TextLink'
 
 type LoaderData = {
   clubListItems: Awaited<ReturnType<typeof getClubListItems>>
@@ -42,7 +42,7 @@ export default function ClubsPage() {
         </Link>
       </div>
 
-      <div className="mx-auto max-w-screen-md p-4">
+      <div className="mx-auto mb-8 max-w-screen-md p-4">
         <p className="mb-4">
           <TextLink to="new" size="4xl" color="indigo">
             New Club
@@ -52,9 +52,9 @@ export default function ClubsPage() {
         {data.clubListItems.length === 0 ? (
           <p className="p-4">No clubs yet</p>
         ) : (
-          <ol>
+          <div className="flex flex-col gap-4">
             {data.clubListItems.map(club => (
-              <li key={club.id} className="flex-col">
+              <article key={club.id} className="flex-col">
                 <div>
                   <Link to={club.id} prefetch="intent">
                     <img
@@ -79,9 +79,9 @@ export default function ClubsPage() {
                     <Badge color="teal">{club._count.members} Members</Badge>
                   </div>
                 </div>
-              </li>
+              </article>
             ))}
-          </ol>
+          </div>
         )}
       </div>
     </>

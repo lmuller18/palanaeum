@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant'
-import { DotsVerticalIcon } from '@heroicons/react/solid'
 import { json, Link, LoaderFunction, Outlet, useLoaderData } from 'remix'
 
 import { getClub } from '~/models/club.server'
@@ -27,7 +26,7 @@ export default function ClubPageLayout() {
   return (
     <div className="mb-16">
       <div
-        className="hidden h-48 bg-purple-400 bg-cover bg-center sm:block md:h-56 lg:h-64"
+        className="hidden h-56 bg-purple-400 bg-cover bg-center sm:block md:h-64 lg:h-72"
         style={{
           backgroundImage: `url(${data.club.image})`,
         }}
@@ -48,11 +47,11 @@ export default function ClubPageLayout() {
             {data.club.title}
           </Link>
         </div>
-        <div className="ml-4 flex flex-shrink-0 items-center">
+        {/* <div className="ml-4 flex flex-shrink-0 items-center">
           <button className="flex h-6 w-6 items-center justify-center rounded-full bg-background-secondary sm:h-8 sm:w-8">
             <DotsVerticalIcon className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Outlet />
