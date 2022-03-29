@@ -6,13 +6,7 @@ export default function AppLayout() {
   const user = useUser()
   return (
     <>
-      <header className="sticky top-0 z-50 w-full sm:fixed">
-        <div
-          className="absolute inset-0 h-16 bg-background-secondary bg-opacity-50 shadow-lg sm:shadow-none"
-          style={{
-            backdropFilter: 'blur(20px)',
-          }}
-        />
+      <header className="sticky top-0 z-[500] w-full bg-background-secondary shadow-lg">
         <nav className="relative flex items-start justify-between">
           <div className="flex h-16 flex-1 items-center px-2">
             <Link to="/">
@@ -32,7 +26,10 @@ export default function AppLayout() {
           </div>
         </nav>
       </header>
-      <Outlet />
+
+      <main className="isolate">
+        <Outlet />
+      </main>
     </>
   )
 }

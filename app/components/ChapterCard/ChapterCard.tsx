@@ -1,9 +1,15 @@
 import clsx from 'clsx'
 import { useMemo } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, AnimateSharedLayout, motion } from 'framer-motion'
 
 import { ChapterListItem } from '~/models/chapter.server'
 import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
+import Badge from '~/elements/Badge'
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  XCircleIcon,
+} from '@heroicons/react/outline'
 
 interface ChapterCardProps {
   chapter: ChapterListItem
@@ -29,7 +35,33 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
     <div className="mx-auto mb-4 max-w-screen-md overflow-hidden rounded-lg bg-background-secondary text-gray-100 shadow-xl lg:max-w-screen-lg">
       <div className="flex flex-col gap-4">
         <div className="flex-grow py-8 px-8 pb-0">
-          <p className="mb-4 text-3xl font-bold md:text-5xl">{chapter.title}</p>
+          <div className="mb-4 flex items-center gap-2 overflow-hidden">
+            <AnimatePresence exitBeforeEnter>
+              {(status === 'not_started' || status === 'incomplete') && (
+                <motion.div
+                  key={status}
+                  initial={{ y: '-100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  className="inline-block"
+                >
+                  <XCircleIcon className="inline-block h-8 w-8 text-red-500" />
+                </motion.div>
+              )}
+              {(status === 'complete' || status === 'all_complete') && (
+                <motion.div
+                  key={status}
+                  initial={{ y: '-100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  className="inline-block"
+                >
+                  <CheckCircleIcon className="inline-block h-8 w-8 text-green-500" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <p className="text-3xl font-bold md:text-5xl">{chapter.title}</p>
+          </div>
 
           <AnimatePresence exitBeforeEnter>
             <motion.div
@@ -38,11 +70,17 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 100 + '%', opacity: 0 }}
             >
-              {contentElement}
+              {/* {contentElement} */}
             </motion.div>
           </AnimatePresence>
 
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col items-start gap-2">
+            <Badge color="cyan">3 Discussions</Badge>
+            <Badge color="indigo">6 Comments</Badge>
+            <Badge color="rose">14 Tweets</Badge>
+          </div>
+
+          {/* <div className="mt-4">
             <p className="mb-2 bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-lg font-bold md:text-3xl">
               <span className="text-3xl font-bold text-transparent md:text-5xl">
                 3
@@ -63,7 +101,7 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
               </span>{' '}
               Tweets
             </p>
-          </div>
+          </div> */}
 
           <fetcher.Form action="chapter-actions" method="post">
             <input type="hidden" name="chapterId" value={chapter.id} />
@@ -91,28 +129,27 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
         </div>
 
         <motion.div
-          key="progress-container"
           initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 100 + '%', opacity: 1 }}
+          animate={{ width: '100%', opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           transition={{ staggerChildren: 1.5 }}
           className={clsx(
-            'relative h-12 w-full',
+            'relative h-12 w-full bg-gradient-to-l',
             (status === 'incomplete' || status === 'complete') &&
-              'bg-gradient-to-l from-fuchsia-300 to-blue-400',
+              'from-fuchsia-300 to-blue-400',
+            status === 'all_complete' && 'from-green-300 to-emerald-500',
+            status === 'not_started' && 'from-red-300 to-pink-500',
           )}
         >
-          {(status === 'incomplete' || status === 'complete') && (
-            <>
-              <div className="absolute inset-0 w-full bg-black bg-opacity-50" />
-              <motion.div
-                key="progress"
-                initial={{ width: 0 }}
-                animate={{ width: percent + '%' }}
-                className="h-full bg-white mix-blend-overlay"
-              />
-            </>
-          )}
+          <div className="absolute inset-0 w-full bg-black bg-opacity-50" />
+          <motion.div
+            key="progress"
+            animate={{
+              width: status === 'not_started' ? '100%' : percent + '%',
+            }}
+            transition={{ duration: 0.5 }}
+            className="h-full bg-white mix-blend-overlay"
+          />
         </motion.div>
       </div>
     </div>
