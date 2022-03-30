@@ -7,6 +7,7 @@ import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
 import Button from '~/elements/Button'
 import { Link } from 'remix'
 import clsx from 'clsx'
+import { ChevronDoubleDownIcon } from '@heroicons/react/outline'
 
 interface NextChapterSectionProps {
   chapter: ChapterListItem | null
@@ -28,7 +29,7 @@ const NextChapterSection = ({ chapter }: NextChapterSectionProps) => {
         key={chapter?.id ?? 'complete'}
         layoutId={chapter?.id ?? 'complete'}
         data-cy="next-chapter"
-        className="mx-auto mb-4 min-h-[321px] max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl md:min-h-[368px] lg:max-w-screen-lg"
+        className="mx-auto mb-4 min-h-[275px] max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl md:min-h-[368px] lg:max-w-screen-lg"
       >
         {chapter ? <NextChapter chapter={chapter} /> : <NoChapter />}
       </motion.div>
@@ -95,50 +96,35 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
         </p>
       )}
 
-      <fetcher.Form
-        action="chapter-actions"
-        method="post"
-        className="mt-3 flex flex-col gap-2"
-      >
+      <fetcher.Form action="chapter-actions" method="post" className="mt-3">
         <input type="hidden" name="chapterId" value={chapter.id} />
-        {/* <button
-          disabled={
-            state === 'submitting' ||
-            chapter.status === 'complete' ||
-            chapter.status === 'all_complete'
-          }
-          name="_action"
-          className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"
-          // className="mt-3 w-full rounded bg-gradient-to-l from-fuchsia-300 to-blue-400 py-2 px-4 font-bold text-white hover:from-fuchsia-400 focus:from-fuchsia-200 focus:to-blue-300 disabled:opacity-30 md:mr-2 md:w-48"
-          value="MARK_READ"
-        >
-          {state === 'submitting' ? 'Completing...' : 'Complete'}
-        </button> */}
-        {/* <button className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"></button> */}
-        <Button
-          name="_action"
-          value="MARK_READ"
-          fullWidth="sm"
-          disabled={
-            state === 'submitting' ||
-            chapter.status === 'complete' ||
-            chapter.status === 'all_complete'
-          }
-        >
-          {state === 'submitting' ? 'Completing...' : 'Complete'}
-        </Button>
-        <Button
-          variant="secondary"
-          fullWidth="sm"
-          type="button"
-          onClick={() =>
-            document
-              .querySelector(`#${chapter.id}`)
-              ?.scrollIntoView({ behavior: 'smooth' })
-          }
-        >
-          Go To
-        </Button>
+        <div className="relative flex w-full items-center justify-center overflow-hidden rounded-md border border-transparent text-sm font-medium text-white shadow-sm md:w-48">
+          <button
+            name="_action"
+            value="MARK_READ"
+            disabled={
+              state === 'submitting' ||
+              chapter.status === 'complete' ||
+              chapter.status === 'all_complete'
+            }
+            className="peer mr-[50px] h-full w-full bg-indigo-600 px-4 py-2 pr-[25px] hover:bg-indigo-700 focus:ring-indigo-500 disabled:bg-indigo-600/70 disabled:text-white/70 disabled:focus:ring-indigo-500/70"
+          >
+            <span className="mr-[20px] block translate-x-[25px] transform pl-[20px]">
+              {state === 'submitting' ? 'Completing...' : 'Complete'}
+            </span>
+          </button>
+          <button
+            type="button"
+            className="absolute right-0 top-0 h-full border-l-2 border-l-indigo-500 bg-indigo-600 px-4 py-2 hover:bg-indigo-700 focus:ring-indigo-500 peer-hover:bg-indigo-700 peer-disabled:bg-indigo-600/70 peer-disabled:text-white/70 peer-disabled:focus:ring-indigo-500/70"
+            onClick={() =>
+              document
+                .querySelector(`#${chapter.id}`)
+                ?.scrollIntoView({ behavior: 'smooth' })
+            }
+          >
+            <ChevronDoubleDownIcon className="h-4 w-4" />
+          </button>
+        </div>
       </fetcher.Form>
     </>
   )
