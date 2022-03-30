@@ -1,9 +1,12 @@
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 
 import TextLink from '~/elements/TextLink'
 import { ChapterListItem } from '~/models/chapter.server'
 import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
+import Button from '~/elements/Button'
+import { Link } from 'remix'
+import clsx from 'clsx'
 
 interface NextChapterSectionProps {
   chapter: ChapterListItem | null
@@ -17,16 +20,19 @@ const NextChapterSection = ({ chapter }: NextChapterSectionProps) => {
   }, [chapter])
 
   return (
-    <motion.div
-      initial={changedEntry.current ? { x: '100%' } : false}
-      animate={{ x: '0%' }}
-      key={chapter?.id ?? 'complete'}
-      layoutId={chapter?.id ?? 'complete'}
-      data-cy="next-chapter"
-      className="mx-auto mb-4 min-h-[329px] max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl lg:max-w-screen-lg"
-    >
-      {chapter ? <NextChapter chapter={chapter} /> : <NoChapter />}
-    </motion.div>
+    <AnimatePresence exitBeforeEnter>
+      <motion.div
+        initial={changedEntry.current ? { opacity: 0, x: '100%' } : false}
+        animate={{ x: '0%', opacity: 1 }}
+        exit={{ opacity: 0 }}
+        key={chapter?.id ?? 'complete'}
+        layoutId={chapter?.id ?? 'complete'}
+        data-cy="next-chapter"
+        className="mx-auto mb-4 min-h-[321px] max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl md:min-h-[368px] lg:max-w-screen-lg"
+      >
+        {chapter ? <NextChapter chapter={chapter} /> : <NoChapter />}
+      </motion.div>
+    </AnimatePresence>
   )
 }
 
@@ -40,11 +46,16 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
   return (
     <>
       <div className="mb-4 text-3xl font-bold md:text-5xl">
-        <p className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
+        <p className="w-fit bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
           Up Next
         </p>
 
-        <p>{chapter.title}</p>
+        <Link
+          className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text transition-colors duration-300 hover:text-transparent"
+          to={chapter.id}
+        >
+          {chapter.title}
+        </Link>
       </div>
 
       {chapter.status !== 'not_started' ? (
@@ -84,9 +95,13 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
         </p>
       )}
 
-      <fetcher.Form action="chapter-actions" method="post">
+      <fetcher.Form
+        action="chapter-actions"
+        method="post"
+        className="mt-3 flex flex-col gap-2"
+      >
         <input type="hidden" name="chapterId" value={chapter.id} />
-        <button
+        {/* <button
           disabled={
             state === 'submitting' ||
             chapter.status === 'complete' ||
@@ -98,18 +113,32 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
           value="MARK_READ"
         >
           {state === 'submitting' ? 'Completing...' : 'Complete'}
-        </button>
-        <button
+        </button> */}
+        {/* <button className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"></button> */}
+        <Button
+          name="_action"
+          value="MARK_READ"
+          fullWidth="sm"
+          disabled={
+            state === 'submitting' ||
+            chapter.status === 'complete' ||
+            chapter.status === 'all_complete'
+          }
+        >
+          {state === 'submitting' ? 'Completing...' : 'Complete'}
+        </Button>
+        <Button
+          variant="secondary"
+          fullWidth="sm"
+          type="button"
           onClick={() =>
             document
               .querySelector(`#${chapter.id}`)
               ?.scrollIntoView({ behavior: 'smooth' })
           }
-          type="button"
-          className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"
         >
           Go To
-        </button>
+        </Button>
       </fetcher.Form>
     </>
   )
@@ -131,6 +160,12 @@ const NoChapter = () => (
         the conversation
       </TextLink>
     </p>
+
+    {/* <div className="mt-4 flex flex-col items-start gap-2">
+      <Badge color="cyan">3 Discussions</Badge>
+      <Badge color="indigo">6 Comments</Badge>
+      <Badge color="rose">14 Tweets</Badge>
+    </div> */}
   </>
 )
 

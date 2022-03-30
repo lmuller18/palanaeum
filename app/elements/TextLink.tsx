@@ -25,6 +25,7 @@ const sizes = {
 }
 
 const colors = {
+  primary: 'text-white hover:text-indigo-500',
   default: 'text-gray-200 hover:text-white',
   red: 'text-red-500 hover:text-red-400',
   orange: 'text-orange-500 hover:text-orange-400',
