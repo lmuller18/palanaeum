@@ -81,12 +81,12 @@ export default function App() {
   }, [data.toastMessage])
 
   return (
-    <html lang="en" className="min-h-full">
+    <html lang="en" className="dark">
       <head>
         <Meta />
         <Links />
       </head>
-      <body className="min-h-full">
+      <body>
         <Outlet />
         <ScrollRestoration />
         <Toaster />

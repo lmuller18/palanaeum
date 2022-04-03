@@ -32,10 +32,7 @@ export default function ClubPageLayout() {
         }}
       />
       <div className="p-4 sm:hidden">
-        <img
-          src={data.club.image}
-          className="aspect-video max-h-48 w-full rounded-lg object-cover"
-        />
+        <img src={data.club.image} className="w-full rounded-lg object-cover" />
       </div>
 
       <div className="mt-2 flex items-center justify-between p-4 pt-0 sm:pt-4">

@@ -29,11 +29,11 @@ export default function ClubIndexPage() {
   return (
     <div>
       <div className="overflow-hidden shadow sm:rounded-md">
-        <div className="px-4">
+        <div className="px-6">
           <NextChapterSection chapter={data.nextChapter} />
         </div>
 
-        <div className="relative mb-4 px-6">
+        <div className="relative mb-4 px-8">
           <div
             className="absolute inset-0 flex items-center px-8"
             aria-hidden="true"
@@ -56,7 +56,7 @@ export default function ClubIndexPage() {
           </div>
         </div>
 
-        <div className="px-4">
+        <div className="px-6">
           <div role="list" className="flex flex-col gap-4">
             {data.chapters.length === 0 ? (
               <p className="p-4">No Chapters Yet</p>

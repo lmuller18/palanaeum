@@ -5,6 +5,10 @@
     @apply bg-background-primary;
     @apply text-white;
   }
+
+  .dark {
+    color-scheme: dark;
+  }
 }
 
 @keyframes gradient {

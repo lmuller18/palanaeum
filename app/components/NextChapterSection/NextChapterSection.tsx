@@ -1,29 +1,23 @@
+import { Link } from 'remix'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { ChevronDoubleDownIcon } from '@heroicons/react/outline'
 
 import TextLink from '~/elements/TextLink'
+import useValueChanged from '~/hooks/use-value-changed'
 import { ChapterListItem } from '~/models/chapter.server'
 import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
-import Button from '~/elements/Button'
-import { Link } from 'remix'
-import clsx from 'clsx'
-import { ChevronDoubleDownIcon } from '@heroicons/react/outline'
 
 interface NextChapterSectionProps {
   chapter: ChapterListItem | null
 }
 
 const NextChapterSection = ({ chapter }: NextChapterSectionProps) => {
-  const changedEntry = useRef(false)
-
-  useEffect(() => {
-    changedEntry.current = true
-  }, [chapter])
+  const chapterChanged = useValueChanged(chapter)
 
   return (
     <AnimatePresence exitBeforeEnter>
       <motion.div
-        initial={changedEntry.current ? { opacity: 0, x: '100%' } : false}
+        initial={chapterChanged ? { opacity: 0, x: '100%' } : false}
         animate={{ x: '0%', opacity: 1 }}
         exit={{ opacity: 0 }}
         key={chapter?.id ?? 'complete'}
@@ -135,7 +129,7 @@ const NoChapter = () => (
     <div className="mb-4 text-3xl font-bold md:text-5xl">
       <p>Book</p>
 
-      <p className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
+      <p className="w-fit bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
         Complete
       </p>
     </div>

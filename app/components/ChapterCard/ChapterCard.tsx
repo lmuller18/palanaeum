@@ -1,13 +1,13 @@
 import clsx from 'clsx'
-import { useMemo } from 'react'
+import { Link } from 'remix'
+import { ReactNode, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline'
 
-import Badge from '~/elements/Badge'
+import Button from '~/elements/Button'
+import useValueChanged from '~/hooks/use-value-changed'
 import { ChapterListItem } from '~/models/chapter.server'
 import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
-import Button from '~/elements/Button'
-import { Link } from 'remix'
 
 interface ChapterCardProps {
   chapter: ChapterListItem
@@ -15,6 +15,7 @@ interface ChapterCardProps {
 
 const ChapterCard = ({ chapter }: ChapterCardProps) => {
   const { fetcher, percent, status, state } = useChapterActionsFetcher(chapter)
+  const changedStatus = useValueChanged(status)
 
   return (
     <div
@@ -32,7 +33,7 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
             <AnimatePresence exitBeforeEnter>
               <motion.div
                 key={status}
-                initial={{ opacity: 0 }}
+                initial={changedStatus ? { opacity: 0 } : false}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="inline-block"
@@ -53,71 +54,35 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
             </Link>
           </div>
 
-          <div className="mt-4 flex flex-col items-start gap-2">
-            <Badge color="cyan">3 Discussions</Badge>
-            <Badge color="indigo">6 Comments</Badge>
-            <Badge color="rose">14 Tweets</Badge>
-          </div>
-
-          {/* <div className="mt-4">
-            <p className="mb-2 bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-lg font-bold md:text-3xl">
-              <span className="text-3xl font-bold text-transparent md:text-4xl">
-                3
-              </span>{' '}
-              Discussions
-            </p>
-
-            <p className="mb-2 bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-lg font-bold md:text-3xl">
-              <span className="text-3xl font-bold text-transparent md:text-4xl">
-                6
-              </span>{' '}
-              Comments
-            </p>
-
-            <p className="mb-2 bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-lg font-bold md:text-3xl">
-              <span className="text-3xl font-bold text-transparent md:text-4xl">
-                14
-              </span>{' '}
-              Tweets
-            </p>
-          </div> */}
+          <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="relative grid grid-cols-2 gap-x-4 gap-y-4 overflow-hidden rounded-lg bg-black bg-opacity-50 px-4 py-5 shadow sm:p-6">
+              <Stat stat="Completion" value={`${percent}%`} />
+              <Stat stat="Discussions" value="3" to="discussions" />
+              <Stat stat="Participants" value="4" />
+              <Stat stat="Tweets" value="14" />
+            </div>
+          </dl>
 
           <fetcher.Form action="chapter-actions" method="post" className="mt-3">
             <input type="hidden" name="chapterId" value={chapter.id} />
             {(status === 'incomplete' || status === 'not_started') && (
-              // <button
-              //   className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"
-              //   disabled={state === 'submitting'}
-              //   name="_action"
-              //   value="MARK_READ"
-              // >
-              //   Complete
-              // </button>
               <Button
                 disabled={state === 'submitting'}
                 name="_action"
                 value="MARK_READ"
                 fullWidth="sm"
               >
-                Complete
+                {state === 'submitting' ? 'Marking Unread...' : 'Complete'}
               </Button>
             )}
             {(status === 'complete' || status === 'all_complete') && (
-              // <button
-              //   className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"
-              //   disabled={state === 'submitting'}
-              //   name="_action"
-              //   value="MARK_UNREAD"
-              // >
-              //   Mark Unread
-              // </button>
               <Button
                 disabled={state === 'submitting'}
                 name="_action"
                 value="MARK_UNREAD"
                 fullWidth="sm"
               >
-                Mark Unread
+                {state === 'submitting' ? 'Completing...' : 'Mark Unread'}
               </Button>
             )}
           </fetcher.Form>
@@ -131,7 +96,7 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
           }}
           transition={{ duration: 0.5 }}
           className={clsx(
-            'mt-2 h-6 bg-gradient-to-l',
+            'mt-2 h-8 bg-gradient-to-l',
             (status === 'incomplete' || status === 'complete') &&
               'from-fuchsia-300 to-blue-400',
             status === 'all_complete' && 'from-green-300 to-emerald-500',
@@ -140,6 +105,40 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
         />
       </div>
     </div>
+  )
+}
+
+const Stat = ({
+  stat,
+  value,
+  to,
+}: {
+  stat: string
+  value: string | number
+  to?: string
+}) => {
+  const valueChanged = useValueChanged(value)
+
+  const Component = useMemo(
+    () => (props: { children: ReactNode }) =>
+      to ? <Link to={to} {...props} /> : <div {...props} />,
+    [to],
+  )
+  return (
+    <Component>
+      <dt className="truncate text-sm font-medium text-gray-300">{stat}</dt>
+      <AnimatePresence exitBeforeEnter>
+        <motion.dd
+          initial={valueChanged ? { opacity: 0 } : false}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          key={value}
+          className="mt-1 text-3xl font-semibold"
+        >
+          {value}
+        </motion.dd>
+      </AnimatePresence>
+    </Component>
   )
 }
 
