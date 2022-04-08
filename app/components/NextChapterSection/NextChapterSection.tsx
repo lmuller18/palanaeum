@@ -45,12 +45,12 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
           Up Next
         </p>
 
-        <Link
-          className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text transition-colors duration-300 hover:text-transparent"
-          to={chapter.id}
-        >
-          {chapter.title}
-        </Link>
+        <div className="flex w-fit flex-col gap-1">
+          <Link className="peer" to={chapter.id}>
+            {chapter.title}
+          </Link>
+          <div className="h-1 w-full bg-gradient-to-l opacity-0 transition-opacity duration-300  peer-hover:from-fuchsia-300 peer-hover:to-blue-400 peer-hover:opacity-100" />
+        </div>
       </div>
 
       {chapter.status !== 'not_started' ? (

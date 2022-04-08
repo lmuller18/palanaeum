@@ -36,7 +36,7 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
                 initial={changedStatus ? { opacity: 0 } : false}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="inline-block"
+                className="mb-2 inline-block"
               >
                 {(status === 'not_started' || status === 'incomplete') && (
                   <XCircleIcon className="inline-block h-8 w-8 text-red-500" />
@@ -46,12 +46,16 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
                 )}
               </motion.div>
             </AnimatePresence>
-            <Link
-              className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-3xl font-bold transition-colors duration-300 hover:text-transparent md:text-4xl"
-              to={chapter.id}
-            >
-              {chapter.title}
-            </Link>
+
+            <div className="flex w-fit flex-col gap-1">
+              <Link
+                className="peer text-3xl font-bold md:text-4xl"
+                to={chapter.id}
+              >
+                {chapter.title}
+              </Link>
+              <div className="h-1 w-full bg-gradient-to-l opacity-0 transition-opacity duration-300 peer-hover:from-fuchsia-300 peer-hover:to-blue-400 peer-hover:opacity-100" />
+            </div>
           </div>
 
           <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
