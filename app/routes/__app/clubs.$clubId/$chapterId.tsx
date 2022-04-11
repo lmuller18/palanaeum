@@ -30,7 +30,7 @@ export default function ChapterLayout() {
         <div className="min-w-0 flex-1">
           <Link
             to="."
-            className="text-xl font-bold leading-7 text-gray-200 sm:truncate sm:text-2xl"
+            className="text-xl font-bold leading-7 sm:truncate sm:text-2xl"
           >
             {loaderData.chapter.title}
           </Link>

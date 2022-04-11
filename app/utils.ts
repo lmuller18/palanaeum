@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { useMemo } from 'react'
 import { useMatches } from 'remix'
 
@@ -44,4 +45,13 @@ export function useUser(): User {
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === 'string' && email.length > 3 && email.includes('@')
+}
+
+export function toLuxonDate(date: Date | string) {
+  return DateTime.fromJSDate(new Date(date))
+}
+
+export function pluralize(singular: string, plural: string, count: number) {
+  if (count === 1) return singular
+  return plural
 }
