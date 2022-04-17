@@ -1,6 +1,6 @@
 import clsx from 'clsx'
-import { Link } from 'remix'
-import { ReactNode, useMemo } from 'react'
+import { ReactNode } from 'react'
+import { Link, useParams } from 'remix'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline'
 
@@ -16,6 +16,21 @@ interface ChapterCardProps {
 const ChapterCard = ({ chapter }: ChapterCardProps) => {
   const { fetcher, percent, status, state } = useChapterActionsFetcher(chapter)
   const changedStatus = useValueChanged(status)
+  const { clubId } = useParams()
+
+  const handleChapterAction = (action: 'MARK_READ' | 'MARK_UNREAD') => {
+    fetcher.submit(
+      {
+        chapterId: chapter.id,
+        _action: action,
+      },
+      {
+        method: 'post',
+        replace: true,
+        action: `/clubs/${clubId}/chapter-actions`,
+      },
+    )
+  }
 
   return (
     <div
@@ -63,33 +78,33 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
               <Stat stat="Completion" value={`${percent}%`} />
               <Stat stat="Discussions" value="3" to="discussions" />
               <Stat stat="Participants" value="4" />
-              <Stat stat="Tweets" value="14" />
+              <Stat stat="Posts" value="14" />
             </div>
           </dl>
 
-          <fetcher.Form action="chapter-actions" method="post" className="mt-3">
+          <div className="mt-3">
             <input type="hidden" name="chapterId" value={chapter.id} />
             {(status === 'incomplete' || status === 'not_started') && (
               <Button
+                type="button"
                 disabled={state === 'submitting'}
-                name="_action"
-                value="MARK_READ"
                 fullWidth="sm"
+                onClick={() => handleChapterAction('MARK_READ')}
               >
                 {state === 'submitting' ? 'Marking Unread...' : 'Complete'}
               </Button>
             )}
             {(status === 'complete' || status === 'all_complete') && (
               <Button
+                type="button"
                 disabled={state === 'submitting'}
-                name="_action"
-                value="MARK_UNREAD"
                 fullWidth="sm"
+                onClick={() => handleChapterAction('MARK_UNREAD')}
               >
                 {state === 'submitting' ? 'Completing...' : 'Mark Unread'}
               </Button>
             )}
-          </fetcher.Form>
+          </div>
         </div>
 
         <motion.div
@@ -123,13 +138,8 @@ const Stat = ({
 }) => {
   const valueChanged = useValueChanged(value)
 
-  const Component = useMemo(
-    () => (props: { children: ReactNode }) =>
-      to ? <Link to={to} {...props} /> : <div {...props} />,
-    [to],
-  )
   return (
-    <Component>
+    <DynamicLink>
       <dt className="truncate text-sm font-medium text-gray-300">{stat}</dt>
       <AnimatePresence exitBeforeEnter>
         <motion.dd
@@ -142,8 +152,20 @@ const Stat = ({
           {value}
         </motion.dd>
       </AnimatePresence>
-    </Component>
+    </DynamicLink>
   )
+}
+
+const DynamicLink = ({
+  to,
+  ...props
+}: {
+  to?: string
+  children: ReactNode
+}) => {
+  // eslint-disable-next-line jsx-a11y/anchor-has-content
+  if (to) return <Link to={to} {...props} />
+  return <div {...props} />
 }
 
 export default ChapterCard

@@ -1,4 +1,4 @@
-import { Link } from 'remix'
+import { Link, useSearchParams } from 'remix'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDoubleDownIcon } from '@heroicons/react/outline'
 
@@ -9,34 +9,67 @@ import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
 
 interface NextChapterSectionProps {
   chapter: ChapterListItem | null
+  listSize: number
 }
 
-const NextChapterSection = ({ chapter }: NextChapterSectionProps) => {
+const NextChapterSection = ({ chapter, listSize }: NextChapterSectionProps) => {
   const chapterChanged = useValueChanged(chapter)
 
   return (
-    <AnimatePresence exitBeforeEnter>
-      <motion.div
-        initial={chapterChanged ? { opacity: 0, x: '100%' } : false}
-        animate={{ x: '0%', opacity: 1 }}
-        exit={{ opacity: 0 }}
-        key={chapter?.id ?? 'complete'}
-        layoutId={chapter?.id ?? 'complete'}
-        data-cy="next-chapter"
-        className="mx-auto mb-4 min-h-[275px] max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl md:min-h-[368px] lg:max-w-screen-lg"
-      >
-        {chapter ? <NextChapter chapter={chapter} /> : <NoChapter />}
-      </motion.div>
-    </AnimatePresence>
+    <div className="mx-auto mb-4 flex min-h-[275px] max-w-screen-md items-center md:min-h-[368px] lg:max-w-screen-lg">
+      <AnimatePresence exitBeforeEnter>
+        <motion.div
+          initial={chapterChanged ? { opacity: 0, x: '100%' } : false}
+          animate={{ x: '0%', opacity: 1 }}
+          exit={{ opacity: 0 }}
+          key={chapter?.id ?? 'complete'}
+          layoutId={chapter?.id ?? 'complete'}
+          data-cy="next-chapter"
+          className="flex-grow rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl"
+        >
+          {chapter ? (
+            <NextChapter chapter={chapter} listSize={listSize} />
+          ) : (
+            <NoChapter />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   )
 }
 
 interface NextChapterProps {
   chapter: ChapterListItem
+  listSize: number
 }
 
-const NextChapter = ({ chapter }: NextChapterProps) => {
+const NextChapter = ({ chapter, listSize }: NextChapterProps) => {
   const { state, fetcher } = useChapterActionsFetcher(chapter)
+
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const onScrollToNextChapter = () => {
+    const currentPageParam = Number(searchParams.get('page'))
+    const currentPage = isNaN(currentPageParam) ? 0 : currentPageParam
+
+    const chapterPage = Math.floor(chapter.order / listSize)
+
+    if (chapterPage === currentPage) {
+      document
+        .querySelector(`#${chapter.id}`)
+        ?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      setSearchParams(
+        {
+          page: chapterPage.toString(),
+          highlight: chapter.id,
+        },
+        {
+          replace: true,
+        },
+      )
+    }
+  }
 
   return (
     <>
@@ -109,12 +142,8 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
           </button>
           <button
             type="button"
+            onClick={onScrollToNextChapter}
             className="absolute right-0 top-0 h-full border-l-2 border-l-indigo-500 bg-indigo-600 px-4 py-2 hover:bg-indigo-700 focus:ring-indigo-500 peer-hover:bg-indigo-700 peer-disabled:bg-indigo-600/70 peer-disabled:text-white/70 peer-disabled:focus:ring-indigo-500/70"
-            onClick={() =>
-              document
-                .querySelector(`#${chapter.id}`)
-                ?.scrollIntoView({ behavior: 'smooth' })
-            }
           >
             <ChevronDoubleDownIcon className="h-4 w-4" />
           </button>
@@ -144,7 +173,7 @@ const NoChapter = () => (
     {/* <div className="mt-4 flex flex-col items-start gap-2">
       <Badge color="cyan">3 Discussions</Badge>
       <Badge color="indigo">6 Comments</Badge>
-      <Badge color="rose">14 Tweets</Badge>
+      <Badge color="rose">14 Posts</Badge>
     </div> */}
   </>
 )

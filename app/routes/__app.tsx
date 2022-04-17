@@ -10,6 +10,7 @@ export default function AppLayout() {
         <div className="flex flex-1 items-center px-2">
           <Link to="/">
             <img
+              alt="Palanaeum Logo"
               src="/images/inline.svg"
               className="w-52"
               width={208}
@@ -19,7 +20,8 @@ export default function AppLayout() {
         </div>
         <div className="absolute right-0 top-0 mt-2 mr-2 h-24 w-24 rounded-full p-1">
           <img
-            className="relative h-full w-full rounded-full"
+            alt={`${user.username}'s Avatar`}
+            className="relative h-full w-full rounded-full border-2"
             src={user.avatar}
           />
         </div>
