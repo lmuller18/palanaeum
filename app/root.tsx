@@ -23,7 +23,17 @@ import {
 
 export const links: LinksFunction = () => {
   return [
-    { rel: 'stylesheet', href: 'https://rsms.me/inter/inter.css', as: '' },
+    // { rel: 'stylesheet', href: 'https://rsms.me/inter/inter.css', as: '' },
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossOrigin: 'anonymous',
+    },
+    {
+      href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&display=swap',
+      rel: 'stylesheet',
+    },
     { rel: 'stylesheet', href: tailwindStylesheetUrl },
   ]
 }

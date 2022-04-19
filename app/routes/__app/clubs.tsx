@@ -44,7 +44,7 @@ export default function ClubsPage() {
 
       <div className="mx-auto mb-8 max-w-screen-md p-4">
         <p className="mb-4">
-          <TextLink to="new" size="4xl" color="indigo">
+          <TextLink to="new" color="indigo">
             New Club
           </TextLink>
         </p>

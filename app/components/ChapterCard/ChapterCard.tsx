@@ -139,7 +139,7 @@ const Stat = ({
   const valueChanged = useValueChanged(value)
 
   return (
-    <DynamicLink>
+    <DynamicLink to={to}>
       <dt className="truncate text-sm font-medium text-gray-300">{stat}</dt>
       <AnimatePresence exitBeforeEnter>
         <motion.dd

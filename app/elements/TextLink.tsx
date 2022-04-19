@@ -1,32 +1,16 @@
 import clsx from 'clsx'
 import { Link } from 'remix'
+import { variants } from './Typography/Text'
 import type { RemixLinkProps } from '@remix-run/react/components'
 
-interface BadgeProps extends RemixLinkProps {
+interface TextLinkProps extends RemixLinkProps {
   color?: keyof typeof colors
-  size?: keyof typeof sizes
-}
-
-const sizes = {
-  xs: 'text-xs',
-  sm: 'text-sm',
-  base: 'text-base',
-  lg: 'text-lg',
-  xl: 'text-xl',
-  '2xl': 'text-2xl',
-  '3xl': 'text-3xl',
-  '4xl': 'text-4xl',
-  '5xl': 'text-5xl',
-  '6xl': 'text-6xl',
-  '7xl': 'text-7xl',
-  '8xl': 'text-8xl',
-  '9xl': 'text-9xl',
-  inherit: '',
+  variant?: keyof typeof variants | 'inherit'
 }
 
 const colors = {
   primary: 'text-white hover:text-indigo-500',
-  default: 'text-gray-200 hover:text-white',
+  default: 'hover:opacity-75',
   red: 'text-red-500 hover:text-red-400',
   orange: 'text-orange-500 hover:text-orange-400',
   amber: 'text-amber-500 hover:text-amber-400',
@@ -48,17 +32,18 @@ const colors = {
 
 const TextLink = ({
   color = 'default',
-  size = 'inherit',
+  variant = 'inherit',
   className,
   ...props
-}: BadgeProps) => {
+}: TextLinkProps) => {
   return (
     <Link
       {...props}
       className={clsx(
         'transition duration-300 ease-in-out',
         colors[color],
-        sizes[size],
+        variant !== 'inherit' && variants[variant],
+        className,
       )}
     />
   )

@@ -1,4 +1,5 @@
 import {
+  TextDemo,
   BadgeDemo,
   ButtonDemo,
   HeaderDemo,
@@ -8,6 +9,7 @@ import {
 export default function Demo() {
   return (
     <div className="flex flex-col items-start gap-6 p-2">
+      <TextDemo />
       <HeaderDemo />
       <BadgeDemo />
       <ProgressDemo />

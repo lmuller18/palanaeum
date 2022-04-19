@@ -2,8 +2,12 @@
 
 @layer base {
   html {
+    /* default bg color */
     @apply bg-background-primary;
+    /* default text color */
     @apply text-white;
+    /* default to body1 text variant */
+    @apply text-base font-normal leading-6 tracking-[0.00938em];
   }
 
   .dark {

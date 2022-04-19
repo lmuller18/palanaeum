@@ -28,7 +28,10 @@ export default function Index() {
           <Link to="/login">Log in</Link>
         </div>
       )}
-      <Link to="/clubs">Clubs</Link>
+      <div className="grid">
+        <Link to="/clubs">Clubs</Link>
+        <Link to="/clubs2">Clubs 2</Link>
+      </div>
     </main>
   )
 }
