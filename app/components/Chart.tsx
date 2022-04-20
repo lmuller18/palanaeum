@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { LineChart, Line, ResponsiveContainer, XAxis } from 'recharts'
+import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 const data = [
   {

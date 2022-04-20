@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { Link } from 'remix'
 import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, MessageCircle } from 'react-feather'
@@ -9,6 +10,7 @@ const Post = ({
   user,
   chapter,
   post,
+  blurred,
 }: {
   user: {
     id: string
@@ -23,6 +25,7 @@ const Post = ({
     id: string
     content: string
   }
+  blurred?: boolean
 }) => {
   return (
     <article className="flex flex-col gap-2">
@@ -51,7 +54,14 @@ const Post = ({
         </div>
       </div>
 
-      <p className="prose prose-invert prose-violet">{post.content}</p>
+      <p
+        className={clsx(
+          'prose prose-invert prose-violet',
+          blurred && 'overflow-hidden blur-sm',
+        )}
+      >
+        {post.content}
+      </p>
 
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 text-slate-400">

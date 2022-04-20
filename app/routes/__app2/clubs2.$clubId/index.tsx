@@ -1,24 +1,48 @@
 import { Link } from 'remix'
-import { ReactNode } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 
 import { useUser } from '~/utils'
 import Post from '~/components/Post'
 import Chart from '~/components/Chart'
 import Text from '~/elements/Typography/Text'
-import useValueChanged from '~/hooks/use-value-changed'
-import DiscussionSummary from '~/components/DiscussionSummary/DiscussionSummary'
+import DiscussionSummary from '~/components/DiscussionSummary'
 
 export default function ClubPage() {
   const user = useUser()
   return (
     <>
-      {/* <dl className="mb-4 grid grid-cols-[1fr,1fr] grid-rows-[100px,100px] gap-px overflow-hidden rounded-lg bg-background-tertiary">
-          <Stat stat="Members" value={3} />
-          <Stat stat="Members" value={3} />
-          <Stat stat="Members" value={3} />
-          <Stat stat="Members" value={3} />
-        </dl> */}
+      {/* Next Chapter Block */}
+      <div className="mb-6 border-b border-t-2 border-teal-400 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 via-transparent p-4">
+        <div>
+          <Text variant="title2" className="mb-4" as="h3">
+            Next Chapter
+          </Text>
+
+          <div>
+            <Text variant="title3" as="h4">
+              Chapter 4
+            </Text>
+
+            <Text variant="body2">Completed by 3 other members.</Text>
+            {/* <Text variant="body2">Completed by all other members.</Text> */}
+            {/* <Text variant="body2">Not completed by any other members.</Text> */}
+
+            <div className="mt-3 flex items-center justify-around">
+              <Link
+                to="chapters/3"
+                className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+              >
+                Visit Chapter
+              </Link>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+              >
+                Mark Read
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Chart Block */}
       <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
@@ -73,55 +97,4 @@ export default function ClubPage() {
       </div>
     </>
   )
-}
-
-const Stat = ({
-  stat,
-  value,
-  to,
-}: {
-  stat: string
-  value: number | string
-  to?: string
-}) => {
-  const valueChanged = useValueChanged(value)
-
-  return (
-    <div className="flex h-full w-full flex-col items-center justify-center bg-background-secondary">
-      <DynamicLink to={to}>
-        <Text
-          as="dt"
-          variant="caption"
-          className="truncate text-center text-gray-300"
-        >
-          {stat}
-        </Text>
-        <AnimatePresence exitBeforeEnter>
-          <motion.div
-            initial={valueChanged ? { opacity: 0 } : false}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            key={value}
-            className="mt-1 text-center"
-          >
-            <Text as="dd" variant="title1">
-              {value}
-            </Text>
-          </motion.div>
-        </AnimatePresence>
-      </DynamicLink>
-    </div>
-  )
-}
-
-const DynamicLink = ({
-  to,
-  ...props
-}: {
-  to?: string
-  children: ReactNode
-}) => {
-  // eslint-disable-next-line jsx-a11y/anchor-has-content
-  if (to) return <Link to={to} {...props} />
-  return <div {...props} />
 }

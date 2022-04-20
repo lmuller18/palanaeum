@@ -98,8 +98,8 @@ export default function App() {
       </head>
       <body>
         <Outlet />
-        <ScrollRestoration />
         <Toaster />
+        {/* <ScrollRestoration /> */}
         <Scripts />
         <LiveReload />
       </body>

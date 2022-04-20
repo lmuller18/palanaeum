@@ -1,4 +1,4 @@
-import type { LoaderFunction } from 'remix'
+import { Link, LoaderFunction } from 'remix'
 import { json, useLoaderData } from 'remix'
 
 import ClubCard from '~/components/ClubCard'
@@ -81,6 +81,8 @@ export default function ClubsPage() {
           }}
         />
       </div>
+
+      <Link to="/">Eject</Link>
     </div>
   )
 }

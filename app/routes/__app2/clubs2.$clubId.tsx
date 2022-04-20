@@ -1,4 +1,6 @@
+import { AnimateSharedLayout } from 'framer-motion'
 import { Link, Outlet } from 'remix'
+import TabLink from '~/components/TabLink'
 
 import Text from '~/elements/Typography/Text'
 
@@ -22,7 +24,7 @@ export default function ClubLayout() {
         </Link>
       </div>
       <div className="relative mx-auto max-w-lg px-4">
-        <div className="mb-8">
+        <div className="mb-4">
           <Text as="h3" variant="title1" serif>
             Rhythm of War
           </Text>
@@ -31,10 +33,26 @@ export default function ClubLayout() {
           </Text>
         </div>
 
+        {/* Nav section */}
+        <div
+          className="mb-6 grid grid-cols-3 border-l border-t border-r border-background-tertiary shadow-md hover:shadow-lg focus:shadow-lg"
+          role="group"
+        >
+          <AnimateSharedLayout>
+            <TabLink to="posts" color="sky" layoutId="club-nav">
+              Posts
+            </TabLink>
+            <TabLink to="." end color="teal" layoutId="club-nav">
+              Home
+            </TabLink>
+            <TabLink to="chapters" color="indigo" layoutId="club-nav">
+              Chapters
+            </TabLink>
+          </AnimateSharedLayout>
+        </div>
+
         <Outlet />
       </div>
-
-      <div className="h-40 w-full" />
     </>
   )
 }
