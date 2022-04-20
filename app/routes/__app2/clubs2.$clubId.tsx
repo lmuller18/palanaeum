@@ -1,7 +1,7 @@
-import { AnimateSharedLayout } from 'framer-motion'
 import { Link, Outlet } from 'remix'
-import TabLink from '~/components/TabLink'
+import { LayoutGroup } from 'framer-motion'
 
+import TabLink from '~/components/TabLink'
 import Text from '~/elements/Typography/Text'
 
 export default function ClubLayout() {
@@ -38,7 +38,7 @@ export default function ClubLayout() {
           className="mb-6 grid grid-cols-3 border-l border-t border-r border-background-tertiary shadow-md hover:shadow-lg focus:shadow-lg"
           role="group"
         >
-          <AnimateSharedLayout>
+          <LayoutGroup id="club-nav-wrapper">
             <TabLink to="posts" color="sky" layoutId="club-nav">
               Posts
             </TabLink>
@@ -48,7 +48,7 @@ export default function ClubLayout() {
             <TabLink to="chapters" color="indigo" layoutId="club-nav">
               Chapters
             </TabLink>
-          </AnimateSharedLayout>
+          </LayoutGroup>
         </div>
 
         <Outlet />

@@ -1,5 +1,5 @@
-import { AnimateSharedLayout, motion } from 'framer-motion'
-import { Link } from 'remix'
+import { LayoutGroup } from 'framer-motion'
+
 import TabLink from '../TabLink'
 
 const ChapterPagination = ({
@@ -14,17 +14,19 @@ const ChapterPagination = ({
       className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] border-l border-t border-r border-background-tertiary shadow-md hover:shadow-lg focus:shadow-lg"
       role="group"
     >
-      {pagination(currentPage, lastPage).map((page, i) => (
-        <TabLink
-          key={page.to + '-' + i}
-          color="sky"
-          to={page.to}
-          active={page.active}
-          layoutId="chapter-pagination"
-        >
-          {page.label}
-        </TabLink>
-      ))}
+      <LayoutGroup id="chapter-pagination-wrapper">
+        {pagination(currentPage, lastPage).map((page, i) => (
+          <TabLink
+            key={page.to + '-' + i}
+            color="sky"
+            to={page.to}
+            active={page.active}
+            layoutId="chapter-pagination"
+          >
+            {page.label}
+          </TabLink>
+        ))}
+      </LayoutGroup>
     </nav>
   )
 }
