@@ -1,50 +1,89 @@
-import { motion } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { Link, useSearchParams } from 'remix'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ChevronDoubleDownIcon } from '@heroicons/react/outline'
 
 import TextLink from '~/elements/TextLink'
+import useValueChanged from '~/hooks/use-value-changed'
 import { ChapterListItem } from '~/models/chapter.server'
 import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
 
 interface NextChapterSectionProps {
   chapter: ChapterListItem | null
+  listSize: number
 }
 
-const NextChapterSection = ({ chapter }: NextChapterSectionProps) => {
-  const changedEntry = useRef(false)
-
-  useEffect(() => {
-    changedEntry.current = true
-  }, [chapter])
+const NextChapterSection = ({ chapter, listSize }: NextChapterSectionProps) => {
+  const chapterChanged = useValueChanged(chapter)
 
   return (
-    <motion.div
-      initial={changedEntry.current ? { x: '100%' } : false}
-      animate={{ x: '0%' }}
-      key={chapter?.id ?? 'complete'}
-      layoutId={chapter?.id ?? 'complete'}
-      data-cy="next-chapter"
-      className="mx-auto mb-4 max-w-screen-md rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl lg:max-w-screen-lg"
-    >
-      {chapter ? <NextChapter chapter={chapter} /> : <NoChapter />}
-    </motion.div>
+    <div className="mx-auto mb-4 flex min-h-[275px] max-w-screen-md items-center md:min-h-[368px] lg:max-w-screen-lg">
+      <AnimatePresence exitBeforeEnter>
+        <motion.div
+          initial={chapterChanged ? { opacity: 0, x: '100%' } : false}
+          animate={{ x: '0%', opacity: 1 }}
+          exit={{ opacity: 0 }}
+          key={chapter?.id ?? 'complete'}
+          layoutId={chapter?.id ?? 'complete'}
+          data-cy="next-chapter"
+          className="flex-grow rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl"
+        >
+          {chapter ? (
+            <NextChapter chapter={chapter} listSize={listSize} />
+          ) : (
+            <NoChapter />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   )
 }
 
 interface NextChapterProps {
   chapter: ChapterListItem
+  listSize: number
 }
 
-const NextChapter = ({ chapter }: NextChapterProps) => {
+const NextChapter = ({ chapter, listSize }: NextChapterProps) => {
   const { state, fetcher } = useChapterActionsFetcher(chapter)
+
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const onScrollToNextChapter = () => {
+    const currentPageParam = Number(searchParams.get('page'))
+    const currentPage = isNaN(currentPageParam) ? 0 : currentPageParam
+
+    const chapterPage = Math.floor(chapter.order / listSize)
+
+    if (chapterPage === currentPage) {
+      document
+        .querySelector(`#${chapter.id}`)
+        ?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      setSearchParams(
+        {
+          page: chapterPage.toString(),
+          highlight: chapter.id,
+        },
+        {
+          replace: true,
+        },
+      )
+    }
+  }
 
   return (
     <>
       <div className="mb-4 text-3xl font-bold md:text-5xl">
-        <p className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
+        <p className="w-fit bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
           Up Next
         </p>
 
-        <p>{chapter.title}</p>
+        <div className="flex w-fit flex-col gap-1">
+          <Link className="peer" to={chapter.id}>
+            {chapter.title}
+          </Link>
+          <div className="h-1 w-full bg-gradient-to-l opacity-0 transition-opacity duration-300  peer-hover:from-fuchsia-300 peer-hover:to-blue-400 peer-hover:opacity-100" />
+        </div>
       </div>
 
       {chapter.status !== 'not_started' ? (
@@ -84,31 +123,31 @@ const NextChapter = ({ chapter }: NextChapterProps) => {
         </p>
       )}
 
-      <fetcher.Form action="chapter-actions" method="post">
+      <fetcher.Form action="chapter-actions" method="post" className="mt-3">
         <input type="hidden" name="chapterId" value={chapter.id} />
-        <button
-          disabled={
-            state === 'submitting' ||
-            chapter.status === 'complete' ||
-            chapter.status === 'all_complete'
-          }
-          name="_action"
-          className="mt-3 w-full rounded bg-gradient-to-l from-fuchsia-300 to-blue-400 py-2 px-4 font-bold text-white hover:from-fuchsia-400 focus:from-fuchsia-200 focus:to-blue-300 disabled:opacity-30 md:mr-2 md:w-48"
-          value="MARK_READ"
-        >
-          {state === 'submitting' ? 'Completing...' : 'Complete'}
-        </button>
-        <button
-          onClick={() =>
-            document
-              .querySelector(`#${chapter.id}`)
-              ?.scrollIntoView({ behavior: 'smooth' })
-          }
-          type="button"
-          className="mt-3 w-full rounded bg-blue-500 py-2 px-4 text-white  hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-30 md:w-48"
-        >
-          Go To
-        </button>
+        <div className="relative flex w-full items-center justify-center overflow-hidden rounded-md border border-transparent text-sm font-medium text-white shadow-sm md:w-48">
+          <button
+            name="_action"
+            value="MARK_READ"
+            disabled={
+              state === 'submitting' ||
+              chapter.status === 'complete' ||
+              chapter.status === 'all_complete'
+            }
+            className="peer mr-[50px] h-full w-full bg-indigo-600 px-4 py-2 pr-[25px] hover:bg-indigo-700 focus:ring-indigo-500 disabled:bg-indigo-600/70 disabled:text-white/70 disabled:focus:ring-indigo-500/70"
+          >
+            <span className="mr-[20px] block translate-x-[25px] transform pl-[20px]">
+              {state === 'submitting' ? 'Completing...' : 'Complete'}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={onScrollToNextChapter}
+            className="absolute right-0 top-0 h-full border-l-2 border-l-indigo-500 bg-indigo-600 px-4 py-2 hover:bg-indigo-700 focus:ring-indigo-500 peer-hover:bg-indigo-700 peer-disabled:bg-indigo-600/70 peer-disabled:text-white/70 peer-disabled:focus:ring-indigo-500/70"
+          >
+            <ChevronDoubleDownIcon className="h-4 w-4" />
+          </button>
+        </div>
       </fetcher.Form>
     </>
   )
@@ -119,7 +158,7 @@ const NoChapter = () => (
     <div className="mb-4 text-3xl font-bold md:text-5xl">
       <p>Book</p>
 
-      <p className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
+      <p className="w-fit bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-transparent">
         Complete
       </p>
     </div>
@@ -130,6 +169,12 @@ const NoChapter = () => (
         the conversation
       </TextLink>
     </p>
+
+    {/* <div className="mt-4 flex flex-col items-start gap-2">
+      <Badge color="cyan">3 Discussions</Badge>
+      <Badge color="indigo">6 Comments</Badge>
+      <Badge color="rose">14 Posts</Badge>
+    </div> */}
   </>
 )
 

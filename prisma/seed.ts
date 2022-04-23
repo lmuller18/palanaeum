@@ -51,14 +51,14 @@ async function seed() {
   const emails = ['rachel@palanaeum.club', 'kevin@palanaeum.club']
 
   for (const email of emails) {
-    await prisma.user
-      .delete({
+    try {
+      await prisma.user.delete({
         where: { email },
       })
-      .catch(e => {
-        // no worries if it doesn't exist yet
-        console.log('failed deleting', e)
-      })
+    } catch (e) {
+      // no worries if it doesn't exist yet
+      console.log('failed deleting', e)
+    }
   }
 
   const user1 = await createUser(

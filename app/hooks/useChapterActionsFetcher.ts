@@ -37,11 +37,13 @@ const useChapterActionsFetcher = (chapter: ChapterListItem) => {
     return chapter.status
   }, [markingRead, markingUnread, chapter])
 
-  const percent =
+  const floatingPercent =
     (state === 'submitting'
       ? (chapter.count.completed + (markingRead ? 1 : markingUnread ? -1 : 0)) /
         chapter.count.total
       : chapter.count.completed / chapter.count.total) * 100
+
+  const percent = Math.round((floatingPercent + Number.EPSILON) * 100) / 100
 
   const count = {
     completed:

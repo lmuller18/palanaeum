@@ -4,6 +4,9 @@ import type { ActionFunction, LoaderFunction, MetaFunction } from 'remix'
 
 import { requireUserId } from '~/session.server'
 import { createClub } from '~/models/club.server'
+import { Disclosure, Transition } from '@headlessui/react'
+import { ChevronUpIcon, InformationCircleIcon } from '@heroicons/react/outline'
+import clsx from 'clsx'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
@@ -91,6 +94,7 @@ export default function NewClubPage() {
                 ref={titleRef}
                 id="title"
                 required
+                type="text"
                 autoFocus={true}
                 name="title"
                 aria-invalid={actionData?.errors?.title ? true : undefined}
@@ -128,6 +132,45 @@ export default function NewClubPage() {
                   {actionData.errors.chapters}
                 </div>
               )}
+            </div>
+          </div>
+
+          <div className="w-full">
+            <div className="rounded-lg bg-purple-100 text-purple-700">
+              <Disclosure>
+                {({ open }) => (
+                  <>
+                    <Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                      <div className="flex items-center gap-2">
+                        <InformationCircleIcon className="h-5 w-5" />{' '}
+                        <span>How many chapters should I enter?</span>
+                      </div>
+                      <ChevronUpIcon
+                        className={clsx(
+                          'h-5 w-5',
+                          open && 'rotate-180 transform',
+                        )}
+                      />
+                    </Disclosure.Button>
+
+                    <Transition
+                      enter="transition duration-100 ease-out"
+                      enterFrom="transform scale-95 opacity-0"
+                      enterTo="transform scale-100 opacity-100"
+                      leave="transition duration-75 ease-out"
+                      leaveFrom="transform scale-100 opacity-100"
+                      leaveTo="transform scale-95 opacity-0"
+                    >
+                      <Disclosure.Panel className="p-4 pt-2 text-sm">
+                        For the best experience, select the number of regular
+                        chapters and insert special chapters like Prologues,
+                        Interludes, and Epilogues later through the club
+                        settings.
+                      </Disclosure.Panel>
+                    </Transition>
+                  </>
+                )}
+              </Disclosure>
             </div>
           </div>
 
