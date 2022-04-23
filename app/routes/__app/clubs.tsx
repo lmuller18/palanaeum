@@ -1,5 +1,4 @@
-import { Link, LoaderFunction } from 'remix'
-import { json, useLoaderData } from 'remix'
+import { json, useLoaderData, Link, LoaderFunction } from 'remix'
 
 import ClubCard from '~/components/ClubCard'
 import { requireUserId } from '~/session.server'
