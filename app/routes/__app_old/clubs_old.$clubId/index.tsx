@@ -71,12 +71,10 @@ export default function ClubIndexPage() {
 
   useEffect(() => {
     if (highlightedChapter) {
-      console.log('highlighted chapter time')
       document
         .querySelector(`#${highlightedChapter}`)
         ?.scrollIntoView({ behavior: 'smooth' })
     } else if (page) {
-      console.log({ page, highlightedChapter })
       document.querySelector('#chapter-section')?.scrollIntoView()
     }
   }, [highlightedChapter, page])

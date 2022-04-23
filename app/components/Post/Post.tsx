@@ -10,7 +10,6 @@ const Post = ({
   user,
   chapter,
   post,
-  blurred,
 }: {
   user: {
     id: string
@@ -19,18 +18,18 @@ const Post = ({
   }
   chapter: {
     id: string
-    name: string
+    title: string
   }
   post: {
     id: string
     content: string
+    replies: number
   }
-  blurred?: boolean
 }) => {
   return (
     <article className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <Link to="/user/1">
+        <Link to={`/user/${user.id}`}>
           <img
             className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full object-cover"
             src={user.avatar}
@@ -38,35 +37,28 @@ const Post = ({
         </Link>
 
         <div className="flex flex-col">
-          <TextLink to="/user/1" variant="subtitle1">
+          <TextLink to={`/user/${user.id}`} variant="subtitle1">
             {user.username}
           </TextLink>
 
           <TextLink
             variant="body2"
             color="blue"
-            to="/chapter/2"
+            to={`/chapter/${chapter.id}`}
             className="flex items-center gap-1"
           >
             <BookOpen className="h-4 w-4" />
-            {chapter.name}
+            {chapter.title}
           </TextLink>
         </div>
       </div>
 
-      <p
-        className={clsx(
-          'prose prose-invert prose-violet',
-          blurred && 'overflow-hidden blur-sm',
-        )}
-      >
-        {post.content}
-      </p>
+      <p className="prose prose-invert prose-violet">{post.content}</p>
 
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 text-slate-400">
           <MessageCircle className="h-5 w-5" />
-          <Text variant="subtitle1">2</Text>
+          <Text variant="subtitle1">{post.replies}</Text>
         </div>
 
         <div className="flex items-center gap-3 text-slate-400">

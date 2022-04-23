@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import { Link } from 'remix'
 import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, MessageCircle } from 'react-feather'
@@ -10,7 +9,6 @@ const DiscussionSummary = ({
   user,
   discussion,
   chapter,
-  blurred,
 }: {
   user: {
     id: string
@@ -25,37 +23,30 @@ const DiscussionSummary = ({
     id: string
     title: string
   }
-  blurred?: boolean
 }) => {
   return (
-    <div className="">
-      <Text
-        variant="title3"
-        className={clsx(
-          'mb-2 line-clamp-2',
-          blurred && 'overflow-hidden blur-sm',
-        )}
-      >
+    <div>
+      <Text variant="title3" className="mb-2 line-clamp-2">
         {discussion.title}
       </Text>
 
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link to="/user/1">
+          <Link to={`/user/${user.id}`}>
             <img
               className="h-6 w-6 flex-shrink-0 overflow-hidden rounded-full object-cover"
               src={user.avatar}
             />
           </Link>
 
-          <TextLink to="/user/1" variant="subtitle1">
+          <TextLink to={`/user/${user.id}`} variant="subtitle1">
             {user.username}
           </TextLink>
         </div>
         <TextLink
           variant="body2"
           color="blue"
-          to="/chapter/2"
+          to={`/chapter/${chapter.id}`}
           className="flex items-center gap-1"
         >
           <BookOpen className="h-4 w-4" />

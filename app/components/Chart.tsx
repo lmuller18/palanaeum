@@ -1,84 +1,79 @@
-import { DateTime } from 'luxon'
-import { LineChart, Line, ResponsiveContainer } from 'recharts'
+import clsx from 'clsx'
+import { useMemo } from 'react'
+import { LineChart, Line, ResponsiveContainer, XAxis } from 'recharts'
+import Text from '~/elements/Typography/Text'
 
-const data = [
-  {
-    name: 'Page A',
-    date: DateTime.now().plus({ days: 1 }).toLocaleString(DateTime.DATE_SHORT),
-    u1: 20,
-    u2: 2,
-    u3: 7,
-  },
-  {
-    name: 'Page B',
-    date: DateTime.now().plus({ days: 2 }).toLocaleString(DateTime.DATE_SHORT),
-    u1: 2,
-    u2: 1,
-    u3: 10,
-  },
-  {
-    name: 'Page C',
-    date: DateTime.now().plus({ days: 3 }).toLocaleString(DateTime.DATE_SHORT),
-    u1: 10,
-    u2: 3,
-    u3: 13,
-  },
-  {
-    name: 'Page D',
-    date: DateTime.now().plus({ days: 4 }).toLocaleString(DateTime.DATE_SHORT),
-    u1: 17,
-    u2: 14,
-    u3: 5,
-  },
-  {
-    name: 'Page E',
-    date: DateTime.now().plus({ days: 5 }).toLocaleString(DateTime.DATE_SHORT),
-    u1: 3,
-    u2: 10,
-    u3: 3,
-  },
-  {
-    name: 'Page F',
-    date: DateTime.now().plus({ days: 6 }).toLocaleString(DateTime.DATE_SHORT),
-    u1: 1,
-    u2: 2,
-    u3: 17,
-  },
-  {
-    name: 'Page G',
-    date: DateTime.now().plus({ days: 7 }).toLocaleString(DateTime.DATE_SHORT),
-    u1: 2,
-    u2: 1,
-    u3: 20,
-  },
+const DEFAULT_DATA = [
+  { name: 'Page A', y: 2400 },
+  { name: 'Page B', y: 1398 },
+  { name: 'Page C', y: 9800 },
+  { name: 'Page D', y: 3908 },
+  { name: 'Page E', y: 4800 },
+  { name: 'Page F', y: 3800 },
+  { name: 'Page G', y: 4300 },
 ]
 
-const Chart = () => (
-  <ResponsiveContainer width="100%" height="100%">
-    <LineChart width={300} height={200} data={data}>
-      <Line
-        type="monotone"
-        stroke="inherit"
-        dataKey="u1"
-        strokeWidth={2}
-        className="stroke-indigo-500"
-      />
-      {/* <Line
-        type="monotone"
-        stroke="inherit"
-        dataKey="u2"
-        strokeWidth={2}
-        className="stroke-emerald-500"
-      />
-      <Line
-        type="monotone"
-        stroke="inherit"
-        dataKey="u3"
-        strokeWidth={2}
-        className="stroke-amber-300"
-      /> */}
-    </LineChart>
-  </ResponsiveContainer>
-)
+const Chart = ({
+  data = DEFAULT_DATA,
+  disabled = false,
+  color = 'indigo',
+}: {
+  data?: {
+    name: string
+    y: number | null
+    prediction?: number | null
+  }[]
+  disabled?: boolean
+  color?: 'indigo' | 'emerald' | 'amber'
+}) => {
+  const chartData = disabled ? DEFAULT_DATA : data
+
+  const stroke = useMemo(() => {
+    switch (color) {
+      case 'indigo':
+        return 'stroke-indigo-500'
+      case 'amber':
+        return 'stroke-amber-500'
+      case 'emerald':
+        return 'stroke-emerald-500'
+    }
+  }, [color])
+
+  return (
+    <div className="relative h-full w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          width={300}
+          height={200}
+          data={chartData}
+          className={clsx(disabled && 'blur-sm')}
+        >
+          <Line
+            dot={false}
+            type="monotone"
+            stroke="inherit"
+            strokeDasharray="2 2"
+            dataKey="prediction"
+            strokeWidth={2}
+            className={clsx(stroke)}
+          />
+          <Line
+            dot={false}
+            type="monotone"
+            stroke="inherit"
+            dataKey="y"
+            strokeWidth={2}
+            className={clsx(stroke)}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      {disabled && (
+        <div className="absolute inset-0 flex h-full w-full items-center justify-center">
+          <Text variant="title2">Chart Unavailable</Text>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default Chart

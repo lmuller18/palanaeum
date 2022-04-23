@@ -1,33 +1,31 @@
 import { Link, Outlet } from 'remix'
+import { MenuAlt2Icon } from '@heroicons/react/outline'
 
 import { useUser } from '~/utils'
+import Text from '~/elements/Typography/Text'
 
 export default function AppLayout() {
   const user = useUser()
+
   return (
     <>
-      <header className="sticky top-0 z-50 flex h-16 w-full items-center bg-background-secondary shadow-lg">
-        <div className="flex flex-1 items-center px-2">
-          <Link to="/">
-            <img
-              alt="Palanaeum Logo"
-              src="/images/inline.svg"
-              className="w-52"
-              width={208}
-              height={36}
-            />
+      <header>
+        <div className="flex items-center justify-between bg-background-secondary p-4 shadow-lg">
+          <Link to="/clubs">
+            <MenuAlt2Icon className="h-8 w-8" />
           </Link>
-        </div>
-        <div className="absolute right-0 top-0 mt-2 mr-2 h-24 w-24 rounded-full p-1">
-          <img
-            alt={`${user.username}'s Avatar`}
-            className="relative h-full w-full rounded-full border-2"
-            src={user.avatar}
-          />
+
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col justify-start text-right">
+              <Text>Welcome</Text>
+              <Text variant="title3">{user.username}</Text>
+            </div>
+            <img src={user.avatar} className="h-12 w-12 rounded-md" />
+          </div>
         </div>
       </header>
 
-      <main className="isolate">
+      <main className="mb-16">
         <Outlet />
       </main>
     </>

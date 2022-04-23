@@ -23,7 +23,7 @@ const ClubCard = ({
 
   return (
     <div className="grid grid-cols-2 gap-6">
-      <Link to={`/clubs2/${club.id}`}>
+      <Link to={`/clubs/${club.id}`}>
         <img
           className="aspect-[0.66/1] w-full rounded-lg object-cover shadow-md"
           src={club.cover}
@@ -32,7 +32,7 @@ const ClubCard = ({
       <div className="flex flex-grow flex-col justify-center gap-2">
         <div className="flex flex-grow flex-col justify-start gap-1">
           <TextLink
-            to={`/clubs2/${club.id}`}
+            to={`/clubs/${club.id}`}
             variant="title2"
             className="line-clamp-2"
           >

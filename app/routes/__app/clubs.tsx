@@ -1,11 +1,9 @@
-import type { LoaderFunction } from 'remix'
-import { json, useLoaderData, Link } from 'remix'
+import { Link, LoaderFunction } from 'remix'
+import { json, useLoaderData } from 'remix'
 
-import { useUser } from '~/utils'
-import Badge from '~/elements/Badge'
-import Avatar from '~/elements/Avatar'
-import TextLink from '~/elements/TextLink'
+import ClubCard from '~/components/ClubCard'
 import { requireUserId } from '~/session.server'
+import Header from '~/elements/Typography/Header'
 import { getClubListItems } from '~/models/club.server'
 
 type LoaderData = {
@@ -20,70 +18,73 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function ClubsPage() {
   const data = useLoaderData() as LoaderData
-  const user = useUser()
-
-  const backgroundImage =
-    user.background ?? data.clubListItems?.[0]?.image ?? null
 
   return (
-    <>
-      <div
-        className="h-48 bg-purple-400 bg-cover bg-center md:h-56 lg:h-64"
-        style={{
-          backgroundImage: backgroundImage
-            ? `url(${backgroundImage})`
-            : undefined,
-        }}
-      />
-
-      <div className="-mt-8 flex justify-center md:-mt-12 lg:-mt-16">
-        <Link to="/profile">
-          <Avatar src={user.avatar} />
-        </Link>
+    <div className="mx-auto mt-4 max-w-lg p-3">
+      <div className="mb-8">
+        <Header size="h4" className="mb-4">
+          Currently Reading
+        </Header>
+        <ClubCard
+          club={{
+            // id: '1',
+            id: data.clubListItems[1].id,
+            title: 'Rhythm of War',
+            cover: '/images/war.jpg',
+            author: 'Brandon Sanderson',
+            progress: 80,
+            chapters: 106,
+            members: [
+              {
+                id: '1',
+                username: 'Geordan',
+              },
+              {
+                id: '2',
+                username: 'Yvonne',
+              },
+              {
+                id: '3',
+                username: 'Other1',
+              },
+              {
+                id: '4',
+                username: 'Other2',
+              },
+              {
+                id: '5',
+                username: 'Other3',
+              },
+            ],
+          }}
+        />
       </div>
 
-      <div className="mx-auto mb-8 max-w-screen-md p-4">
-        <p className="mb-4">
-          <TextLink to="new" color="indigo">
-            New Club
-          </TextLink>
-        </p>
+      <div>
+        <Header size="h4" className="mb-4">
+          Previously Read
+        </Header>
 
-        {data.clubListItems.length === 0 ? (
-          <p className="p-4">No clubs yet</p>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {data.clubListItems.map(club => (
-              <article key={club.id} className="flex-col">
-                <div>
-                  <Link to={club.id} prefetch="intent">
-                    <img
-                      src={club.image}
-                      className="aspect-video max-h-32 w-full rounded-lg object-cover sm:max-h-48 md:max-h-64"
-                    />
-                  </Link>
-                  <div className="-mt-8 flex gap-2 p-2 md:-mt-12">
-                    {club.members.map(({ user }) => (
-                      <Avatar key={user.id} src={user.avatar} size="md" />
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-xl font-medium md:text-2xl">
-                    {club.title}
-                  </span>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge color="fuchsia">
-                      {club._count.chapters} Chapters
-                    </Badge>
-                    <Badge color="teal">{club._count.members} Members</Badge>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+        <ClubCard
+          club={{
+            id: data.clubListItems[0].id,
+            // id: '1',
+            title: 'Oathbringer',
+            author: 'Brandon Sanderson',
+            cover: '/images/oath.jpeg',
+            chapters: 80,
+            progress: 100,
+            members: [
+              {
+                id: '1',
+                username: 'Geordan',
+              },
+            ],
+          }}
+        />
       </div>
-    </>
+
+      <Link to="/">Eject</Link>
+    </div>
   )
 }
