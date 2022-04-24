@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import { Link } from 'remix'
 import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, MessageCircle } from 'react-feather'
@@ -10,6 +9,7 @@ const Post = ({
   user,
   chapter,
   post,
+  clubId,
 }: {
   user: {
     id: string
@@ -25,6 +25,7 @@ const Post = ({
     content: string
     replies: number
   }
+  clubId: string
 }) => {
   return (
     <article className="flex flex-col gap-2">
@@ -44,7 +45,7 @@ const Post = ({
           <TextLink
             variant="body2"
             color="blue"
-            to={`/chapter/${chapter.id}`}
+            to={`/clubs/${clubId}/chapters/${chapter.id}`}
             className="flex items-center gap-1"
           >
             <BookOpen className="h-4 w-4" />

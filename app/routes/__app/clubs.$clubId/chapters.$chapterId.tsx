@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
-import { json, LoaderFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'
@@ -66,7 +66,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
 export default function ChapterPage() {
   const user = useUser()
+  const { clubId } = useParams()
   const { counts, chapter, topPost } = useLoaderData() as LoaderData
+
+  if (!clubId) throw new Error('Club Id Not Found')
 
   return (
     <>
@@ -120,6 +123,7 @@ export default function ChapterPage() {
             <>
               <div className={clsx(chapter.status !== 'complete' && 'blur-sm')}>
                 <Post
+                  clubId={clubId}
                   user={topPost.user}
                   chapter={topPost.chapter}
                   post={topPost.post}

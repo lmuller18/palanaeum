@@ -1,6 +1,13 @@
 import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
-import { json, Link, LoaderFunction, useFetcher, useLoaderData } from 'remix'
+import {
+  json,
+  Link,
+  useParams,
+  useFetcher,
+  useLoaderData,
+  LoaderFunction,
+} from 'remix'
 
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'
@@ -73,9 +80,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 }
 
 export default function ClubPage() {
+  const { clubId } = useParams()
   const user = useUser()
   const { nextChapter, counts, club, topPost } = useLoaderData() as LoaderData
   const nextChapterFetcher = useFetcher()
+
+  if (!clubId) throw new Error('Club Id Not Found')
 
   return (
     <>
@@ -191,6 +201,7 @@ export default function ClubPage() {
           <>
             {/* <div className={clsx(chapter.status !== 'complete' && 'blur-sm')}> */}
             <Post
+              clubId={clubId}
               user={topPost.user}
               chapter={topPost.chapter}
               post={topPost.post}
@@ -346,23 +357,28 @@ async function getChaptersReadByDay(userId: string, clubId: string) {
       },
     ]
     let i = 1
-    while (i < counts.length) {
-      const cur = counts[i]
-      const curDate = toLuxonDate(cur.name)
-      const prev = countsByDay[countsByDay.length - 1]
-      const prevDate = toLuxonDate(prev.name)
-      const nextDate = prevDate.plus({ days: 2 })
+    // while (i < counts.length) {
+    //   const cur = counts[i]
+    //   const curDate = toLuxonDate(cur.name)
+    //   const prev = countsByDay[countsByDay.length - 1]
+    //   const prevDate = toLuxonDate(prev.name)
+    //   const nextDate = prevDate.plus({ days: 2 })
+    //   console.log(
+    //     curDate.toISODate(),
+    //     prevDate.toISODate(),
+    //     nextDate.toISODate(),
+    //   )
 
-      if (nextDate.startOf('day').equals(curDate.startOf('day'))) {
-        countsByDay.push(cur)
-        i += 1
-      } else {
-        countsByDay.push({
-          name: nextDate.toISODate(),
-          y: prev.y,
-        })
-      }
-    }
+    //   if (nextDate.startOf('day').equals(curDate.startOf('day'))) {
+    //     countsByDay.push(cur)
+    //     i += 1
+    //   } else {
+    //     countsByDay.push({
+    //       name: nextDate.toISODate(),
+    //       y: prev.y,
+    //     })
+    //   }
+    // }
 
     return {
       read: dbProgress.length,
@@ -382,7 +398,8 @@ async function getChaptersReadByDay(userId: string, clubId: string) {
       const curDate = toLuxonDate(cur.name)
       const prev = countsByDay[countsByDay.length - 1]
       const prevDate = toLuxonDate(prev.name)
-      const nextDate = prevDate.plus({ days: 2 })
+      const nextDate = prevDate.plus({ days: 1 })
+      console.log(curDate, prevDate, nextDate)
 
       if (nextDate.startOf('day').equals(curDate.startOf('day'))) {
         countsByDay.push(cur)
