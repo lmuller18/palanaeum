@@ -27,6 +27,7 @@ const ClubCard = ({
         <img
           className="aspect-[0.66/1] w-full rounded-lg object-cover shadow-md"
           src={club.cover}
+          alt={`${club.title} cover`}
         />
       </Link>
       <div className="flex flex-grow flex-col justify-center gap-2">

@@ -29,10 +29,6 @@ const colors = {
   rose: 'bg-rose-200 text-rose-800',
 }
 
-const sizes = {
-  sm: '',
-}
-
 const radii = {
   none: 'rounded-none',
   sm: 'rounded-sm',

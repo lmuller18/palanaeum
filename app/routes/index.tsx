@@ -11,6 +11,7 @@ export default function Index() {
           <img
             src={user.avatar}
             className="h-24 w-24 rounded-full object-cover"
+            alt="user avatar"
           />
           <h1>{user.username}</h1>
           <Form action="/logout" method="post">

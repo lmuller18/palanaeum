@@ -21,7 +21,7 @@ const TailwindHero = () => {
           >
             <div className="flex flex-1 items-center">
               <div className="flex w-full items-center justify-between md:w-auto">
-                <a href="#">
+                <a href="#workflow">
                   <span className="sr-only">Workflow</span>
                   <img
                     className="h-8 w-auto sm:h-10"
@@ -50,13 +50,13 @@ const TailwindHero = () => {
             </div>
             <div className="hidden md:flex md:items-center md:space-x-6">
               <a
-                href="#"
+                href="#login"
                 className="text-base font-medium text-white hover:text-gray-300"
               >
                 Log in
               </a>
               <a
-                href="#"
+                href="#trial"
                 className="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-base font-medium text-white hover:bg-gray-700"
               >
                 Start free trial
@@ -108,7 +108,7 @@ const TailwindHero = () => {
                 </div>
                 <div className="mt-6 px-5">
                   <a
-                    href="#"
+                    href="#trial"
                     className="block w-full rounded-md bg-indigo-600 py-3 px-4 text-center font-medium text-white shadow hover:bg-indigo-700"
                   >
                     Start free trial
@@ -117,7 +117,7 @@ const TailwindHero = () => {
                 <div className="mt-6 px-5">
                   <p className="text-center text-base font-medium text-gray-500">
                     Existing customer?{' '}
-                    <a href="#" className="text-gray-900 hover:underline">
+                    <a href="#login" className="text-gray-900 hover:underline">
                       Login
                     </a>
                   </p>
@@ -135,7 +135,7 @@ const TailwindHero = () => {
               <div className="mx-auto max-w-md px-4 sm:max-w-2xl sm:px-6 sm:text-center lg:flex lg:items-center lg:px-0 lg:text-left">
                 <div className="lg:py-24">
                   <a
-                    href="#"
+                    href="#hiring"
                     className="inline-flex items-center rounded-full bg-black p-1 pr-2 text-white hover:text-gray-200 sm:text-base lg:text-sm xl:text-base"
                   >
                     <span className="rounded-full bg-indigo-500 px-3 py-0.5 text-xs font-semibold uppercase leading-5 tracking-wide text-white">
@@ -182,7 +182,7 @@ const TailwindHero = () => {
                       <p className="mt-3 text-sm text-gray-300 sm:mt-4">
                         Start your free 14-day trial, no credit card necessary.
                         By providing your email, you agree to our{' '}
-                        <a href="#" className="font-medium text-white">
+                        <a href="#service" className="font-medium text-white">
                           terms of service
                         </a>
                         .

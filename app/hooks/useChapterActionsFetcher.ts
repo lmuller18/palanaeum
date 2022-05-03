@@ -16,7 +16,7 @@ const useChapterActionsFetcher = (chapter: ChapterListItem) => {
 
   useEffect(() => {
     if (state === 'error') toast.error(fetcher.data.error)
-  }, [state])
+  }, [state, fetcher.data?.error])
 
   const actionType = fetcher.submission?.formData.get('_action')
 

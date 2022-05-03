@@ -20,7 +20,11 @@ export default function AppLayout() {
               <Text>Welcome</Text>
               <Text variant="title3">{user.username}</Text>
             </div>
-            <img src={user.avatar} className="h-12 w-12 rounded-md" />
+            <img
+              src={user.avatar}
+              className="h-12 w-12 rounded-md"
+              alt="user avatar"
+            />
           </div>
         </div>
       </header>

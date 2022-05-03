@@ -2,9 +2,9 @@ import { Link } from 'remix'
 import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, MessageCircle } from 'react-feather'
 
+import { toRelative } from '~/utils'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
-import { toLuxonDate, toRelative } from '~/utils'
 
 const Post = ({
   user,
@@ -36,6 +36,7 @@ const Post = ({
           <img
             className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full object-cover"
             src={user.avatar}
+            alt="user avatar"
           />
         </Link>
 

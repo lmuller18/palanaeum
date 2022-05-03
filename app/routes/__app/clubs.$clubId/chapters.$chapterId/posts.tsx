@@ -1,18 +1,12 @@
+import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
-import {
-  json,
-  LoaderFunction,
-  useLoaderData,
-  useMatches,
-  useParams,
-} from 'remix'
+import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'
+import { useMatchesData } from '~/utils'
 import { requireUserId } from '~/session.server'
 import PostComposer from '~/components/PostComposer'
-import { useMatchesData } from '~/utils'
-import { useMemo } from 'react'
 
 interface LoaderData {
   posts: {

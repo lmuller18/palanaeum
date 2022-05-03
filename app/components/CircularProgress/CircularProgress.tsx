@@ -34,7 +34,7 @@ const CircularProgress = ({
 
   useEffect(() => {
     colorValue.set(fillPercents)
-  }, [fillPercents])
+  }, [fillPercents, colorValue])
 
   return (
     <div className="relative items-center justify-center">

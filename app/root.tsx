@@ -8,7 +8,7 @@ import {
   Scripts,
   LiveReload,
   useLoaderData,
-  ScrollRestoration,
+  // ScrollRestoration,
 } from 'remix'
 import type { LinksFunction, MetaFunction, LoaderFunction } from 'remix'
 

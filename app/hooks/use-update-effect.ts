@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useRef, useEffect } from 'react'
 
 const useUpdateEffect: typeof useEffect = (effect, deps) => {

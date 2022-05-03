@@ -34,6 +34,7 @@ const TextLink = ({
   color = 'default',
   variant = 'inherit',
   className,
+  children,
   ...props
 }: TextLinkProps) => {
   return (
@@ -45,7 +46,9 @@ const TextLink = ({
         variant !== 'inherit' && variants[variant],
         className,
       )}
-    />
+    >
+      {children}
+    </Link>
   )
 }
 export default TextLink

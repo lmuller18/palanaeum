@@ -36,6 +36,7 @@ const DiscussionSummary = ({
             <img
               className="h-6 w-6 flex-shrink-0 overflow-hidden rounded-full object-cover"
               src={user.avatar}
+              alt="user avatar"
             />
           </Link>
 

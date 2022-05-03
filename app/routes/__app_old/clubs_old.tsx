@@ -60,6 +60,7 @@ export default function ClubsPage() {
                     <img
                       src={club.image}
                       className="aspect-video max-h-32 w-full rounded-lg object-cover sm:max-h-48 md:max-h-64"
+                      alt={`${club.title} cover`}
                     />
                   </Link>
                   <div className="-mt-8 flex gap-2 p-2 md:-mt-12">

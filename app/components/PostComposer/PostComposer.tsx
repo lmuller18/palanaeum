@@ -37,16 +37,6 @@ const PostComposer = ({
     order: number
   }>(defaultChapter)
 
-  useEffect(() => {
-    if (fetcher.type === 'done') {
-      if (fetcher.data.ok) {
-        editor?.commands.clearContent()
-      } else {
-        console.log(fetcher.data.error)
-      }
-    }
-  }, [fetcher])
-
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -63,6 +53,16 @@ const PostComposer = ({
       },
     },
   })
+
+  useEffect(() => {
+    if (fetcher.type === 'done') {
+      if (fetcher.data.ok) {
+        editor?.commands.clearContent()
+      } else {
+        console.log(fetcher.data.error)
+      }
+    }
+  }, [fetcher, editor?.commands])
 
   const createPost = () => {
     if (!chapter) return
@@ -94,6 +94,7 @@ const PostComposer = ({
           <img
             className="h-12 w-12 overflow-hidden rounded-full object-cover"
             src={user.avatar}
+            alt="user avatar"
           />
         </Link>
 
