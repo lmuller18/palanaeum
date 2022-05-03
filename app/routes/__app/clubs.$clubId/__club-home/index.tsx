@@ -53,6 +53,7 @@ interface LoaderData {
       content: string
       image: string | null
       replies: number
+      createdAt: Date
     }
   } | null
 }
@@ -356,29 +357,24 @@ async function getChaptersReadByDay(userId: string, clubId: string) {
         y: dbClub._count.chapters,
       },
     ]
-    let i = 1
-    // while (i < counts.length) {
-    //   const cur = counts[i]
-    //   const curDate = toLuxonDate(cur.name)
-    //   const prev = countsByDay[countsByDay.length - 1]
-    //   const prevDate = toLuxonDate(prev.name)
-    //   const nextDate = prevDate.plus({ days: 2 })
-    //   console.log(
-    //     curDate.toISODate(),
-    //     prevDate.toISODate(),
-    //     nextDate.toISODate(),
-    //   )
+    let i = 0
+    while (i < counts.length) {
+      const cur = counts[i]
+      const curDate = toLuxonDate(cur.name)
+      const prev = countsByDay[countsByDay.length - 1]
+      const prevDate = toLuxonDate(prev.name)
+      const nextDate = prevDate.plus({ days: 2 })
 
-    //   if (nextDate.startOf('day').equals(curDate.startOf('day'))) {
-    //     countsByDay.push(cur)
-    //     i += 1
-    //   } else {
-    //     countsByDay.push({
-    //       name: nextDate.toISODate(),
-    //       y: prev.y,
-    //     })
-    //   }
-    // }
+      if (nextDate.startOf('day') >= curDate.startOf('day')) {
+        countsByDay.push(cur)
+        i += 1
+      } else {
+        countsByDay.push({
+          name: nextDate.toISODate(),
+          y: prev.y,
+        })
+      }
+    }
 
     return {
       read: dbProgress.length,
@@ -392,16 +388,15 @@ async function getChaptersReadByDay(userId: string, clubId: string) {
         y: dbClub._count.chapters,
       },
     ]
-    let i = 1
+    let i = 0
     while (i < counts.length) {
       const cur = counts[i]
       const curDate = toLuxonDate(cur.name)
       const prev = countsByDay[countsByDay.length - 1]
       const prevDate = toLuxonDate(prev.name)
-      const nextDate = prevDate.plus({ days: 1 })
-      console.log(curDate, prevDate, nextDate)
+      const nextDate = prevDate.plus({ days: 2 })
 
-      if (nextDate.startOf('day').equals(curDate.startOf('day'))) {
+      if (nextDate.startOf('day') >= curDate.startOf('day')) {
         countsByDay.push(cur)
         i += 1
       } else {
@@ -449,6 +444,7 @@ async function getTopPost(clubId: string) {
       id: true,
       content: true,
       image: true,
+      createdAt: true,
       chapter: {
         select: {
           id: true,
@@ -503,6 +499,7 @@ async function getTopPost(clubId: string) {
       content: dbPost.content,
       image: dbPost.image,
       replies: dbPost._count.replies,
+      createdAt: dbPost.createdAt,
     },
   }
 

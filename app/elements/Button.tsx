@@ -1,5 +1,3 @@
-/* This example requires Tailwind CSS v2.0+ */
-
 import clsx from 'clsx'
 
 interface ButtonProps
@@ -46,7 +44,7 @@ const Button = ({
   return (
     <button
       className={clsx(
-        'inline-flex items-center justify-center border border-transparent font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2',
+        'inline-flex items-center justify-center border border-transparent font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
         variants[variant],
         sizes[size],
         fullWidths[

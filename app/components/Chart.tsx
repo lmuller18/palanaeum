@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { useMemo } from 'react'
-import { LineChart, Line, ResponsiveContainer, XAxis } from 'recharts'
+import { LineChart, Line, ResponsiveContainer } from 'recharts'
 import Text from '~/elements/Typography/Text'
 
 const DEFAULT_DATA = [

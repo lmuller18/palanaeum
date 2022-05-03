@@ -4,6 +4,7 @@ import { BookOpen, MessageCircle } from 'react-feather'
 
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
+import { toLuxonDate, toRelative } from '~/utils'
 
 const Post = ({
   user,
@@ -24,6 +25,7 @@ const Post = ({
     id: string
     content: string
     replies: number
+    createdAt: Date
   }
   clubId: string
 }) => {
@@ -38,9 +40,14 @@ const Post = ({
         </Link>
 
         <div className="flex flex-col">
-          <TextLink to={`/user/${user.id}`} variant="subtitle1">
-            {user.username}
-          </TextLink>
+          <div className="flex items-center gap-2">
+            <TextLink to={`/user/${user.id}`} variant="subtitle2">
+              {user.username}
+            </TextLink>
+            <Text variant="caption" className="text-gray-500">
+              {toRelative(post.createdAt, { style: 'short' })}
+            </Text>
+          </div>
 
           <TextLink
             variant="body2"
@@ -54,7 +61,12 @@ const Post = ({
         </div>
       </div>
 
-      <p className="prose prose-invert prose-violet">{post.content}</p>
+      <div
+        className="prose prose-invert prose-violet max-w-none prose-p:mt-0 prose-p:mb-0"
+        dangerouslySetInnerHTML={{
+          __html: post.content,
+        }}
+      />
 
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 text-slate-400">

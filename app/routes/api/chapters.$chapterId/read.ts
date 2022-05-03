@@ -1,7 +1,8 @@
-import { DateTime } from 'luxon'
-import { ActionFunction, json } from 'remix'
 import invariant from 'tiny-invariant'
+import { ActionFunction, json } from 'remix'
+
 import { prisma } from '~/db.server'
+import { getErrorMessage } from '~/utils'
 import { requireUserId } from '~/session.server'
 
 export const action: ActionFunction = async ({ params, request }) => {
@@ -17,14 +18,32 @@ export const action: ActionFunction = async ({ params, request }) => {
     case 'post':
       switch (action) {
         case 'MARK_READ': {
-          const memberId = await getMemberIdFromUser(userId, chapterId)
-          const progress = await markRead(chapterId, memberId)
-          return json({ progress })
+          try {
+            const memberId = await getMemberIdFromUser(userId, chapterId)
+            const progress = await markRead(chapterId, memberId)
+            return json({ ok: true, progress })
+          } catch (error) {
+            return json(
+              { error: getErrorMessage(error) },
+              {
+                status: 500,
+              },
+            )
+          }
         }
         case 'MARK_UNREAD': {
-          const memberId = await getMemberIdFromUser(userId, chapterId)
-          const progress = await markUnread(chapterId, memberId)
-          return json({ progress })
+          try {
+            const memberId = await getMemberIdFromUser(userId, chapterId)
+            const progress = await markUnread(chapterId, memberId)
+            return json({ ok: true, progress })
+          } catch (error) {
+            return json(
+              { error: getErrorMessage(error) },
+              {
+                status: 500,
+              },
+            )
+          }
         }
         default:
           throw new Response('Invalid action', { status: 400 })
