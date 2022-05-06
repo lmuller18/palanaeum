@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
+import { LayoutGroup, motion } from 'framer-motion'
 import {
   json,
   Link,
@@ -52,6 +53,7 @@ interface LoaderData {
       id: string
       content: string
       image: string | null
+      context: string | null
       replies: number
       createdAt: Date
     }
@@ -89,9 +91,12 @@ export default function ClubPage() {
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <>
+    <LayoutGroup>
       {/* Next Chapter Block */}
-      <div className="mb-6 border-b border-t-2 border-teal-400 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 via-transparent p-4">
+      <motion.div
+        layout="position"
+        className="mb-6 border-b border-t-2 border-teal-400 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 via-transparent p-4"
+      >
         <div>
           <Text variant="title2" className="mb-4" as="h3">
             Next Chapter
@@ -160,10 +165,13 @@ export default function ClubPage() {
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Chart Block */}
-      <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
+      <motion.div
+        layout="position"
+        className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent"
+      >
         <div
           className="relative h-full w-full p-4"
           style={{
@@ -191,13 +199,18 @@ export default function ClubPage() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Top Post Block */}
-      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
-        <Text variant="title2" className="mb-4" as="h3">
-          Top Post
-        </Text>
+      <motion.div
+        layout
+        className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4"
+      >
+        <motion.div layout="position">
+          <Text variant="title2" className="mb-4" as="h3">
+            Top Post
+          </Text>
+        </motion.div>
         {topPost ? (
           <>
             {/* <div className={clsx(chapter.status !== 'complete' && 'blur-sm')}> */}
@@ -221,10 +234,13 @@ export default function ClubPage() {
             </Text>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Top Discussion Block */}
-      <div className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
+      <motion.div
+        layout="position"
+        className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4"
+      >
         <Text variant="title2" className="mb-4" as="h3">
           Hottest Discussion
         </Text>
@@ -233,8 +249,8 @@ export default function ClubPage() {
           chapter={{ id: '1', title: 'Chapter 5' }}
           discussion={{ id: '1', title: '3 Pure Tones and 3 Shards of Roshar' }}
         />
-      </div>
-    </>
+      </motion.div>
+    </LayoutGroup>
   )
 }
 
@@ -444,6 +460,7 @@ async function getTopPost(clubId: string) {
       id: true,
       content: true,
       image: true,
+      context: true,
       createdAt: true,
       chapter: {
         select: {
@@ -498,6 +515,7 @@ async function getTopPost(clubId: string) {
       id: dbPost.id,
       content: dbPost.content,
       image: dbPost.image,
+      context: dbPost.context,
       replies: dbPost._count.replies,
       createdAt: dbPost.createdAt,
     },

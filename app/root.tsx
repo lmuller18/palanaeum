@@ -8,17 +8,17 @@ import {
   Scripts,
   LiveReload,
   useLoaderData,
-  // ScrollRestoration,
+  ScrollRestoration,
 } from 'remix'
 import type { LinksFunction, MetaFunction, LoaderFunction } from 'remix'
 
 import { ToastMessage } from './toast.server'
 import tailwindStylesheetUrl from './styles/tailwind.css'
 import {
-  getSession,
   getUser,
-  prepareUserSession,
+  getSession,
   sessionStorage,
+  prepareUserSession,
 } from './session.server'
 
 export const links: LinksFunction = () => {
@@ -99,7 +99,7 @@ export default function App() {
       <body>
         <Outlet />
         <Toaster />
-        {/* <ScrollRestoration /> */}
+        <ScrollRestoration />
         <Scripts />
         <LiveReload />
       </body>

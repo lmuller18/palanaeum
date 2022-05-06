@@ -10,19 +10,19 @@ export default function AppLayout() {
   return (
     <>
       <header>
-        <div className="flex items-center justify-between bg-background-secondary p-4 shadow-lg">
+        <div className="flex items-center justify-between bg-background-secondary px-4 py-2 shadow-lg">
           <Link to="/clubs">
             <MenuAlt2Icon className="h-8 w-8" />
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <div className="flex flex-col justify-start text-right">
-              <Text>Welcome</Text>
-              <Text variant="title3">{user.username}</Text>
+              <Text variant="caption">Welcome</Text>
+              <Text>{user.username}</Text>
             </div>
             <img
               src={user.avatar}
-              className="h-12 w-12 rounded-md"
+              className="h-10 w-10 rounded-md"
               alt="user avatar"
             />
           </div>

@@ -93,6 +93,7 @@ model Progress {
 model Post {
   id      String  @id @default(cuid())
   content String
+  context String?
   image   String?
 
   createdAt DateTime @default(now())

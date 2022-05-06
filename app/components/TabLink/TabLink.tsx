@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { NavLink } from 'remix'
 import { motion } from 'framer-motion'
-import { ReactNode, useMemo } from 'react'
+import { memo, ReactNode, useMemo } from 'react'
 
 import Text from '~/elements/Typography/Text'
 
@@ -53,24 +53,44 @@ const TabLink = ({
 
   if (to)
     return (
-      <NavLink
-        to={to}
-        end={end}
-        className={({ isActive }) =>
-          clsx(
-            'text-center',
-            ((active != null && active) || (active == null && isActive)) && [
-              'bg-gradient-to-t',
-              theme.bg,
-            ],
-          )
-        }
-      >
+      <NavLink to={to} end={end} className="flex-grow text-center">
         {({ isActive }) => (
           <>
-            <Text variant="subtitle2" as="div" className="p-2 py-3">
-              {children}
-            </Text>
+            <div className="relative h-full w-full overflow-hidden">
+              <Text
+                variant="subtitle2"
+                as="div"
+                className="flex items-center justify-center p-2 py-3"
+              >
+                {children}
+              </Text>
+              <motion.div
+                key={isActive.toString()}
+                variants={{
+                  glow: {
+                    scaleY: 1,
+                    originY: '100%',
+                  },
+                  none: {
+                    scaleY: 0,
+                    originY: '100%',
+                  },
+                }}
+                initial="none"
+                animate="glow"
+                transition={{
+                  duration: 0.425,
+                }}
+                className={clsx(
+                  'absolute inset-0 h-full w-full',
+                  ((active != null && active) ||
+                    (active == null && isActive)) && [
+                    'bg-gradient-to-t',
+                    theme.bg,
+                  ],
+                )}
+              />
+            </div>
             {(active != null && active) || (active == null && isActive) ? (
               <motion.div
                 layoutId={layoutId + '-underline'}
@@ -94,4 +114,4 @@ const TabLink = ({
   )
 }
 
-export default TabLink
+export default memo(TabLink)

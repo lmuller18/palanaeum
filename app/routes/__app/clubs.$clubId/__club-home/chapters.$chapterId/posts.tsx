@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
+import { LayoutGroup, motion } from 'framer-motion'
 import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'
 import { useMatchesData } from '~/utils'
+import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import PostComposer from '~/components/PostComposer'
 
@@ -23,6 +25,7 @@ interface LoaderData {
       id: string
       content: string
       image: string | null
+      context: string | null
       replies: number
       createdAt: Date
     }
@@ -59,7 +62,9 @@ function isChapter(chapter: Chapter | any): chapter is Chapter {
 export default function PostsPage() {
   const { clubId, chapterId } = useParams()
   const { posts } = useLoaderData() as LoaderData
-  const data = useMatchesData('routes/__app/clubs.$clubId/chapters.$chapterId')
+  const data = useMatchesData(
+    'routes/__app/clubs.$clubId/__club-home/chapters.$chapterId',
+  )
 
   const chapter: Chapter | null = useMemo(() => {
     if (!data?.chapter) return null
@@ -78,18 +83,33 @@ export default function PostsPage() {
       {chapter && (
         <PostComposer defaultChapter={chapter} chapters={[chapter]} />
       )}
-      <div className="grid gap-2 divide-y divide-background-tertiary border border-background-tertiary">
-        {posts.map(post => (
-          <div className="p-4" key={post.post.id}>
-            <Post
-              clubId={clubId}
-              user={post.user}
-              chapter={post.chapter}
-              post={post.post}
-            />
-          </div>
-        ))}
-      </div>
+      <LayoutGroup>
+        <motion.div
+          layout
+          className="grid gap-2 divide-y divide-background-tertiary border border-background-tertiary"
+        >
+          {!posts.length && (
+            <div className="p-4">
+              <Text variant="body1" as="p" className="mb-2">
+                No posts yet for this chapter.
+              </Text>
+              <Text variant="body2" as="p">
+                Start contributing to the conversation above.
+              </Text>
+            </div>
+          )}
+          {posts.map(post => (
+            <motion.div layout className="p-4 pb-2" key={post.post.id}>
+              <Post
+                clubId={clubId}
+                user={post.user}
+                chapter={post.chapter}
+                post={post.post}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      </LayoutGroup>
     </>
   )
 }
@@ -110,6 +130,7 @@ async function getPosts(clubId: string, chapterId: string, userId: string) {
       id: true,
       content: true,
       image: true,
+      context: true,
       createdAt: true,
       chapter: {
         select: {
@@ -154,6 +175,7 @@ async function getPosts(clubId: string, chapterId: string, userId: string) {
       id: dbPost.id,
       content: dbPost.content,
       image: dbPost.image,
+      context: dbPost.context,
       replies: dbPost._count.replies,
       createdAt: dbPost.createdAt,
     },

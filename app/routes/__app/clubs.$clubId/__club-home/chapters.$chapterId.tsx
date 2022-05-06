@@ -1,11 +1,20 @@
+import clsx from 'clsx'
+import { ReactNode } from 'react'
 import invariant from 'tiny-invariant'
-import { LayoutGroup } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
-import { json, LoaderFunction, Outlet, useLoaderData, useParams } from 'remix'
+import {
+  json,
+  Outlet,
+  NavLink,
+  useParams,
+  useLoaderData,
+  LoaderFunction,
+} from 'remix'
 
 import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'
-import TabLink from '~/components/TabLink'
+import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 
 interface LoaderData {
@@ -45,27 +54,70 @@ export default function ChapterPage() {
         </TextLink>
       </div>
 
-      {/* Nav section */}
-      <div
-        className="mb-6 grid grid-cols-3 border-l border-t border-r border-background-tertiary shadow-md hover:shadow-lg focus:shadow-lg"
-        role="group"
-      >
-        <LayoutGroup id="chapter-nav-wrapper">
-          <TabLink to="posts" color="sky" layoutId="chapter-nav">
-            Posts
-          </TabLink>
-          <TabLink to="." end color="teal" layoutId="chapter-nav">
-            Home
-          </TabLink>
-          <TabLink to="chapters" color="indigo" layoutId="chapter-nav">
-            Discussions
-          </TabLink>
-        </LayoutGroup>
-      </div>
-
       <Outlet />
     </>
   )
+}
+
+const SpringLink = ({
+  to,
+  children,
+  end = false,
+}: {
+  to: string
+  children: ReactNode
+  end?: boolean
+}) => (
+  <NavLink
+    to={to}
+    className="flex flex-grow items-center justify-center rounded-lg text-center"
+    end={end}
+  >
+    {({ isActive }) => (
+      <div className="relative h-full w-full">
+        {isActive && (
+          <motion.div
+            transition={{
+              type: 'spring',
+              damping: 10,
+              mass: 0.75,
+              stiffness: 100,
+            }}
+            layoutId="chapter-nav"
+            className={clsx(
+              'absolute inset-0 h-full w-full rounded-lg bg-background-tertiary shadow-md shadow-background-primary',
+            )}
+          />
+        )}
+        <Text className={clsx('relative', isActive && 'text-white')}>
+          {children}
+        </Text>
+      </div>
+    )}
+  </NavLink>
+)
+
+export const handle = {
+  nav: (match: { params: { chapterId: string; clubId: string } }) => (
+    <div className="relative grid grid-cols-3 items-center overflow-hidden rounded-md bg-background-primary p-1">
+      <SpringLink
+        to={`/clubs/${match.params.clubId}/chapters/${match.params.chapterId}/posts`}
+      >
+        Posts
+      </SpringLink>
+      <SpringLink
+        to={`/clubs/${match.params.clubId}/chapters/${match.params.chapterId}`}
+        end
+      >
+        Chapter
+      </SpringLink>
+      <SpringLink
+        to={`/clubs/${match.params.clubId}/chapters/${match.params.chapterId}/discussions`}
+      >
+        Discussions
+      </SpringLink>
+    </div>
+  ),
 }
 
 async function getChapter(chapterId: string, userId: string) {

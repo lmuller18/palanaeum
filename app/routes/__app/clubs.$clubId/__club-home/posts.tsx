@@ -1,8 +1,10 @@
 import invariant from 'tiny-invariant'
+import { LayoutGroup, motion } from 'framer-motion'
 import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'
+import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import PostComposer from '~/components/PostComposer'
 
@@ -21,6 +23,7 @@ interface LoaderData {
       id: string
       content: string
       image: string | null
+      context: string | null
       replies: number
       createdAt: Date
     }
@@ -60,18 +63,37 @@ export default function PostsPage() {
         defaultChapter={nextChapter ?? chapters[chapters.length - 1]}
         chapters={chapters}
       />
-      <div className="grid gap-2 divide-y divide-background-tertiary border border-background-tertiary">
-        {posts.map(post => (
-          <div className="p-4" key={post.post.id}>
-            <Post
-              clubId={clubId}
-              user={post.user}
-              chapter={post.chapter}
-              post={post.post}
-            />
-          </div>
-        ))}
-      </div>
+      <LayoutGroup>
+        <motion.div
+          layout
+          className="grid gap-2 border border-background-tertiary"
+        >
+          {!posts.length && (
+            <div className="p-4">
+              <Text variant="body1" as="p" className="mb-2">
+                No posts yet for this club.
+              </Text>
+              <Text variant="body2" as="p">
+                Start contributing to the conversation above.
+              </Text>
+            </div>
+          )}
+          {posts.map(post => (
+            <motion.div
+              key={post.post.id}
+              layout
+              className="border-b border-background-tertiary p-4 pb-2"
+            >
+              <Post
+                clubId={clubId}
+                user={post.user}
+                chapter={post.chapter}
+                post={post.post}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      </LayoutGroup>
     </>
   )
 }
@@ -172,6 +194,7 @@ async function getPosts(
       id: true,
       content: true,
       image: true,
+      context: true,
       createdAt: true,
       chapter: {
         select: {
@@ -216,6 +239,7 @@ async function getPosts(
       id: dbPost.id,
       content: dbPost.content,
       image: dbPost.image,
+      context: dbPost.context,
       replies: dbPost._count.replies,
       createdAt: dbPost.createdAt,
     },

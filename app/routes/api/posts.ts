@@ -11,7 +11,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   switch (request.method.toLowerCase()) {
     case 'post':
       try {
-        const { chapterId, content, image, parentId } =
+        const { chapterId, content, image, context, parentId } =
           await parseStringFormData(request)
         invariant(content, 'content required')
         invariant(chapterId, 'chapterId required')
@@ -20,6 +20,7 @@ export const action: ActionFunction = async ({ params, request }) => {
           chapterId,
           content,
           image,
+          context,
           parentId,
           memberId,
         })
@@ -63,6 +64,7 @@ async function createPost({
   chapterId,
   content,
   image,
+  context,
   parentId,
   memberId,
 }: {
@@ -70,6 +72,7 @@ async function createPost({
   content: string
   memberId: string
   image?: string
+  context?: string
   parentId?: string
 }) {
   const post = await prisma.post.create({
@@ -77,6 +80,7 @@ async function createPost({
       chapterId,
       content,
       image,
+      context,
       parentId,
       memberId,
     },

@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
+import { LayoutGroup, motion } from 'framer-motion'
 import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
 import { prisma } from '~/db.server'
@@ -41,6 +42,7 @@ interface LoaderData {
       id: string
       content: string
       image: string | null
+      context: string | null
       replies: number
       createdAt: Date
     }
@@ -71,9 +73,12 @@ export default function ChapterHome() {
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <>
+    <LayoutGroup>
       {/* Chart Block */}
-      <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
+      <motion.div
+        layout="position"
+        className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent"
+      >
         <div
           className="relative h-full w-full p-4"
           style={{
@@ -101,13 +106,18 @@ export default function ChapterHome() {
             />
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Top Post Block */}
-      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
-        <Text variant="title2" className="mb-4" as="h3">
-          Top Post
-        </Text>
+      <motion.div
+        layout
+        className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4"
+      >
+        <motion.div layout="position">
+          <Text variant="title2" className="mb-4" as="h3">
+            Top Post
+          </Text>
+        </motion.div>
         <div className="relative">
           {topPost ? (
             <>
@@ -133,10 +143,13 @@ export default function ChapterHome() {
             </div>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Top Discussion Block */}
-      <div className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
+      <motion.div
+        layout="position"
+        className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4"
+      >
         <Text variant="title2" className="mb-4" as="h3">
           Hottest Discussion
         </Text>
@@ -145,8 +158,8 @@ export default function ChapterHome() {
           chapter={{ id: '1', title: 'Chapter 5' }}
           discussion={{ id: '1', title: '3 Pure Tones and 3 Shards of Roshar' }}
         />
-      </div>
-    </>
+      </motion.div>
+    </LayoutGroup>
   )
 }
 
@@ -342,6 +355,7 @@ async function getTopPost(chapterId: string) {
       content: true,
       image: true,
       createdAt: true,
+      context: true,
       chapter: {
         select: {
           id: true,
@@ -395,6 +409,7 @@ async function getTopPost(chapterId: string) {
       id: dbPost.id,
       content: dbPost.content,
       image: dbPost.image,
+      context: dbPost.context,
       replies: dbPost._count.replies,
       createdAt: dbPost.createdAt,
     },

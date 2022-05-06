@@ -1,11 +1,15 @@
 import clsx from 'clsx'
 import { Link, useFetcher } from 'remix'
-import StarterKit from '@tiptap/starter-kit'
 import { CheckIcon } from '@heroicons/react/solid'
 import { Fragment, useEffect, useState } from 'react'
-import { BookOpen, Image, Smile } from 'react-feather'
-import Placeholder from '@tiptap/extension-placeholder'
+import { BookOpen, Image, Info } from 'react-feather'
 import { Listbox, Transition } from '@headlessui/react'
+
+import Text from '@tiptap/extension-text'
+import History from '@tiptap/extension-history'
+import Document from '@tiptap/extension-document'
+import Paragraph from '@tiptap/extension-paragraph'
+import Placeholder from '@tiptap/extension-placeholder'
 import { useEditor, EditorContent } from '@tiptap/react'
 import CharacterCount from '@tiptap/extension-character-count'
 
@@ -39,7 +43,10 @@ const PostComposer = ({
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      Document,
+      Paragraph,
+      Text,
+      History,
       CharacterCount,
       Placeholder.configure({
         placeholder: "What's new?",
@@ -111,7 +118,7 @@ const PostComposer = ({
                 chapters={chapters}
               />
               <Image className="h-5 w-5" />
-              <Smile className="mt-px h-5 w-5" />
+              <Info className="mt-px h-5 w-5" />
             </div>
 
             <div className="flex items-center gap-2">
