@@ -1,5 +1,5 @@
-import { Link } from 'remix'
 import { useState } from 'react'
+import { Link, useNavigate } from 'remix'
 import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, Info, MessageCircle } from 'react-feather'
 
@@ -32,12 +32,23 @@ const Post = ({
   }
   clubId: string
 }) => {
+  const navigate = useNavigate()
   const [showContext, setShowContext] = useState(false)
+
+  const handleContext = (e: React.MouseEvent<SVGElement, MouseEvent>) => {
+    e.stopPropagation()
+    setShowContext(c => !c)
+  }
+
+  const toPost = () => {
+    navigate(`/posts/${post.id}`)
+  }
+
   return (
-    <article className="flex flex-col gap-2">
+    <article className="flex flex-col gap-2" onClick={toPost}>
       <LayoutGroup>
         <motion.div layout className="flex items-center gap-3">
-          <Link to={`/user/${user.id}`}>
+          <Link to={`/user/${user.id}`} onClick={e => e.stopPropagation()}>
             <img
               className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full object-cover"
               src={user.avatar}
@@ -47,7 +58,11 @@ const Post = ({
 
           <div className="flex flex-grow flex-col">
             <div className="flex items-center gap-2">
-              <TextLink to={`/user/${user.id}`} variant="subtitle2">
+              <TextLink
+                to={`/user/${user.id}`}
+                variant="subtitle2"
+                onClick={e => e.stopPropagation()}
+              >
                 {user.username}
               </TextLink>
               <Text variant="caption" className="text-gray-500">
@@ -61,6 +76,7 @@ const Post = ({
                 color="blue"
                 to={`/clubs/${clubId}/chapters/${chapter.id}`}
                 className="flex items-center gap-1"
+                onClick={e => e.stopPropagation()}
               >
                 <BookOpen className="h-4 w-4" />
                 {chapter.title}
@@ -68,8 +84,8 @@ const Post = ({
 
               {post.context && (
                 <Info
-                  onClick={() => setShowContext(x => !x)}
-                  className="h-5 w-5 text-gray-300 transition duration-300 ease-in-out hover:text-white"
+                  onClick={handleContext}
+                  className="h-5 w-5 cursor-pointer text-gray-300 transition duration-300 ease-in-out hover:text-white"
                 />
               )}
             </div>

@@ -58,7 +58,7 @@ const NavSection = memo(NavSectionComp)
 const NavBarComp = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
   <div
     className={clsx(
-      'z-50 flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
+      'relative z-[999] flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
       !hasSecondaryNav && 'border-t',
     )}
   >
