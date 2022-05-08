@@ -4,8 +4,13 @@ import { RemixBrowser } from 'remix'
 hydrate(<RemixBrowser />, document)
 
 if ('serviceWorker' in navigator) {
+  // Use the window load event to keep the page load performant
   window.addEventListener('load', () => {
-    // we will register it after the page complete the load
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker
+      .register('/entry.worker.js', { type: 'module' })
+      .then(() => navigator.serviceWorker.ready)
+      .catch(error => {
+        console.error('Service worker registration failed', error)
+      })
   })
 }

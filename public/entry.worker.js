@@ -1,3 +1,6 @@
+async function handleInstall(event) {}
+async function handleActivate(event) {}
+
 self.addEventListener('fetch', event => {
   let url = new URL(event.request.url)
   let method = event.request.method
@@ -25,4 +28,12 @@ self.addEventListener('fetch', event => {
   }
 
   return
+})
+
+self.addEventListener('install', event => {
+  event.waitUntil(handleInstall(event).then(() => self.skipWaiting()))
+})
+
+self.addEventListener('activate', event => {
+  event.waitUntil(handleActivate(event).then(() => self.clients.claim()))
 })
