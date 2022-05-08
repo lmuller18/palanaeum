@@ -234,6 +234,18 @@ export default function App() {
           href="/icons/apple-splash-1136-640.jpg"
           media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
         />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href="/icons/manifest-icon-192.maskable.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="512x512"
+          href="/icons/manifest-icon-512.maskable.png"
+        />
       </head>
       <body>
         <Outlet />
