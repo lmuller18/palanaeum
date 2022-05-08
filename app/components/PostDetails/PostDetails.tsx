@@ -1,19 +1,18 @@
 import { useState } from 'react'
+import { DateTime } from 'luxon'
 import { Link, useNavigate } from 'remix'
-import { HeartIcon } from '@heroicons/react/outline'
-import { BookOpen, Info, MessageCircle } from 'react-feather'
+import { BookOpen, Info } from 'react-feather'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 
-import { toRelative } from '~/utils'
+import { toLuxonDate } from '~/utils'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import usePostReferrer from '~/hooks/use-post-referrer'
 
-const Post = ({
-  user,
+const PostDetails = ({
   chapter,
   post,
-  clubId,
+  user,
 }: {
   user: {
     id: string
@@ -23,18 +22,20 @@ const Post = ({
   chapter: {
     id: string
     title: string
+    clubId: string
   }
   post: {
     id: string
+    rootId: string | null
+    parentId: string | null
     content: string
+    image: string | null
+    context: string | null
     replies: number
     createdAt: Date
-    context: string | null
   }
-  clubId: string
 }) => {
   const navigate = useNavigate()
-  const { nextPostReferrer } = usePostReferrer()
   const [showContext, setShowContext] = useState(false)
 
   const handleContext = (e: React.MouseEvent<SVGElement, MouseEvent>) => {
@@ -42,6 +43,7 @@ const Post = ({
     setShowContext(c => !c)
   }
 
+  const { nextPostReferrer } = usePostReferrer()
   const toPost = () => {
     navigate(`/posts/${post.id}`, {
       state: {
@@ -49,6 +51,8 @@ const Post = ({
       },
     })
   }
+
+  const date = toLuxonDate(post.createdAt)
 
   return (
     <article className="flex flex-col gap-2" onClick={toPost}>
@@ -71,16 +75,13 @@ const Post = ({
               >
                 {user.username}
               </TextLink>
-              <Text variant="caption" className="text-gray-500">
-                {toRelative(post.createdAt, { style: 'short' })}
-              </Text>
             </div>
 
             <div className="flex items-center justify-between">
               <TextLink
                 variant="body2"
                 color="blue"
-                to={`/clubs/${clubId}/chapters/${chapter.id}`}
+                to={`/clubs/${chapter.clubId}/chapters/${chapter.id}`}
                 className="flex items-center gap-1"
                 onClick={e => e.stopPropagation()}
               >
@@ -122,15 +123,36 @@ const Post = ({
           }}
         />
 
-        <motion.div layout className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-slate-400">
-            <MessageCircle className="h-5 w-5" />
-            <Text variant="subtitle1">{post.replies}</Text>
-          </div>
+        <motion.div layout>
+          <Text variant="body2" className="text-gray-400">
+            {date.toLocaleString(DateTime.TIME_SIMPLE)} &#183;{' '}
+            {date.toLocaleString({
+              day: '2-digit',
+            })}{' '}
+            {date.toLocaleString({
+              month: 'long',
+            })}{' '}
+            {date.toLocaleString({
+              year: '2-digit',
+            })}
+          </Text>
+        </motion.div>
 
-          <div className="flex items-center gap-3 text-slate-400">
-            <HeartIcon className="h-5 w-5" />
-            <Text variant="subtitle1">1</Text>
+        <motion.div
+          layout
+          className="flex items-center gap-6 border-y border-background-tertiary py-2"
+        >
+          <div>
+            <Text variant="subtitle2">{post.replies}</Text>{' '}
+            <Text variant="body2" className="text-gray-400">
+              Replies
+            </Text>
+          </div>
+          <div>
+            <Text variant="subtitle2">5</Text>{' '}
+            <Text variant="body2" className="text-gray-400">
+              Likes
+            </Text>
           </div>
         </motion.div>
       </LayoutGroup>
@@ -138,4 +160,4 @@ const Post = ({
   )
 }
 
-export default Post
+export default PostDetails

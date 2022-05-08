@@ -5,6 +5,7 @@ import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 
 import TabLink from '~/components/TabLink'
 import { FireIcon, BookmarkIcon, HomeIcon } from '@heroicons/react/outline'
+import useValueChanged from '~/hooks/use-value-changed'
 
 export default function ClubHomeLayout() {
   const matches = useMatches()
@@ -27,31 +28,32 @@ const NavSectionComp = ({
   secondaryNavSections,
 }: {
   secondaryNavSections?: { handle: { nav: Function } }[]
-}) => (
-  <motion.div
-    className="fixed bottom-0 left-0 isolate z-50 w-full"
-    initial={{ opacity: 0, y: 100 }}
-    animate={{ opacity: 1, y: 0 }}
-  >
-    <AnimatePresence exitBeforeEnter>
-      {!!secondaryNavSections && secondaryNavSections.length > 0 && (
-        <motion.div
-          className="z-40 -mb-1 border-t border-background-tertiary bg-background-secondary"
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 100, animationDelay: '.5s' }}
-        >
-          {secondaryNavSections.map((match, index) => (
-            <div key={index} className="rounded-t-lg p-2">
-              {match.handle.nav(match)}
-            </div>
-          ))}
-        </motion.div>
-      )}
-    </AnimatePresence>
-    <NavBar hasSecondaryNav={!!secondaryNavSections?.length} />
-  </motion.div>
-)
+}) => {
+  const hasSecondaryNav =
+    !!secondaryNavSections && secondaryNavSections.length > 0
+  const valueChanged = useValueChanged(hasSecondaryNav)
+  return (
+    <div className="fixed bottom-0 left-0 isolate z-50 w-full">
+      <AnimatePresence exitBeforeEnter>
+        {hasSecondaryNav && (
+          <motion.div
+            className="z-40 -mb-1 border-t border-background-tertiary bg-background-secondary"
+            initial={valueChanged ? { opacity: 0, y: 100 } : false}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100, animationDelay: '.5s' }}
+          >
+            {secondaryNavSections.map((match, index) => (
+              <div key={index} className="rounded-t-lg p-2">
+                {match.handle.nav(match)}
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <NavBar hasSecondaryNav={hasSecondaryNav} />
+    </div>
+  )
+}
 
 const NavSection = memo(NavSectionComp)
 

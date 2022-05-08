@@ -1,10 +1,26 @@
-import { json, LoaderFunction, useLoaderData } from 'remix'
-
-import { prisma } from '~/db.server'
+import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import { requireUserId } from '~/session.server'
+import { ChevronLeft } from 'react-feather'
+import { useEffect, useRef, useState } from 'react'
+import { LayoutGroup, motion } from 'framer-motion'
+import {
+  json,
+  useLocation,
+  useNavigate,
+  useLoaderData,
+  LoaderFunction,
+} from 'remix'
 
-interface Post {
+import Post from '~/components/Post'
+import { prisma } from '~/db.server'
+import Text from '~/elements/Typography/Text'
+import { requireUserId } from '~/session.server'
+import PostDetails from '~/components/PostDetails'
+import ReplyComposer from '~/components/ReplyComposer'
+import SecondaryPost from '~/components/SecondaryPost'
+import usePostReferrer from '~/hooks/use-post-referrer'
+
+interface PostDetailsType {
   user: {
     id: string
     avatar: string
@@ -13,68 +29,150 @@ interface Post {
   chapter: {
     id: string
     title: string
+    clubId: string
   }
   post: {
     id: string
+    rootId: string | null
+    parentId: string | null
     content: string
     image: string | null
     context: string | null
     replies: number
     createdAt: Date
   }
-
-  parent?: Post
-  replies: Post[]
 }
 
 interface LoaderData {
-  rootPost: Post
+  posts: PostDetailsType[]
+  primaryPost: PostDetailsType
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   invariant(params.postId, 'expected postId')
   const userId = await requireUserId(request)
-  const rootPost = await getPosts(params.postId, userId)
+  const postDetails = await getPosts(params.postId, userId)
 
-  if (!rootPost) throw new Response('Post not found', { status: 404 })
+  if (!postDetails) throw new Response('Post not found', { status: 404 })
 
-  return json<LoaderData>({ rootPost })
+  return json<LoaderData>({
+    posts: postDetails.posts,
+    primaryPost: postDetails.primaryPost,
+  })
 }
 
 export default function PostPage() {
+  const key = useLocation().key
+  const navigate = useNavigate()
   const data = useLoaderData() as LoaderData
+  const { currentPostReferrer } = usePostReferrer()
+
+  const listRef = useRef<HTMLDivElement>(null)
+  const [lastPostHeight, setLastPostHeight] = useState(0)
+
+  useEffect(() => {
+    if (!listRef.current) return
+
+    const list = listRef.current
+    const nodes = list.querySelectorAll(':scope > div')
+    if (nodes.length > 1) {
+      const last = nodes[nodes.length - 1]
+      setLastPostHeight(last.getBoundingClientRect().height)
+
+      const primaryPost = list.querySelector('#primary-post')
+      if (primaryPost) {
+        primaryPost.scrollIntoView()
+      }
+    }
+  }, [listRef, data.primaryPost])
+
+  const goBack = () => {
+    navigate(currentPostReferrer.path)
+  }
 
   return (
     <div>
-      Post
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-      <pre>
-        {JSON.stringify(
-          { x: { x: { x: { x: { x: { x: { x: 1 } } } } } } },
-          null,
-          2,
+      <div className="sticky top-0 z-50 flex w-full items-center gap-2 border-b border-background-tertiary bg-background-primary px-4 py-2">
+        <button type="button" onClick={goBack}>
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        <Text variant="title3">Thread</Text>
+      </div>
+      <div>
+        <div className="grid gap-2" ref={listRef}>
+          <LayoutGroup>
+            {data.posts.map(post => (
+              <motion.div
+                layout
+                key={`${post.post.id}-${key}`}
+                id={
+                  post.post.id === data.primaryPost.post.id
+                    ? 'primary-post'
+                    : 'secondary-post'
+                }
+                className={clsx(
+                  'scroll-m-16',
+                  post.post.parentId === data.primaryPost.post.id
+                    ? 'px-4 py-2'
+                    : 'p-4 pb-2',
+                  (post.post.id === data.primaryPost.post.id ||
+                    post.post.parentId === data.primaryPost.post.id) &&
+                    'border-b border-background-tertiary',
+                )}
+              >
+                {post.post.id === data.primaryPost.post.id ? (
+                  <PostDetails {...post} />
+                ) : post.post.parentId === data.primaryPost.post.id ? (
+                  <Post {...post} clubId={post.chapter.clubId} />
+                ) : (
+                  <SecondaryPost {...post} />
+                )}
+              </motion.div>
+            ))}
+          </LayoutGroup>
+        </div>
+        {data.posts.length > 1 && (
+          <div style={{ height: `calc(100vh - ${lastPostHeight + 20}px)` }} />
         )}
-      </pre>
+      </div>
+
+      <ReplyComposer
+        chapterId={data.primaryPost.chapter.id}
+        parentId={data.primaryPost.post.id}
+        rootId={data.primaryPost.post.rootId ?? data.primaryPost.post.id}
+      />
     </div>
   )
 }
 
-type FlatPost = Omit<Post, 'parent' | 'replies'> & {
-  post: { parentId: string | null }
-}
-
-function createDataset(dataset: FlatPost[]): Post {
-  const hashTable = Object.create(null)
-  dataset.forEach(
-    aData => (hashTable[aData.post.id] = { ...aData, replies: [] }),
-  )
-  const dataTree: Post[] = []
-  dataset.forEach(aData => {
-    if (aData.post.parentId)
-      hashTable[aData.post.parentId].replies.push(hashTable[aData.post.id])
-    else dataTree.push(hashTable[aData.post.id])
-  })
-  return dataTree[0]
+// stolen from the mind of https://github.com/NoahWil5on
+function getPostArray(array: PostDetailsType[], id: string) {
+  let newArray: PostDetailsType[] = []
+  let newParentId: string | null = id
+  let lastParentId: string | null = id
+  let parentId: string | null = id
+  let isFirstRound = true
+  while (true) {
+    for (let i = 0; i < array.length; i++) {
+      const a = array[i]
+      if (
+        (a.post.parentId === parentId && isFirstRound) ||
+        (lastParentId === a.post.id && !isFirstRound)
+      ) {
+        newArray = [a, ...newArray]
+      } else if (a.post.id === parentId) {
+        newParentId = a.post.parentId
+      }
+    }
+    if (parentId !== newParentId) {
+      lastParentId = parentId
+      parentId = newParentId
+    } else {
+      break
+    }
+    isFirstRound = false
+  }
+  return newArray
 }
 
 async function getPosts(postId: string, userId: string) {
@@ -86,6 +184,11 @@ async function getPosts(postId: string, userId: string) {
     select: {
       id: true,
       rootId: true,
+      chapter: {
+        select: {
+          clubId: true,
+        },
+      },
     },
   })
 
@@ -103,7 +206,7 @@ async function getPosts(postId: string, userId: string) {
   const dbPosts = await prisma.post.findMany({
     where: {
       ...(dbPost.rootId
-        ? { rootId: dbPost.rootId }
+        ? { OR: [{ id: dbPost.rootId }, { rootId: dbPost.rootId }] }
         : {
             OR: [{ id: dbPost.id }, { rootId: dbPost.id }],
           }),
@@ -120,6 +223,7 @@ async function getPosts(postId: string, userId: string) {
         select: {
           id: true,
           title: true,
+          clubId: true,
         },
       },
       member: {
@@ -140,29 +244,39 @@ async function getPosts(postId: string, userId: string) {
         },
       },
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
   })
 
-  const posts = dbPosts.map(dbPost => ({
+  const posts = dbPosts.map(p => ({
     user: {
-      id: dbPost.member.user.id,
-      avatar: dbPost.member.user.avatar,
-      username: dbPost.member.user.username,
+      id: p.member.user.id,
+      avatar: p.member.user.avatar,
+      username: p.member.user.username,
     },
     chapter: {
-      id: dbPost.chapter.id,
-      title: dbPost.chapter.title,
+      id: p.chapter.id,
+      title: p.chapter.title,
+      clubId: p.chapter.clubId,
     },
     post: {
-      id: dbPost.id,
-      content: dbPost.content,
-      image: dbPost.image,
-      context: dbPost.context,
-      replies: dbPost._count.replies,
-      createdAt: dbPost.createdAt,
-      parentId: dbPost.parentId,
+      id: p.id,
+      content: p.content,
+      image: p.image,
+      context: p.context,
+      replies: p._count.replies,
+      createdAt: p.createdAt,
+      parentId: p.parentId,
+      rootId: dbPost.rootId,
     },
   }))
 
-  const postTree = createDataset(posts)
-  return postTree
+  const prunedPosts = getPostArray(posts, dbPost.id)
+
+  const primaryPost = posts.find(p => p.post.id === dbPost.id)
+
+  if (!primaryPost) return null
+
+  return { posts: prunedPosts, primaryPost }
 }

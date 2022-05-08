@@ -49,7 +49,7 @@ const PostComposer = ({
       History,
       CharacterCount,
       Placeholder.configure({
-        placeholder: "What's new?",
+        placeholder: '[Placeholder Text]',
       }),
     ],
     autofocus: false,
