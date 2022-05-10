@@ -58,12 +58,12 @@ export default function PostsPage() {
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <>
-      <PostComposer
-        defaultChapter={nextChapter ?? chapters[chapters.length - 1]}
-        chapters={chapters}
-      />
+    <motion.div layout>
       <LayoutGroup>
+        <PostComposer
+          defaultChapter={nextChapter ?? chapters[chapters.length - 1]}
+          chapters={chapters}
+        />
         <motion.div
           layout
           className="grid gap-2 border border-background-tertiary"
@@ -94,7 +94,7 @@ export default function PostsPage() {
           ))}
         </motion.div>
       </LayoutGroup>
-    </>
+    </motion.div>
   )
 }
 

@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { forwardRef } from 'react'
 
 interface ButtonProps
   extends React.DetailedHTMLProps<
@@ -35,29 +36,32 @@ const fullWidths = {
   always: 'w-full',
 }
 
-const Button = ({
-  size = 'base',
-  variant = 'primary',
-  fullWidth = false,
-  ...props
-}: ButtonProps) => {
-  return (
-    <button
-      className={clsx(
-        'inline-flex items-center justify-center border border-transparent font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
-        variants[variant],
-        sizes[size],
-        fullWidths[
-          fullWidth === true
-            ? 'always'
-            : fullWidth === false
-            ? 'none'
-            : fullWidth
-        ],
-      )}
-      {...props}
-    />
-  )
-}
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { size = 'base', variant = 'primary', fullWidth = false, ...props },
+    ref,
+  ) => {
+    return (
+      <button
+        ref={ref}
+        className={clsx(
+          'inline-flex items-center justify-center border border-transparent font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
+          variants[variant],
+          sizes[size],
+          fullWidths[
+            fullWidth === true
+              ? 'always'
+              : fullWidth === false
+              ? 'none'
+              : fullWidth
+          ],
+        )}
+        {...props}
+      />
+    )
+  },
+)
+
+Button.displayName = 'Button'
 
 export default Button

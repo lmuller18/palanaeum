@@ -1,17 +1,18 @@
 import clsx from 'clsx'
 import { Link, useFetcher } from 'remix'
 import { CheckIcon } from '@heroicons/react/solid'
-import { Fragment, useEffect, useState } from 'react'
 import { BookOpen, Image, Info } from 'react-feather'
 import { Listbox, Transition } from '@headlessui/react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 import Text from '@tiptap/extension-text'
 import History from '@tiptap/extension-history'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Placeholder from '@tiptap/extension-placeholder'
-import { useEditor, EditorContent } from '@tiptap/react'
 import CharacterCount from '@tiptap/extension-character-count'
+import { useEditor, EditorContent, Extension } from '@tiptap/react'
 
 import Button from '~/elements/Button'
 import { removeEmpty, useUser } from '~/utils'
@@ -34,6 +35,8 @@ const PostComposer = ({
 }) => {
   const user = useUser()
   const fetcher = useFetcher()
+  const submitRef = useRef<HTMLButtonElement>(null)
+  const [showContextInput, setShowContextInput] = useState(false)
 
   const [chapter, setChapter] = useState<{
     id: string
@@ -49,14 +52,45 @@ const PostComposer = ({
       History,
       CharacterCount,
       Placeholder.configure({
-        placeholder: '[Placeholder Text]',
+        placeholder: 'What just happened?',
       }),
     ],
     autofocus: false,
     editorProps: {
       attributes: {
         class:
-          'prose prose-invert prose-violet max-w-none prose-p:mt-0 prose-p:mb-0 mb-6 focus:outline-none',
+          'prose prose-invert prose-violet max-w-none prose-p:mt-0 prose-p:mb-0 focus:outline-none',
+      },
+    },
+  })
+
+  const contextEditor = useEditor({
+    extensions: [
+      Document,
+      Paragraph,
+      Text,
+      History,
+      Extension.create({
+        addKeyboardShortcuts() {
+          return {
+            Enter() {
+              return true
+            },
+          }
+        },
+      }),
+      CharacterCount.configure({
+        limit: 100,
+      }),
+      Placeholder.configure({
+        placeholder: 'Provide some context',
+      }),
+    ],
+    autofocus: true,
+    editorProps: {
+      attributes: {
+        class:
+          'prose prose-invert prose-violet max-w-none prose-p:mt-0 prose-p:mb-0 focus:outline-none',
       },
     },
   })
@@ -65,21 +99,26 @@ const PostComposer = ({
     if (fetcher.type === 'done') {
       if (fetcher.data.ok) {
         editor?.commands.clearContent()
+        contextEditor?.commands.clearContent()
+        submitRef?.current?.blur()
+        setShowContextInput(false)
       } else {
         console.log(fetcher.data.error)
       }
     }
-  }, [fetcher, editor?.commands])
+  }, [fetcher, editor?.commands, contextEditor?.commands])
 
   const createPost = () => {
     if (!chapter) return
 
     const content = editor?.getHTML()
+    const context = contextEditor?.getText()
     // const image = undefined
 
     const newPost = {
       chapterId: chapter.id,
       content,
+      context,
       // image,
     }
 
@@ -90,13 +129,23 @@ const PostComposer = ({
     })
   }
 
+  const handleContextButton = () => {
+    if (showContextInput) {
+      setShowContextInput(false)
+      contextEditor?.commands.clearContent()
+    } else {
+      setShowContextInput(true)
+      contextEditor?.commands.focus()
+    }
+  }
+
   const characters = editor ? editor.storage.characterCount.characters() : 0
   const maximumCharacters = 240
   const remaining = maximumCharacters - characters
 
   return (
     <div className="border-x border-t border-background-tertiary p-4">
-      <div className="flex items-start gap-4">
+      <div className="grid grid-cols-[48px,1fr] gap-4">
         <Link to={`/user/${user.id}`} className="flex-shrink-0">
           <img
             className="h-12 w-12 overflow-hidden rounded-full object-cover"
@@ -105,45 +154,64 @@ const PostComposer = ({
           />
         </Link>
 
-        <div className="min-w-0 flex-grow">
-          <div className="min-h-[48px]">
-            <EditorContent editor={editor} />
+        <div className="min-h-[48px]">
+          <EditorContent editor={editor} />
+        </div>
+
+        <div className="col-start-2 flex items-center justify-between">
+          <div className="flex items-center gap-3 text-blue-500">
+            <ChapterSelect
+              setChapter={setChapter}
+              chapter={chapter}
+              chapters={chapters}
+            />
+            <Image className="h-5 w-5" />
+            <button
+              type="button"
+              className="mt-px"
+              onClick={handleContextButton}
+            >
+              <Info className="h-5 w-5" />
+            </button>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-blue-500">
-              <ChapterSelect
-                setChapter={setChapter}
-                chapter={chapter}
-                chapters={chapters}
-              />
-              <Image className="h-5 w-5" />
-              <Info className="mt-px h-5 w-5" />
-            </div>
+          <div className="flex items-center gap-2">
+            <CircularProgress
+              label={remaining <= 25 ? remaining : undefined}
+              percent={(characters / maximumCharacters) * 100}
+            />
 
-            <div className="flex items-center gap-2">
-              <CircularProgress
-                label={remaining <= 25 ? remaining : undefined}
-                percent={(characters / maximumCharacters) * 100}
-              />
-
-              <Button
-                type="button"
-                size="xs"
-                onClick={createPost}
-                disabled={
-                  fetcher.state === 'submitting' ||
-                  !editor ||
-                  editor.isEmpty ||
-                  editor.storage.characterCount.characters() < 10 ||
-                  editor.storage.characterCount.characters() > maximumCharacters
-                }
-              >
-                Post
-              </Button>
-            </div>
+            <Button
+              type="button"
+              size="xs"
+              ref={submitRef}
+              onClick={createPost}
+              disabled={
+                fetcher.state === 'submitting' ||
+                !editor ||
+                editor.isEmpty ||
+                editor.storage.characterCount.characters() < 10 ||
+                editor.storage.characterCount.characters() > maximumCharacters
+              }
+            >
+              Post
+            </Button>
           </div>
         </div>
+
+        <AnimatePresence presenceAffectsLayout exitBeforeEnter>
+          {showContextInput && (
+            <motion.div
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="col-span-full border-y border-background-tertiary py-2 "
+            >
+              <EditorContent editor={contextEditor} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

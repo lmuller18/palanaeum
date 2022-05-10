@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'remix'
-import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, Info, MessageCircle } from 'react-feather'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 
@@ -128,10 +127,10 @@ const Post = ({
             <Text variant="subtitle1">{post.replies}</Text>
           </div>
 
-          <div className="flex items-center gap-3 text-slate-400">
+          {/* <div className="flex items-center gap-3 text-slate-400">
             <HeartIcon className="h-5 w-5" />
             <Text variant="subtitle1">1</Text>
-          </div>
+          </div> */}
         </motion.div>
       </LayoutGroup>
     </article>

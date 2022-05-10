@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'remix'
 import { BookOpen, Info } from 'react-feather'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 
-import { toLuxonDate } from '~/utils'
+import { pluralize, toLuxonDate } from '~/utils'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import usePostReferrer from '~/hooks/use-post-referrer'
@@ -145,15 +145,15 @@ const PostDetails = ({
           <div>
             <Text variant="subtitle2">{post.replies}</Text>{' '}
             <Text variant="body2" className="text-gray-400">
-              Replies
+              {pluralize('Reply', 'Replies', post.replies)}
             </Text>
           </div>
-          <div>
+          {/* <div>
             <Text variant="subtitle2">5</Text>{' '}
             <Text variant="body2" className="text-gray-400">
               Likes
             </Text>
-          </div>
+          </div> */}
         </motion.div>
       </LayoutGroup>
     </article>

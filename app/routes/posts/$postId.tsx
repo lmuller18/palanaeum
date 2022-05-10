@@ -132,7 +132,7 @@ export default function PostPage() {
           </LayoutGroup>
         </div>
         {data.posts.length > 1 && (
-          <div style={{ height: `calc(100vh - ${lastPostHeight + 20}px)` }} />
+          <div style={{ height: `calc(100vh - ${lastPostHeight + 49}px)` }} />
         )}
       </div>
 
@@ -173,6 +173,31 @@ function getPostArray(array: PostDetailsType[], id: string) {
     isFirstRound = false
   }
   return newArray
+}
+
+function getPostThread(array: PostDetailsType[], id: string) {
+  let parents: PostDetailsType[] = []
+  let replies: PostDetailsType[] = []
+
+  array.forEach(cur => {
+    console.log(cur.post.content, {
+      id: cur.post.id,
+      parent: cur.post.parentId,
+      search: id,
+    })
+    if (cur.post.parentId === id) {
+      replies = [...replies, cur]
+    } else if (cur.post.id === id) {
+      parents = [...parents, cur]
+    } else if (
+      parents.length > 0 &&
+      parents[parents.length - 1].post.parentId === cur.post.id
+    ) {
+      parents = [...parents, cur]
+    }
+  })
+
+  return [...parents, ...replies]
 }
 
 async function getPosts(postId: string, userId: string) {
@@ -273,6 +298,7 @@ async function getPosts(postId: string, userId: string) {
   }))
 
   const prunedPosts = getPostArray(posts, dbPost.id)
+  // const prunedPosts = getPostThread(posts, dbPost.id)
 
   const primaryPost = posts.find(p => p.post.id === dbPost.id)
 
