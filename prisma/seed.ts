@@ -75,6 +75,7 @@ async function seed() {
   const club = await prisma.club.create({
     data: {
       title: 'Book Club',
+      author: 'author',
       image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
       owner: { connect: { id: user1.id } },
     },
