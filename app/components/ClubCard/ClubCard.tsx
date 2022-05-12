@@ -12,7 +12,7 @@ const ClubCard = ({
     id: string
     title: string
     author: string
-    cover: string
+    image: string
     members: { id: string; username: string }[]
     progress: number
     chapters: number
@@ -20,13 +20,13 @@ const ClubCard = ({
 }) => {
   const members = club.members.slice(0, 2)
   const leftover = club.members.length - 2
-
+  console.log(club.progress)
   return (
     <div className="grid grid-cols-2 gap-6">
       <Link to={`/clubs/${club.id}`}>
         <img
           className="aspect-[0.66/1] w-full rounded-lg object-cover shadow-md"
-          src={club.cover}
+          src={club.image}
           alt={`${club.title} cover`}
         />
       </Link>

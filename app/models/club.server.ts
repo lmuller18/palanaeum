@@ -4,11 +4,13 @@ export async function createClub({
   title,
   image,
   chapterCount,
+  author,
   userId,
 }: {
   title: string
   image: string
   chapterCount: number
+  author: string
   userId: string
 }) {
   const chapters = Array.from(Array(chapterCount).keys()).map(i => ({
@@ -20,6 +22,7 @@ export async function createClub({
     data: {
       title,
       image,
+      author,
       ownerId: userId,
       members: {
         create: {

@@ -18,8 +18,9 @@ export default function ClubHomeLayout() {
       <Outlet />
 
       {/* Nav section */}
-      <div className="h-24" />
-      <NavSection secondaryNavSections={secondaryNavSections} />
+      <div className="h-14">
+        <NavSection secondaryNavSections={secondaryNavSections} />
+      </div>
     </>
   )
 }

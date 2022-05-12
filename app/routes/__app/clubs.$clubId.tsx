@@ -1,7 +1,32 @@
-import { Link, Outlet } from 'remix'
+import invariant from 'tiny-invariant'
+import { json, Link, LoaderFunction, Outlet, useLoaderData } from 'remix'
+
+import { prisma } from '~/db.server'
 import Text from '~/elements/Typography/Text'
+import { requireUserId } from '~/session.server'
+
+interface LoaderData {
+  club: {
+    id: string
+    title: string
+    author: string
+    image: string
+  }
+}
+
+export const loader: LoaderFunction = async ({ request, params }) => {
+  invariant(params.clubId, 'expected clubId')
+  const userId = await requireUserId(request)
+  const club = await getClub(params.clubId, userId)
+
+  if (!club) throw new Response('Club not found', { status: 404 })
+
+  return json<LoaderData>({ club })
+}
 
 export default function ClubLayout() {
+  const data = useLoaderData() as LoaderData
+
   return (
     <>
       <div className="relative py-6">
@@ -17,18 +42,18 @@ export default function ClubLayout() {
         >
           <img
             className="h-full w-full object-cover"
-            src="/images/war.jpg"
-            alt={'Rythm of War cover'}
+            src={data.club.image}
+            alt={`${data.club.title} cover`}
           />
         </Link>
       </div>
       <div className="relative mx-auto max-w-lg px-4">
         <div className="mb-4">
           <Text as="h3" variant="title1" serif>
-            Rhythm of War
+            {data.club.title}
           </Text>
           <Text variant="subtitle1" as="p" className="text-right">
-            By Brandon Sanderson
+            By {data.club.author}
           </Text>
         </div>
 
@@ -36,4 +61,25 @@ export default function ClubLayout() {
       </div>
     </>
   )
+}
+
+async function getClub(clubId: string, userId: string) {
+  const dbClub = await prisma.club.findFirst({
+    where: { id: clubId, members: { some: { userId } } },
+    select: {
+      id: true,
+      title: true,
+      author: true,
+      image: true,
+    },
+  })
+
+  if (!dbClub) return null
+
+  return {
+    id: dbClub.id,
+    title: dbClub.title,
+    author: dbClub.author,
+    image: dbClub.image,
+  }
 }

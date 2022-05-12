@@ -1,12 +1,18 @@
+import clsx from 'clsx'
 import { useEffect, useRef } from 'react'
-import { Form, json, useActionData, redirect } from 'remix'
-import type { ActionFunction, LoaderFunction, MetaFunction } from 'remix'
-
-import { requireUserId } from '~/session.server'
-import { createClub } from '~/models/club.server'
 import { Disclosure, Transition } from '@headlessui/react'
 import { ChevronUpIcon, InformationCircleIcon } from '@heroicons/react/outline'
-import clsx from 'clsx'
+import {
+  Form,
+  json,
+  redirect,
+  useActionData,
+  ActionFunction,
+  LoaderFunction,
+} from 'remix'
+
+import { prisma } from '~/db.server'
+import { requireUserId } from '~/session.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
@@ -17,6 +23,7 @@ interface ActionData {
   errors: {
     title?: string
     chapters?: string
+    author?: string
   }
 }
 
@@ -24,11 +31,19 @@ export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
   const formData = await request.formData()
   const title = formData.get('title')
+  const author = formData.get('author')
   const chapters = formData.get('chapters')
 
   if (typeof title !== 'string' || title.length === 0) {
     return json<ActionData>(
       { errors: { title: 'Title is required' } },
+      { status: 400 },
+    )
+  }
+
+  if (typeof author !== 'string' || author.length === 0) {
+    return json<ActionData>(
+      { errors: { title: 'Author is required' } },
       { status: 400 },
     )
   }
@@ -52,22 +67,18 @@ export const action: ActionFunction = async ({ request }) => {
   const club = await createClub({
     title,
     chapterCount,
+    author,
     userId,
     image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
   })
   return redirect(`/clubs/${club.id}`)
 }
 
-export const meta: MetaFunction = () => {
-  return {
-    title: 'Sign Up',
-  }
-}
-
 export default function NewClubPage() {
   const actionData = useActionData() as ActionData
 
   const titleRef = useRef<HTMLInputElement>(null)
+  const authorRef = useRef<HTMLInputElement>(null)
   const chaptersRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -75,13 +86,18 @@ export default function NewClubPage() {
       titleRef.current?.focus()
     } else if (actionData?.errors?.chapters) {
       chaptersRef.current?.focus()
+    } else if (actionData?.errors?.author) {
+      authorRef.current?.focus()
     }
   }, [actionData])
 
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
-        <Form method="post" className="space-y-6" noValidate>
+        <p className="my-8 w-fit bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-3xl font-bold text-transparent">
+          Create New Club
+        </p>
+        <Form method="post" className="space-y-6">
           <div>
             <label
               htmlFor="title"
@@ -95,15 +111,40 @@ export default function NewClubPage() {
                 id="title"
                 required
                 type="text"
-                autoFocus={true}
                 name="title"
                 aria-invalid={actionData?.errors?.title ? true : undefined}
                 aria-describedby="title-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
               />
               {actionData?.errors?.title && (
-                <div className="pt-1 text-red-700" id="title-error">
+                <div className="pt-1 text-red-500" id="title-error">
                   {actionData.errors.title}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="author"
+              className="block text-sm font-medium text-gray-200"
+            >
+              Author
+            </label>
+            <div className="mt-1">
+              <input
+                ref={authorRef}
+                id="author"
+                required
+                type="text"
+                name="author"
+                aria-invalid={actionData?.errors?.author ? true : undefined}
+                aria-describedby="author-error"
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
+              />
+              {actionData?.errors?.author && (
+                <div className="pt-1 text-red-700" id="author-error">
+                  {actionData.errors.author}
                 </div>
               )}
             </div>
@@ -166,6 +207,44 @@ export default function NewClubPage() {
                         chapters and insert special chapters like Prologues,
                         Interludes, and Epilogues later through the club
                         settings.
+                        <Disclosure>
+                          {({ open }) => (
+                            <>
+                              <Disclosure.Button className="mt-2 flex w-full items-center justify-between border-t py-2 text-sm focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75">
+                                <span>Want an example?</span>
+                                <span className="font-medium">VIEW</span>
+                              </Disclosure.Button>
+
+                              <Transition
+                                enter="transition duration-100 ease-out"
+                                enterFrom="transform scale-95 opacity-0"
+                                enterTo="transform scale-100 opacity-100"
+                                leave="transition duration-75 ease-out"
+                                leaveFrom="transform scale-100 opacity-100"
+                                leaveTo="transform scale-95 opacity-0"
+                              >
+                                <Disclosure.Panel className="pt-2 text-sm">
+                                  For a book with this format:
+                                  <ul className="my-2 list-inside list-disc">
+                                    <li>Prologue</li>
+                                    <li>Chapter 1</li>
+                                    <li>Chapter 2</li>
+                                    <li>Chapter 3</li>
+                                    <li>Chapter 4</li>
+                                    <li>Interlude</li>
+                                    <li>Chapter 5</li>
+                                    <li>Epilogue</li>
+                                  </ul>
+                                  <p>
+                                    Create a club with 5 chapters and insert the
+                                    Prologue, Interlude, and Epilogue chapters
+                                    later through the chapter management.
+                                  </p>
+                                </Disclosure.Panel>
+                              </Transition>
+                            </>
+                          )}
+                        </Disclosure>
                       </Disclosure.Panel>
                     </Transition>
                   </>
@@ -184,4 +263,43 @@ export default function NewClubPage() {
       </div>
     </div>
   )
+}
+
+async function createClub({
+  title,
+  author,
+  image,
+  chapterCount,
+  userId,
+}: {
+  title: string
+  author: string
+  image: string
+  chapterCount: number
+  userId: string
+}) {
+  const chapters = Array.from(Array(chapterCount).keys()).map(i => ({
+    order: i,
+    title: `Chapter ${i + 1}`,
+  }))
+
+  return prisma.club.create({
+    data: {
+      title,
+      image,
+      author,
+      ownerId: userId,
+      members: {
+        create: {
+          isOwner: true,
+          userId,
+        },
+      },
+      chapters: {
+        createMany: {
+          data: chapters,
+        },
+      },
+    },
+  })
 }
