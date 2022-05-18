@@ -32,6 +32,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   const page = await getChapters(params.clubId, userId, pageNum - 1, PAGE_SIZE)
 
+  if (!page) throw new Response('Problem finding chapters', { status: 500 })
+
   return json<LoaderData>({
     chapters: page.chapters,
     page: pageNum,
@@ -41,7 +43,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
 export default function ChaptersPage() {
   const { chapters, page, totalPages } = useLoaderData() as LoaderData
-
   const fetcher = useFetcher()
 
   return (
@@ -120,6 +121,8 @@ export default function ChaptersPage() {
     </>
   )
 }
+
+export { default as CatchBoundary } from '~/components/CatchBoundary'
 
 async function getChapters(
   clubId: string,

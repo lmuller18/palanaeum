@@ -38,11 +38,11 @@ export default function ClubsPage() {
   return (
     <div className="mx-auto mt-4 max-w-lg p-3">
       <div className="mb-8">
-        <Header size="h4" className="mb-4">
+        <Header size="h4" className="mb-2">
           Currently Reading
         </Header>
 
-        <div className="grid gap-6">
+        <div className="grid gap-6 border-b border-t-2 border-rose-400 border-b-background-tertiary bg-gradient-to-b from-rose-400/10 via-transparent p-4">
           {data.currentlyReading.map(club => (
             <ClubCard club={club} key={club.id} />
           ))}
@@ -57,11 +57,11 @@ export default function ClubsPage() {
 
       {data.previouslyRead.length > 0 && (
         <div>
-          <Header size="h4" className="mb-4">
+          <Header size="h4" className="mb-2">
             Previously Read
           </Header>
 
-          <div className="grid gap-6">
+          <div className="grid gap-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
             {data.previouslyRead.map(club => (
               <ClubCard club={club} key={club.id} />
             ))}

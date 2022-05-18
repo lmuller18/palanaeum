@@ -72,7 +72,7 @@ const Sidenav = ({
                   <img
                     className="h-8 w-auto"
                     src="/images/inline.svg"
-                    alt="Workflow"
+                    alt="Palanaeum Logo"
                   />
                 </div>
                 <nav className="mt-5 space-y-1 px-2">

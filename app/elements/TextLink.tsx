@@ -40,6 +40,7 @@ const TextLink = ({
   return (
     <Link
       {...props}
+      onClick={e => e.stopPropagation()}
       className={clsx(
         'transition duration-300 ease-in-out',
         colors[color],

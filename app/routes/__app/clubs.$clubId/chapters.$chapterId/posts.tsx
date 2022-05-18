@@ -28,50 +28,53 @@ interface LoaderData {
       createdAt: Date
     }
   }[]
-  nextChapter: { id: string; title: string; order: number } | null
-  chapters: { id: string; title: string; order: number }[]
+  chapter: {
+    id: string
+    title: string
+    order: number
+    status: 'complete' | 'not_started' | 'incomplete'
+  }
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   invariant(params.clubId, 'expected clubId')
-  const userId = await requireUserId(request)
-  const searchParams = new URL(request.url).searchParams
-  const chapterId = searchParams.get('chapterId')
+  invariant(params.chapterId, 'expected chapterId')
 
-  const [posts, nextChapter, chapters] = await Promise.all([
-    getPosts(params.clubId, userId, chapterId),
-    getNextChapter(userId, params.clubId),
-    getChapterList(params.clubId, userId),
+  const userId = await requireUserId(request)
+
+  const [posts, chapter] = await Promise.all([
+    getPosts(params.clubId, params.chapterId, userId),
+    getChapter(params.chapterId, userId),
   ])
+
+  if (!chapter) throw new Response('Chapter not found', { status: 404 })
+  if (!posts) throw new Response('Problem finding posts', { status: 500 })
 
   return json<LoaderData>({
     posts,
-    nextChapter,
-    chapters,
+    chapter,
   })
 }
 
 export default function PostsPage() {
-  const { clubId } = useParams()
-  const { posts, nextChapter, chapters } = useLoaderData() as LoaderData
+  const { clubId, chapterId } = useParams()
+  const { posts, chapter } = useLoaderData() as LoaderData
 
   if (!clubId) throw new Error('Club Id Not Found')
+  if (!chapterId) throw new Error('Chapter Id Not Found')
 
   return (
     <motion.div layout>
       <LayoutGroup>
-        <PostComposer
-          defaultChapter={nextChapter ?? chapters[chapters.length - 1]}
-          chapters={chapters}
-        />
+        <PostComposer defaultChapter={chapter} chapters={[chapter]} />
         <motion.div
           layout
-          className="grid gap-2 border border-background-tertiary"
+          className="grid gap-2 divide-y divide-background-tertiary border border-background-tertiary"
         >
           {!posts.length && (
             <div className="p-4">
               <Text variant="body1" as="p" className="mb-2">
-                No posts yet for this club.
+                No posts yet for this chapter.
               </Text>
               <Text variant="body2" as="p">
                 Start contributing to the conversation above.
@@ -80,9 +83,9 @@ export default function PostsPage() {
           )}
           {posts.map(post => (
             <motion.div
-              key={post.post.id}
               layout
               className="border-b border-background-tertiary p-4 pb-2"
+              key={post.post.id}
             >
               <Post
                 clubId={clubId}
@@ -98,59 +101,11 @@ export default function PostsPage() {
   )
 }
 
-async function getChapterList(clubId: string, userId: string) {
-  const dbChapters = await prisma.chapter.findMany({
-    where: { clubId, club: { members: { some: { userId } } } },
-    select: {
-      id: true,
-      title: true,
-      order: true,
-    },
-    orderBy: {
-      order: 'asc',
-    },
-  })
+export { default as CatchBoundary } from '~/components/CatchBoundary'
 
-  return dbChapters
-}
-
-async function getNextChapter(userId: string, clubId: string) {
-  const dbChapter = await prisma.chapter.findFirst({
+async function getPosts(clubId: string, chapterId: string, userId: string) {
+  const dbPosts = await prisma.post.findMany({
     where: {
-      clubId,
-      progress: {
-        none: { member: { userId } },
-      },
-      club: { members: { some: { userId } } },
-    },
-    select: {
-      id: true,
-      title: true,
-      order: true,
-    },
-    orderBy: {
-      order: 'asc',
-    },
-  })
-
-  if (!dbChapter) return null
-
-  return {
-    id: dbChapter.id,
-    title: dbChapter.title,
-    order: dbChapter.order,
-  }
-}
-
-async function getPosts(
-  clubId: string,
-  userId: string,
-  chapterId: string | null,
-) {
-  let where = {}
-
-  if (chapterId) {
-    where = {
       parentId: null,
       chapterId,
       chapter: {
@@ -159,37 +114,7 @@ async function getPosts(
           members: { some: { userId } },
         },
       },
-    }
-  } else {
-    const readChapters = await prisma.chapter.findMany({
-      where: { clubId, progress: { some: { member: { userId } } } },
-      select: {
-        id: true,
-      },
-    })
-
-    where = readChapters
-      ? {
-          OR: [
-            { member: { userId } },
-            { chapterId: { in: readChapters.map(c => c.id) } },
-          ],
-          parentId: null,
-          chapter: { clubId },
-        }
-      : {
-          parentId: null,
-          chapter: {
-            clubId,
-            club: {
-              members: { some: { userId } },
-            },
-          },
-        }
-  }
-
-  const dbPosts = await prisma.post.findMany({
-    where,
+    },
     select: {
       id: true,
       content: true,
@@ -246,4 +171,41 @@ async function getPosts(
   }))
 
   return posts
+}
+
+async function getChapter(chapterId: string, userId: string) {
+  const dbChapter = await prisma.chapter.findFirst({
+    where: { id: chapterId, club: { members: { some: { userId } } } },
+    select: {
+      id: true,
+      order: true,
+      title: true,
+      progress: {
+        select: {
+          member: {
+            select: {
+              id: true,
+              userId: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  if (!dbChapter) return null
+
+  const userComplete = dbChapter.progress.some(p => p.member.userId === userId)
+  const status: 'complete' | 'not_started' | 'incomplete' = userComplete
+    ? 'complete'
+    : dbChapter.progress.length === 0
+    ? 'not_started'
+    : 'incomplete'
+
+  return {
+    id: dbChapter.id,
+    title: dbChapter.title,
+    order: dbChapter.order,
+    status,
+  }
 }

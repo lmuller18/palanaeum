@@ -1,6 +1,12 @@
 import clsx from 'clsx'
 import { useMemo } from 'react'
-import { LineChart, Line, ResponsiveContainer } from 'recharts'
+import {
+  Area,
+  YAxis,
+  ResponsiveContainer,
+  AreaChart as AreaRechart,
+} from 'recharts'
+
 import Text from '~/elements/Typography/Text'
 
 const DEFAULT_DATA = [
@@ -13,59 +19,65 @@ const DEFAULT_DATA = [
   { name: 'Page G', y: 4300 },
 ]
 
-const Chart = ({
+const AreaChart = ({
   data = DEFAULT_DATA,
   disabled = false,
   color = 'indigo',
 }: {
   data?: {
     name: string
-    y: number | null
-    prediction?: number | null
+    y: number
   }[]
   disabled?: boolean
   color?: 'indigo' | 'emerald' | 'amber'
 }) => {
   const chartData = disabled ? DEFAULT_DATA : data
 
-  const stroke = useMemo(() => {
+  const chartColor = useMemo(() => {
     switch (color) {
       case 'indigo':
-        return 'stroke-indigo-500'
+        return '#6366f1'
       case 'amber':
-        return 'stroke-amber-500'
+        return '#f59e0b'
       case 'emerald':
-        return 'stroke-emerald-500'
+        return '#10b981'
     }
   }, [color])
 
   return (
     <div className="relative h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
+        <AreaRechart
           width={300}
           height={200}
           data={chartData}
           className={clsx(disabled && 'blur-sm')}
+          margin={{ top: 0, left: 0, right: 0, bottom: 0 }}
         >
-          <Line
-            dot={false}
-            type="monotone"
-            stroke="inherit"
-            strokeDasharray="2 2"
-            dataKey="prediction"
-            strokeWidth={2}
-            className={clsx(stroke)}
+          <defs>
+            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <YAxis
+            type="number"
+            domain={[0, Math.max(...chartData.map(d => d.y))]}
+            hide
           />
-          <Line
-            dot={false}
+          <Area
             type="monotone"
-            stroke="inherit"
             dataKey="y"
+            fill={chartColor}
+            stroke={chartColor}
+            fillOpacity={0.1}
             strokeWidth={2}
-            className={clsx(stroke)}
           />
-        </LineChart>
+        </AreaRechart>
       </ResponsiveContainer>
       {disabled && (
         <div className="absolute inset-0 flex h-full w-full items-center justify-center">
@@ -76,4 +88,4 @@ const Chart = ({
   )
 }
 
-export default Chart
+export default AreaChart

@@ -55,6 +55,8 @@ export default function ChapterPage() {
       </div>
 
       <Outlet />
+
+      <div className="h-14" />
     </>
   )
 }
@@ -99,7 +101,7 @@ const SpringLink = ({
 
 export const handle = {
   nav: (match: { params: { chapterId: string; clubId: string } }) => (
-    <div className="relative grid grid-cols-3 items-center overflow-hidden rounded-md bg-background-primary p-1">
+    <div className="relative grid grid-cols-3 items-center overflow-hidden rounded-md bg-background-primary bg-opacity-50 p-1">
       <SpringLink
         to={`/clubs/${match.params.clubId}/chapters/${match.params.chapterId}/posts`}
       >

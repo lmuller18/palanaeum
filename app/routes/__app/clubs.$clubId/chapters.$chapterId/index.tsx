@@ -1,26 +1,20 @@
 import clsx from 'clsx'
-import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
 import { LayoutGroup, motion } from 'framer-motion'
 import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
+import { useUser } from '~/utils'
 import { prisma } from '~/db.server'
 import Post from '~/components/Post'
-import Chart from '~/components/Chart'
 import Text from '~/elements/Typography/Text'
-import { toLuxonDate, useUser } from '~/utils'
 import { requireUserId } from '~/session.server'
+import PieChart from '~/components/Chart/PieChart'
 import DiscussionSummary from '~/components/DiscussionSummary'
 
 interface LoaderData {
   counts: {
     remaining: number
     completed: number
-    readsByDay: {
-      name: string
-      y: number | null
-      prediction?: number | null
-    }[]
   }
   chapter: {
     id: string
@@ -80,12 +74,12 @@ export default function ChapterHome() {
         className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent"
       >
         <div
-          className="relative h-full w-full p-4"
+          className="h-full w-full"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%231e222a' fill-opacity='1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}
         >
-          <div className="absolute inset-0 z-10 h-full w-full p-4">
+          <div className="-mb-11 px-4 pt-4">
             <Text variant="title2" as="h3" className="mb-3">
               Reading Trajectory
             </Text>
@@ -99,10 +93,12 @@ export default function ChapterHome() {
               </div>
             </div>
           </div>
-          <div className="h-64">
-            <Chart
-              data={counts.readsByDay}
-              disabled={!counts.readsByDay || counts.readsByDay.length === 0}
+          <div className="h-52">
+            <PieChart
+              data={[
+                { name: 'Completed', value: counts.completed },
+                { name: 'Remaining', value: counts.remaining },
+              ]}
             />
           </div>
         </div>
@@ -163,6 +159,8 @@ export default function ChapterHome() {
   )
 }
 
+export { default as CatchBoundary } from '~/components/CatchBoundary'
+
 async function getCompletedMembersCount(chapterId: string, userId: string) {
   const [dbProgress, dbClub] = await Promise.all([
     prisma.progress.findMany({
@@ -179,122 +177,11 @@ async function getCompletedMembersCount(chapterId: string, userId: string) {
 
   if (!dbClub) return null
 
-  const progress = dbProgress.reduce((acc, cur) => {
-    const date = toLuxonDate(cur.completedAt).startOf('day').toISODate()
+  const total = dbProgress.length
 
-    if (acc[date]) {
-      return {
-        ...acc,
-        [date]: acc[date] + 1,
-      }
-    } else {
-      return {
-        ...acc,
-        [date]: 1,
-      }
-    }
-  }, {} as { [key: string]: number })
-
-  const { counts, total } = Object.keys(progress)
-    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-    .reduce(
-      (acc, cur) => {
-        return {
-          total: acc.total + progress[cur],
-          counts: [
-            ...acc.counts,
-            {
-              name: cur,
-              y: acc.total + progress[cur],
-            },
-          ],
-        }
-      },
-      { counts: [], total: 0 } as {
-        counts: { name: string; y: number }[]
-        total: number
-      },
-    )
-
-  if (total === dbClub._count.members) {
-    const readsByDay = [
-      {
-        name: toLuxonDate(dbClub.createdAt).toISODate(),
-        y: 0,
-      },
-    ]
-    let i = 0
-    while (i < counts.length) {
-      const cur = counts[i]
-      const curDate = toLuxonDate(cur.name)
-      const prev = readsByDay[readsByDay.length - 1]
-      const prevDate = toLuxonDate(prev.name)
-      const nextDate = prevDate.plus({ days: 2 })
-
-      if (nextDate.startOf('day') >= curDate.startOf('day')) {
-        readsByDay.push(cur)
-        i += 1
-      } else {
-        readsByDay.push({
-          name: nextDate.toISODate(),
-          y: prev.y,
-        })
-      }
-    }
-
-    return {
-      remaining: 0,
-      completed: total,
-      readsByDay,
-    }
-  } else if (total === 0) {
-    return {
-      remaining: dbClub._count.members,
-      completed: 0,
-      readsByDay: [],
-    }
-  } else {
-    const readsByDay = [
-      {
-        name: toLuxonDate(dbClub.createdAt).toISODate(),
-        y: 0,
-      },
-    ]
-    let i = 0
-    while (i < counts.length) {
-      const cur = counts[i]
-      const curDate = toLuxonDate(cur.name)
-      const prev = readsByDay[readsByDay.length - 1]
-      const prevDate = toLuxonDate(prev.name)
-      const nextDate = prevDate.plus({ days: 2 })
-
-      if (nextDate.startOf('day') >= curDate.startOf('day')) {
-        readsByDay.push(cur)
-        i += 1
-      } else {
-        readsByDay.push({
-          name: nextDate.toISODate(),
-          y: prev.y,
-        })
-      }
-    }
-
-    return {
-      remaining: dbClub._count.members - total,
-      completed: total,
-      readsByDay: [
-        ...readsByDay.slice(0, readsByDay.length - 1),
-        {
-          ...readsByDay[readsByDay.length - 1],
-          prediction: readsByDay[readsByDay.length - 1].y,
-        },
-        {
-          name: DateTime.now().plus({ days: 2 }).toISODate(),
-          y: null,
-          prediction: dbClub._count.members,
-        },
-      ],
-    }
+  return {
+    completed: total,
+    remaining: dbClub._count.members - total,
   }
 }
 

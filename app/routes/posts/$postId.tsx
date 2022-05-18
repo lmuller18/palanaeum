@@ -175,31 +175,6 @@ function getPostArray(array: PostDetailsType[], id: string) {
   return newArray
 }
 
-function getPostThread(array: PostDetailsType[], id: string) {
-  let parents: PostDetailsType[] = []
-  let replies: PostDetailsType[] = []
-
-  array.forEach(cur => {
-    console.log(cur.post.content, {
-      id: cur.post.id,
-      parent: cur.post.parentId,
-      search: id,
-    })
-    if (cur.post.parentId === id) {
-      replies = [...replies, cur]
-    } else if (cur.post.id === id) {
-      parents = [...parents, cur]
-    } else if (
-      parents.length > 0 &&
-      parents[parents.length - 1].post.parentId === cur.post.id
-    ) {
-      parents = [...parents, cur]
-    }
-  })
-
-  return [...parents, ...replies]
-}
-
 async function getPosts(postId: string, userId: string) {
   const dbPost = await prisma.post.findFirst({
     where: {

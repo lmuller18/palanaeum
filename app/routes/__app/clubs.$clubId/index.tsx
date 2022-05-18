@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
 import { LayoutGroup, motion } from 'framer-motion'
 import {
@@ -9,14 +8,22 @@ import {
   useLoaderData,
   LoaderFunction,
 } from 'remix'
+import {
+  add,
+  eachDayOfInterval,
+  isSameDay,
+  parseISO,
+  startOfDay,
+  startOfToday,
+} from 'date-fns'
 
+import { useUser } from '~/utils'
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'
-import Chart from '~/components/Chart'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
-import { toLuxonDate, useUser } from '~/utils'
 import { requireUserId } from '~/session.server'
+import AreaChart from '~/components/Chart/AreaChart'
 import DiscussionSummary from '~/components/DiscussionSummary'
 
 interface LoaderData {
@@ -35,8 +42,8 @@ interface LoaderData {
     remaining: number
     countsByDay: {
       name: string
-      y: number | null
-      prediction?: number | null
+      date: Date
+      y: number
     }[]
   }
   topPost: {
@@ -173,18 +180,12 @@ export default function ClubPage() {
         className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent"
       >
         <div
-          className="relative h-full w-full p-4"
+          className="relative h-full w-full"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%231e222a' fill-opacity='1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}
         >
-          <div className="h-64">
-            <Chart
-              data={counts.countsByDay}
-              disabled={counts.countsByDay.length === 0}
-            />
-          </div>
-          <div className="absolute inset-0 h-full w-full p-4">
+          <div className="px-4 pt-4">
             <Text variant="title2" as="h3" className="mb-3">
               Reading Trajectory
             </Text>
@@ -197,6 +198,16 @@ export default function ClubPage() {
                 <Text variant="caption">{counts.remaining} Remaining</Text>
               </div>
             </div>
+          </div>
+          <div className="h-52">
+            <AreaChart
+              data={counts.countsByDay}
+              disabled={
+                !counts.countsByDay ||
+                counts.countsByDay.length === 0 ||
+                counts.read === 0
+              }
+            />
           </div>
         </div>
       </motion.div>
@@ -330,17 +341,17 @@ async function getChaptersReadByDay(userId: string, clubId: string) {
     }
 
   const progress = dbProgress.reduce((acc, cur) => {
-    const date = toLuxonDate(cur.completedAt).startOf('day').toISODate()
+    const key = startOfDay(cur.completedAt).toISOString()
 
-    if (acc[date]) {
+    if (acc[key]) {
       return {
         ...acc,
-        [date]: acc[date] + 1,
+        [key]: acc[key] + 1,
       }
     } else {
       return {
         ...acc,
-        [date]: 1,
+        [key]: 1,
       }
     }
   }, {} as { [key: string]: number })
@@ -355,92 +366,47 @@ async function getChaptersReadByDay(userId: string, clubId: string) {
             ...acc.counts,
             {
               name: cur,
+              date: parseISO(cur),
               y: acc.remaining - progress[cur],
             },
           ],
         }
       },
       { counts: [], remaining: dbClub._count.chapters } as {
-        counts: { name: string; y: number }[]
+        counts: { name: string; date: Date; y: number }[]
         remaining: number
       },
     )
 
-  if (remaining === 0) {
-    const countsByDay = [
-      {
-        name: toLuxonDate(dbClub.createdAt).toISODate(),
-        y: dbClub._count.chapters,
-      },
-    ]
-    let i = 0
-    while (i < counts.length) {
-      const cur = counts[i]
-      const curDate = toLuxonDate(cur.name)
-      const prev = countsByDay[countsByDay.length - 1]
-      const prevDate = toLuxonDate(prev.name)
-      const nextDate = prevDate.plus({ days: 2 })
+  const startDate = add(dbClub.createdAt, { days: -1 })
 
-      if (nextDate.startOf('day') >= curDate.startOf('day')) {
-        countsByDay.push(cur)
-        i += 1
-      } else {
-        countsByDay.push({
-          name: nextDate.toISODate(),
-          y: prev.y,
-        })
-      }
+  let current = {
+    name: startDate.toISOString(),
+    date: startDate,
+    y: dbClub._count.chapters,
+  }
+
+  const range = eachDayOfInterval({
+    start: startDate,
+    end: startOfToday(),
+  })
+
+  const countsByDay: Array<{ name: string; date: Date; y: number }> = [current]
+
+  range.forEach(date => {
+    const foundDate = counts.find(d => isSameDay(date, d.date))
+    if (foundDate) {
+      countsByDay.push(foundDate)
+      current = foundDate
+    } else {
+      countsByDay.push(current)
     }
+  })
 
-    return {
-      read: dbProgress.length,
-      remaining: remaining,
-      countsByDay,
-    }
-  } else {
-    const countsByDay = [
-      {
-        name: toLuxonDate(dbClub.createdAt).toISODate(),
-        y: dbClub._count.chapters,
-      },
-    ]
-    let i = 0
-    while (i < counts.length) {
-      const cur = counts[i]
-      const curDate = toLuxonDate(cur.name)
-      const prev = countsByDay[countsByDay.length - 1]
-      const prevDate = toLuxonDate(prev.name)
-      const nextDate = prevDate.plus({ days: 2 })
-
-      if (nextDate.startOf('day') >= curDate.startOf('day')) {
-        countsByDay.push(cur)
-        i += 1
-      } else {
-        countsByDay.push({
-          name: nextDate.toISODate(),
-          y: prev.y,
-        })
-      }
-    }
-
-    const newCounts = {
-      read: dbProgress.length,
-      remaining: remaining,
-      countsByDay: [
-        ...countsByDay.slice(0, countsByDay.length - 1),
-        {
-          ...countsByDay[countsByDay.length - 1],
-          prediction: countsByDay[countsByDay.length - 1].y,
-        },
-        {
-          name: DateTime.now().plus({ days: 2 }).toISODate(),
-          y: null,
-          prediction: 0,
-        },
-      ],
-    }
-
-    return newCounts
+  return {
+    read: dbProgress.length,
+    remaining: remaining,
+    countsByDay,
   }
 }
 

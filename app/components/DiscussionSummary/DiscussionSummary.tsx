@@ -32,7 +32,7 @@ const DiscussionSummary = ({
 
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link to={`/user/${user.id}`}>
+          <Link to={`/user/${user.id}`} onClick={e => e.stopPropagation()}>
             <img
               className="h-6 w-6 flex-shrink-0 overflow-hidden rounded-full object-cover"
               src={user.avatar}
