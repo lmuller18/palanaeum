@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
@@ -10,6 +10,7 @@ import {
   useParams,
   useLoaderData,
   LoaderFunction,
+  useMatches,
 } from 'remix'
 
 import { prisma } from '~/db.server'
@@ -41,20 +42,40 @@ export default function ChapterPage() {
   const { clubId } = useParams()
   const { chapter } = useLoaderData() as LoaderData
 
+  const matches = useMatches()
+
+  const backNavigation = useMemo(() => {
+    const foundBackNav = matches
+      .filter(match => match.handle && match.handle.backNavigation)
+      .at(-1)
+
+    if (foundBackNav) {
+      const nav = foundBackNav.handle.backNavigation()
+
+      if (typeof nav === 'string') return nav
+    }
+
+    return '..'
+  }, [matches])
+
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
     <>
-      <div className="mb-4 flex items-center gap-2">
-        <TextLink to="..">
-          <ChevronLeftIcon className="h-4 w-4" />
-        </TextLink>
-        <TextLink variant="title2" className="block" to=".">
-          {chapter.title}
-        </TextLink>
+      <div className="mb-4 bg-background-secondary">
+        <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
+          <TextLink to={backNavigation}>
+            <ChevronLeftIcon className="h-4 w-4" />
+          </TextLink>
+          <TextLink variant="title2" className="block" to=".">
+            {chapter.title}
+          </TextLink>
+        </div>
       </div>
 
-      <Outlet />
+      <div className="relative mx-auto max-w-lg px-4">
+        <Outlet />
+      </div>
 
       <div className="h-14" />
     </>

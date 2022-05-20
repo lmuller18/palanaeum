@@ -159,6 +159,10 @@ export default function ChapterHome() {
   )
 }
 
+export const handle = {
+  backNavigation: () => '..',
+}
+
 export { default as CatchBoundary } from '~/components/CatchBoundary'
 
 async function getCompletedMembersCount(chapterId: string, userId: string) {

@@ -43,7 +43,7 @@ export default function DiscussionsPage() {
   const navigate = useNavigate()
 
   const toChapter = (id: string) => {
-    navigate(`/discussions/${id}`)
+    navigate(id)
   }
 
   return (
@@ -59,6 +59,10 @@ export default function DiscussionsPage() {
       ))}
     </div>
   )
+}
+
+export const handle = {
+  backNavigation: () => '.',
 }
 
 export { default as CatchBoundary } from '~/components/CatchBoundary'

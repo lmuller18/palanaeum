@@ -18,10 +18,16 @@ import {
 import Button from '~/elements/Button'
 import { removeEmpty } from '~/utils'
 
-const DiscussionReplyComposer = ({
+const CommentReplyComposer = ({
   discussionId,
+  parentId,
+  rootId,
+  onSubmit,
 }: {
   discussionId: string
+  parentId: string
+  rootId: string
+  onSubmit: Function
 }) => {
   const fetcher = useFetcher()
   const submitRef = useRef<HTMLButtonElement>(null)
@@ -30,10 +36,10 @@ const DiscussionReplyComposer = ({
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: 'Start contributing to the conversation …',
+        placeholder: 'Compose Your Reply …',
       }),
     ],
-    autofocus: false,
+    autofocus: true,
     editorProps: {
       attributes: {
         class:
@@ -47,11 +53,12 @@ const DiscussionReplyComposer = ({
       if (fetcher.data.ok) {
         editor?.commands.clearContent()
         submitRef?.current?.blur()
+        onSubmit()
       } else {
         console.log(fetcher.data.error)
       }
     }
-  }, [fetcher, editor?.commands])
+  }, [fetcher, editor?.commands, onSubmit])
 
   const createComment = () => {
     // shouldnt happen
@@ -62,6 +69,8 @@ const DiscussionReplyComposer = ({
     const newPost = {
       discussionId,
       content,
+      parentId,
+      rootId,
     }
 
     fetcher.submit(removeEmpty(newPost), {
@@ -149,8 +158,7 @@ const EditorButton = ({ active, ...props }: EditorButtonProps) => (
     aria-label={active.toString()}
     className={clsx('p-2', active && 'bg-background-primary')}
     {...props}
-    // active={editor.isActive('blockquote')}
   />
 )
 
-export default DiscussionReplyComposer
+export default CommentReplyComposer

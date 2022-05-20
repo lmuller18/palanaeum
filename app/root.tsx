@@ -8,6 +8,7 @@ import {
   Scripts,
   LiveReload,
   useLoaderData,
+  ScrollRestoration,
 } from 'remix'
 import type { LinksFunction, MetaFunction, LoaderFunction } from 'remix'
 
@@ -101,7 +102,7 @@ export default function App() {
       <body>
         <Outlet />
         <Toaster />
-        {/* <ScrollRestoration /> */}
+        <ScrollRestoration />
         <Scripts />
         <LiveReload />
       </body>

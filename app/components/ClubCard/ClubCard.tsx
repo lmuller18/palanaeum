@@ -1,8 +1,6 @@
 import { Link } from 'remix'
 
 import TextLink from '~/elements/TextLink'
-import { Feather, Percent } from 'react-feather'
-import { BookmarkAltIcon, UserGroupIcon } from '@heroicons/react/outline'
 import Text from '~/elements/Typography/Text'
 
 const ClubCard = ({

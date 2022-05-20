@@ -178,9 +178,9 @@ async function getDiscussion(discussionId: string, userId: string) {
       comments: [],
     },
     chapter: {
-      id: 'cl18dgwni4577cloxlwf9jz6h',
-      title: 'Chapter 5',
-      clubId: 'cl18dgwni4575cloxgid74oq5',
+      id: dbDiscussion.chapter.id,
+      title: dbDiscussion.chapter.title,
+      clubId: dbDiscussion.chapter.clubId,
     },
   }
 }
