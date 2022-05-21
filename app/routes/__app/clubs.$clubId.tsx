@@ -69,7 +69,7 @@ const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
       <TabLink to="." end color="teal" layoutId="club-nav">
         <HomeIcon className="h-6 w-6" />
       </TabLink>
-      <TabLink to="chapters" color="indigo" layoutId="club-nav">
+      <TabLink to="chapters" end color="indigo" layoutId="club-nav">
         <BookmarkIcon className="h-6 w-6" />
       </TabLink>
     </LayoutGroup>

@@ -8,6 +8,7 @@ import { prisma } from '~/db.server'
 import Post from '~/components/Post'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
+import Header from '~/elements/Typography/Header'
 import PieChart from '~/components/Chart/PieChart'
 import DiscussionSummary from '~/components/DiscussionSummary'
 
@@ -68,6 +69,10 @@ export default function ChapterHome() {
 
   return (
     <LayoutGroup>
+      <Header size="h4" font="serif" className="my-4">
+        Chapter Overview
+      </Header>
+
       {/* Chart Block */}
       <motion.div
         layout="position"

@@ -35,6 +35,7 @@ const ClubCard = ({
         />
       </Link>
       <div className="flex flex-grow flex-col justify-center gap-2">
+        <span className="block text-xs text-red-500">Not Final Appearance</span>
         <TextLink
           to={`/clubs/${club.id}`}
           variant="title2"

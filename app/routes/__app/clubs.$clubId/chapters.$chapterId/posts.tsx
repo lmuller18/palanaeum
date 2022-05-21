@@ -6,6 +6,7 @@ import Post from '~/components/Post'
 import { prisma } from '~/db.server'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
+import Header from '~/elements/Typography/Header'
 import PostComposer from '~/components/PostComposer'
 
 interface LoaderData {
@@ -65,6 +66,9 @@ export default function PostsPage() {
 
   return (
     <motion.div layout>
+      <Header size="h4" font="serif" className="mb-4">
+        Posts
+      </Header>
       <LayoutGroup>
         <PostComposer defaultChapter={chapter} chapters={[chapter]} />
         <motion.div

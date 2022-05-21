@@ -2,7 +2,10 @@ import invariant from 'tiny-invariant'
 import { json, LoaderFunction, useLoaderData, useNavigate } from 'remix'
 
 import { prisma } from '~/db.server'
+import TextLink from '~/elements/TextLink'
+import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
+import Header from '~/elements/Typography/Header'
 import DiscussionSummary from '~/components/DiscussionSummary'
 
 interface LoaderData {
@@ -47,16 +50,37 @@ export default function DiscussionsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {discussions.map(d => (
-        <button
-          onClick={() => toChapter(d.discussion.id)}
-          key={d.discussion.id}
-          className="block overflow-hidden rounded-lg bg-background-secondary p-4 text-left shadow-sm"
-        >
-          <DiscussionSummary {...d} />
-        </button>
-      ))}
+    <div>
+      <div className="mb-4 flex items-baseline justify-between">
+        <Header size="h4" font="serif">
+          Discussions
+        </Header>
+        <TextLink to="new" color="blue">
+          New +
+        </TextLink>
+      </div>
+      <div className="flex flex-col gap-4">
+        {discussions.map(d => (
+          <button
+            onClick={() => toChapter(d.discussion.id)}
+            key={d.discussion.id}
+            className="block overflow-hidden rounded-lg bg-background-secondary p-4 text-left shadow-sm"
+          >
+            <DiscussionSummary {...d} />
+          </button>
+        ))}
+        {!discussions.length && (
+          <div className="block overflow-hidden rounded-lg bg-background-secondary p-4 text-left shadow-sm">
+            <Text>
+              No discussions yet. Be the first to{' '}
+              <TextLink to="new" color="blue">
+                start the conversation
+              </TextLink>{' '}
+              about this chapter.
+            </Text>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -88,6 +88,7 @@ const CircularProgress = ({
             fill="transparent"
             strokeDashoffset={fillPercents}
             strokeDasharray={circumference}
+            initial={false}
             animate={{
               strokeDashoffset: fillPercents,
               scale: typeof label !== 'undefined' ? 1 : 0.85,

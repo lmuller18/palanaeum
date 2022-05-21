@@ -66,6 +66,9 @@ export default function ChaptersPage() {
               >
                 {chapter.title}
               </TextLink>
+              <span className="block text-xs text-red-500">
+                Not Final Appearance
+              </span>
 
               <Text variant="body2">Completed by 3 other members.</Text>
               {/* <Text variant="body2">Completed by all other members.</Text> */}

@@ -6,6 +6,7 @@ import type { RemixLinkProps } from '@remix-run/react/components'
 interface TextLinkProps extends RemixLinkProps {
   color?: keyof typeof colors
   variant?: keyof typeof variants | 'inherit'
+  serif?: boolean
 }
 
 const colors = {
@@ -33,6 +34,7 @@ const colors = {
 const TextLink = ({
   color = 'default',
   variant = 'inherit',
+  serif = false,
   className,
   children,
   ...props
@@ -44,6 +46,7 @@ const TextLink = ({
       className={clsx(
         'transition duration-300 ease-in-out',
         colors[color],
+        serif ? 'font-serif' : 'font-sans',
         variant !== 'inherit' && variants[variant],
         className,
       )}

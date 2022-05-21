@@ -154,7 +154,7 @@ const PostComposer = ({
           />
         </Link>
 
-        <div className="min-h-[48px]">
+        <div className="min-h-[48px] overflow-hidden">
           <EditorContent editor={editor} />
         </div>
 

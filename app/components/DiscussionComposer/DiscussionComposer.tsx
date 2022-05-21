@@ -1,10 +1,6 @@
 import clsx from 'clsx'
-import { useFetcher } from 'remix'
-import { useEffect, useRef } from 'react'
 
-import StarterKit from '@tiptap/starter-kit'
-import Placeholder from '@tiptap/extension-placeholder'
-import { useEditor, EditorContent } from '@tiptap/react'
+import { Editor, EditorContent } from '@tiptap/react'
 
 import {
   FaBold,
@@ -15,62 +11,7 @@ import {
   FaStrikethrough,
 } from 'react-icons/fa'
 
-import Button from '~/elements/Button'
-import { removeEmpty } from '~/utils'
-
-const DiscussionReplyComposer = ({
-  discussionId,
-}: {
-  discussionId: string
-}) => {
-  const fetcher = useFetcher()
-  const submitRef = useRef<HTMLButtonElement>(null)
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({
-        placeholder: 'Start contributing to the conversation …',
-      }),
-    ],
-    autofocus: false,
-    editorProps: {
-      attributes: {
-        class:
-          'prose prose-invert prose-violet max-w-none prose-p:mt-0 prose-p:mb-0 focus:outline-none',
-      },
-    },
-  })
-
-  useEffect(() => {
-    if (fetcher.type === 'done') {
-      if (fetcher.data.ok) {
-        editor?.commands.clearContent()
-        submitRef?.current?.blur()
-      } else {
-        console.log(fetcher.data.error)
-      }
-    }
-  }, [fetcher, editor?.commands])
-
-  const createComment = () => {
-    // shouldnt happen
-    if (!editor) return
-
-    const content = editor.getHTML()
-
-    const newPost = {
-      discussionId,
-      content,
-    }
-
-    fetcher.submit(removeEmpty(newPost), {
-      action: '/api/comments',
-      method: 'post',
-      replace: true,
-    })
-  }
-
+const DiscussionComposer = ({ editor }: { editor: Editor | null }) => {
   return (
     <div className="rounded-lg border border-background-tertiary bg-background-secondary p-4">
       <div className="flex flex-col">
@@ -117,18 +58,6 @@ const DiscussionReplyComposer = ({
               <FaQuoteLeft className="h-4 w-4" />
             </EditorButton>
           </div>
-
-          <Button
-            type="button"
-            size="xs"
-            ref={submitRef}
-            onClick={createComment}
-            disabled={
-              fetcher.state === 'submitting' || !editor || editor.isEmpty
-            }
-          >
-            Post
-          </Button>
         </div>
       </div>
     </div>
@@ -152,4 +81,4 @@ const EditorButton = ({ active, ...props }: EditorButtonProps) => (
   />
 )
 
-export default DiscussionReplyComposer
+export default DiscussionComposer

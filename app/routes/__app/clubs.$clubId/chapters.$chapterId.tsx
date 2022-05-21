@@ -1,16 +1,16 @@
 import clsx from 'clsx'
-import { ReactNode, useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
+import { ReactNode, useMemo } from 'react'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
 import {
   json,
   Outlet,
   NavLink,
   useParams,
+  useMatches,
   useLoaderData,
   LoaderFunction,
-  useMatches,
 } from 'remix'
 
 import { prisma } from '~/db.server'
@@ -52,6 +52,7 @@ export default function ChapterPage() {
     if (foundBackNav) {
       const nav = foundBackNav.handle.backNavigation()
 
+      if (nav === null) return null
       if (typeof nav === 'string') return nav
     }
 
@@ -62,16 +63,18 @@ export default function ChapterPage() {
 
   return (
     <>
-      <div className="mb-4 bg-background-secondary">
-        <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
-          <TextLink to={backNavigation}>
-            <ChevronLeftIcon className="h-4 w-4" />
-          </TextLink>
-          <TextLink variant="title2" className="block" to=".">
-            {chapter.title}
-          </TextLink>
+      {backNavigation && (
+        <div className="mb-4 bg-background-secondary">
+          <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
+            <TextLink to={backNavigation}>
+              <ChevronLeftIcon className="h-4 w-4" />
+            </TextLink>
+            <TextLink serif variant="title2" className="block" to=".">
+              {chapter.title}
+            </TextLink>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="relative mx-auto max-w-lg px-4">
         <Outlet />
