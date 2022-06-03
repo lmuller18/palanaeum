@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-import toast, { Toaster } from 'react-hot-toast'
 import {
   json,
   Links,
@@ -7,20 +5,18 @@ import {
   Outlet,
   Scripts,
   LiveReload,
+  useFetcher,
   useLoaderData,
   ScrollRestoration,
 } from 'remix'
 import type { LinksFunction, MetaFunction, LoaderFunction } from 'remix'
 
 import PwaMeta from './pwa-meta'
-import { ToastMessage } from './toast.server'
 import tailwindStylesheetUrl from './styles/tailwind.css'
-import {
-  getUser,
-  getSession,
-  sessionStorage,
-  prepareUserSession,
-} from './session.server'
+import { getUser, prepareUserSession } from './session.server'
+import { subscribe as doSubscribe } from './utils/notifications.utils'
+import { removeEmpty } from './utils'
+import { registerWebPush } from './utils/notifications.server'
 
 export const links: LinksFunction = () => {
   return [
@@ -48,49 +44,51 @@ export const meta: MetaFunction = () => ({
 
 type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>
-  toastMessage: ToastMessage | null
+  ENV: { [key: string]: string }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request)
-  const session = await getSession(request)
-  const toastMessage = session.get('toastMessage') as ToastMessage
+
+  registerWebPush()
+
+  const ENV = removeEmpty({
+    VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY,
+  })
 
   if (user) {
     const headers = await prepareUserSession({ request, userId: user.id })
-    return json<LoaderData>(
-      { user, toastMessage: toastMessage ?? null },
-      { headers },
-    )
+    return json<LoaderData>({ user, ENV }, { headers })
   }
 
-  const options = toastMessage
-    ? { headers: { 'Set-Cookie': await sessionStorage.commitSession(session) } }
-    : {}
-
-  return json<LoaderData>({ user, toastMessage: toastMessage ?? null }, options)
+  return json<LoaderData>({ user, ENV })
 }
 
 export default function App() {
   const data = useLoaderData() as LoaderData
 
-  useEffect(() => {
-    if (!data.toastMessage) {
-      return
-    }
-    const { message, type } = data.toastMessage
+  const subscriptionFetcher = useFetcher()
+  const broadcastFetcher = useFetcher()
 
-    switch (type) {
-      case 'success':
-        toast.success(message)
-        break
-      case 'error':
-        toast.error(message)
-        break
-      default:
-        throw new Error(`${type} is not handled`)
+  const subscribe = async () => {
+    const subscription = await doSubscribe()
+    if (subscription) {
+      subscriptionFetcher.submit(
+        {
+          subscription: JSON.stringify(subscription),
+        },
+        {
+          method: 'post',
+          replace: true,
+          action: '/api/subscription',
+        },
+      )
     }
-  }, [data.toastMessage])
+  }
+
+  const broadcast = async () => {
+    broadcastFetcher.load('/api/broadcast')
+  }
 
   return (
     <html lang="en" className="dark">
@@ -100,8 +98,22 @@ export default function App() {
         <PwaMeta />
       </head>
       <body>
+        {data.user && (
+          <>
+            <button type="button" onClick={subscribe}>
+              Subscribe
+            </button>
+            <button type="button" onClick={broadcast}>
+              Send notification
+            </button>
+          </>
+        )}
         <Outlet />
-        <Toaster />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+          }}
+        />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

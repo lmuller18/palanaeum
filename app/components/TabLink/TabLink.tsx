@@ -1,9 +1,28 @@
 import clsx from 'clsx'
 import { NavLink } from 'remix'
 import { motion } from 'framer-motion'
-import { memo, ReactNode, useMemo } from 'react'
+import { memo, ReactNode } from 'react'
 
 import Text from '~/elements/Typography/Text'
+
+const themes = {
+  indigo: {
+    bg: 'from-indigo-400/20',
+    border: 'bg-indigo-500',
+  },
+  emerald: {
+    bg: 'from-emerald-400/20',
+    border: 'bg-emerald-500',
+  },
+  sky: {
+    bg: 'from-sky-400/20',
+    border: 'bg-sky-500',
+  },
+  teal: {
+    bg: 'from-teal-400/20',
+    border: 'bg-teal-500',
+  },
+}
 
 const TabLink = ({
   to,
@@ -18,39 +37,9 @@ const TabLink = ({
   children: ReactNode
   // this will override navlink matching
   active?: boolean
-  color: 'indigo' | 'emerald' | 'sky' | 'teal'
+  color: keyof typeof themes
   layoutId: string
 }) => {
-  const theme = useMemo(() => {
-    switch (color) {
-      case 'indigo':
-        return {
-          bg: 'from-indigo-400/20',
-          border: 'bg-indigo-500',
-        }
-      case 'emerald':
-        return {
-          bg: 'from-emerald-400/20',
-          border: 'bg-emerald-500',
-        }
-      case 'sky':
-        return {
-          bg: 'from-sky-400/20',
-          border: 'bg-sky-500',
-        }
-      case 'teal':
-        return {
-          bg: 'from-teal-400/20',
-          border: 'bg-teal-500',
-        }
-      default:
-        return {
-          bg: '',
-          border: '',
-        }
-    }
-  }, [color])
-
   if (to)
     return (
       <NavLink to={to} end={end} className="flex-grow text-center">
@@ -86,7 +75,7 @@ const TabLink = ({
                   ((active != null && active) ||
                     (active == null && isActive)) && [
                     'bg-gradient-to-t',
-                    theme.bg,
+                    themes[color].bg,
                   ],
                 )}
               />
@@ -94,7 +83,7 @@ const TabLink = ({
             {(active != null && active) || (active == null && isActive) ? (
               <motion.div
                 layoutId={layoutId + '-underline'}
-                className={clsx('h-[2px] w-full', theme.border)}
+                className={clsx('h-[2px] w-full', themes[color].border)}
               />
             ) : (
               <div className="h-[2px] w-full bg-background-tertiary" />

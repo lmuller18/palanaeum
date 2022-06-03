@@ -17,9 +17,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  managedClubs Club[]
-  members      Member[]
-  password     Password?
+  managedClubs  Club[]
+  members       Member[]
+  subscriptions Subscription[]
+  password      Password?
 }
 
 model Password {
@@ -151,4 +152,14 @@ model Comment {
   parentId     String?
   rootId       String?
   replies      Comment[] @relation("DiscussionCommentThread")
+}
+
+model Subscription {
+  endpoint       String @unique
+  expirationTime Int?
+  auth           String
+  p256dh         String
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
 }

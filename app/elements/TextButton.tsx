@@ -4,6 +4,7 @@ import { variants } from './Typography/Text'
 interface TextButtonProps extends React.ComponentProps<'button'> {
   color?: keyof typeof colors
   variant?: keyof typeof variants | 'inherit'
+  underline?: boolean
 }
 
 const colors = {
@@ -31,6 +32,7 @@ const colors = {
 const TextButton = ({
   color = 'default',
   variant = 'inherit',
+  underline = false,
   className,
   children,
   ...props
@@ -42,6 +44,7 @@ const TextButton = ({
         'transition duration-300 ease-in-out',
         colors[color],
         variant !== 'inherit' && variants[variant],
+        underline && 'underline',
         className,
       )}
     >

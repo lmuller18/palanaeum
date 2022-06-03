@@ -7,6 +7,7 @@ interface TextLinkProps extends RemixLinkProps {
   color?: keyof typeof colors
   variant?: keyof typeof variants | 'inherit'
   serif?: boolean
+  underline?: boolean
 }
 
 const colors = {
@@ -34,6 +35,7 @@ const colors = {
 const TextLink = ({
   color = 'default',
   variant = 'inherit',
+  underline = false,
   serif = false,
   className,
   children,
@@ -48,6 +50,7 @@ const TextLink = ({
         colors[color],
         serif ? 'font-serif' : 'font-sans',
         variant !== 'inherit' && variants[variant],
+        underline && 'underline',
         className,
       )}
     >

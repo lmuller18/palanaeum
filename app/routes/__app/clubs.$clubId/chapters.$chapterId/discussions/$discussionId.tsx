@@ -146,7 +146,7 @@ const ThreadedComment = ({ comment }: { comment: Comment }) => {
           isRoot ? 'grid-cols-[32px,1fr]' : 'grid-cols-[24px,1fr]',
         )}
       >
-        <div className="flex flex-col">
+        <div className="mt-[5px] flex flex-col">
           <Link to={`/user/${comment.user.id}`} className="flex-shrink-0">
             <img
               src={comment.user.avatar}
@@ -164,6 +164,14 @@ const ThreadedComment = ({ comment }: { comment: Comment }) => {
         </div>
 
         <div className="ml-2">
+          <TextLink underline variant="caption" to={`/user/${comment.user.id}`}>
+            {comment.user.username}
+          </TextLink>
+
+          <Text variant="caption" className="ml-2 text-gray-500">
+            {toRelative(comment.createdAt)}
+          </Text>
+
           <div
             className="prose prose-sm prose-invert prose-violet max-w-none"
             dangerouslySetInnerHTML={{ __html: comment.content }}
@@ -172,6 +180,7 @@ const ThreadedComment = ({ comment }: { comment: Comment }) => {
           <div>
             <TextButton
               variant="caption"
+              underline
               type="button"
               onClick={() => setOpen(true)}
             >

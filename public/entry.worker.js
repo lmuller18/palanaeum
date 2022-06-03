@@ -37,3 +37,11 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(handleActivate(event).then(() => self.clients.claim()))
 })
+
+self.addEventListener('push', e => {
+  const data = e.data.json()
+  self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: data.icon,
+  })
+})

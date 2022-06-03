@@ -1,5 +1,4 @@
 import { useFetcher } from 'remix'
-import toast from 'react-hot-toast'
 import { useEffect, useMemo } from 'react'
 
 import { ChapterListItem } from '~/models/chapter.server'
@@ -15,7 +14,10 @@ const useChapterActionsFetcher = (chapter: ChapterListItem) => {
     : 'idle'
 
   useEffect(() => {
-    if (state === 'error') toast.error(fetcher.data.error)
+    if (state === 'error') {
+      console.error(fetcher.data.error)
+      // toast.error(fetcher.data.error)
+    }
   }, [state, fetcher.data?.error])
 
   const actionType = fetcher.submission?.formData.get('_action')
