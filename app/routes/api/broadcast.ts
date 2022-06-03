@@ -1,13 +1,21 @@
 import { LoaderFunction } from 'remix'
 import webpush, { SendResult } from 'web-push'
-import { prisma } from '~/db.server'
 
-export const loader: LoaderFunction = async () => {
+import { prisma } from '~/db.server'
+import { createNotification } from '~/utils/notifications.utils'
+
+export const loader: LoaderFunction = async ({ request }) => {
   try {
-    const notification: NotificationOptions & { title: string } = {
+    const origin = new URL(request.url).origin
+    const notification = createNotification({
       title: 'Hey, this is a push notification!',
-      icon: '/images/gradient-logo-192.png',
-    }
+      data: {
+        options: {
+          action: 'navigate',
+          url: `${origin}/clubs`,
+        },
+      },
+    })
 
     const subscriptions = await prisma.subscription.findMany()
 

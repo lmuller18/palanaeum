@@ -1,3 +1,35 @@
+interface AppNotification extends NotificationOptions {
+  title: string
+  data: {
+    options: {
+      action?: 'default' | 'focus-only' | 'message' | 'open-only' | 'navigate'
+      close?: boolean
+      notificationCloseEvent?: boolean
+      url: string
+    }
+  }
+}
+
+export function createNotification(
+  notification: AppNotification,
+): AppNotification {
+  const { data, ...rest } = notification
+  return {
+    icon: '/images/gradient-logo-192.png',
+    badge: '/icons/badge.png',
+    ...rest,
+    data: {
+      ...data,
+      options: {
+        action: data.options.action ?? 'default',
+        close: data.options.close ?? true,
+        notificationCloseEvent: data.options.notificationCloseEvent ?? false,
+        url: data.options.url,
+      },
+    },
+  }
+}
+
 // Copied from the web-push documentation
 export function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -11,6 +43,25 @@ export function urlBase64ToUint8Array(base64String: string) {
     outputArray[i] = rawData.charCodeAt(i)
   }
   return outputArray
+}
+
+export async function getSubscription() {
+  if (!('serviceWorker' in navigator)) {
+    console.error('No service worker', navigator)
+    return
+  }
+
+  console.log('service worker found')
+
+  try {
+    const registration = await navigator.serviceWorker.ready
+
+    console.log('service worker ready')
+
+    return registration.pushManager.getSubscription()
+  } catch (e) {
+    console.error('error registering subscription: ', e)
+  }
 }
 
 export async function subscribe() {

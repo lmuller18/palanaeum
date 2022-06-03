@@ -14,7 +14,10 @@ import type { LinksFunction, MetaFunction, LoaderFunction } from 'remix'
 import PwaMeta from './pwa-meta'
 import tailwindStylesheetUrl from './styles/tailwind.css'
 import { getUser, prepareUserSession } from './session.server'
-import { subscribe as doSubscribe } from './utils/notifications.utils'
+import {
+  getSubscription,
+  subscribe as doSubscribe,
+} from './utils/notifications.utils'
 import { removeEmpty } from './utils'
 import { registerWebPush } from './utils/notifications.server'
 
@@ -90,6 +93,11 @@ export default function App() {
     broadcastFetcher.load('/api/broadcast')
   }
 
+  const list = async () => {
+    const sub = await getSubscription()
+    console.log('found sub: ', sub)
+  }
+
   return (
     <html lang="en" className="dark">
       <head>
@@ -105,6 +113,9 @@ export default function App() {
             </button>
             <button type="button" onClick={broadcast}>
               Send notification
+            </button>
+            <button type="button" onClick={list}>
+              List
             </button>
           </>
         )}
