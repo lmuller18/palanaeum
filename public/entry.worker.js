@@ -116,6 +116,32 @@ self.addEventListener('notificationclick', function (event) {
     })
   } else if (options.action == 'navigate') {
     promise = promise
+      .then(() =>
+        self.clients.matchAll({
+          type: 'window',
+          includeUncontrolled: true,
+        }),
+      )
+      .then(windowClients => {
+        let matchingClient = null
+        const urlToOpen = new URL(options.url, self.location.origin).href
+        for (let i = 0; i < windowClients.length; i++) {
+          const windowClient = windowClients[i]
+          if (windowClient.url === urlToOpen) {
+            console.log('found client: ', windowClient)
+            matchingClient = windowClient
+            break
+          }
+        }
+
+        if (matchingClient) {
+          return matchingClient.focus()
+        } else {
+          return self.clients.openWindow(urlToOpen)
+        }
+      })
+  } else if (options.action == 'navigate-old') {
+    promise = promise
       .then(() => firstWindowClient())
       .then(client => {
         client.focus()
