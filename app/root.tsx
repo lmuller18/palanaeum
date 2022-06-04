@@ -5,20 +5,16 @@ import {
   Outlet,
   Scripts,
   LiveReload,
-  useFetcher,
   useLoaderData,
   ScrollRestoration,
 } from 'remix'
+import { QueryClient, QueryClientProvider } from 'react-query'
 import type { LinksFunction, MetaFunction, LoaderFunction } from 'remix'
 
 import PwaMeta from './pwa-meta'
+import { removeEmpty } from './utils'
 import tailwindStylesheetUrl from './styles/tailwind.css'
 import { getUser, prepareUserSession } from './session.server'
-import {
-  getSubscription,
-  subscribe as doSubscribe,
-} from './utils/notifications.utils'
-import { removeEmpty } from './utils'
 import { registerWebPush } from './utils/notifications.server'
 
 export const links: LinksFunction = () => {
@@ -67,36 +63,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json<LoaderData>({ user, ENV })
 }
 
+const queryClient = new QueryClient()
+
 export default function App() {
   const data = useLoaderData() as LoaderData
-
-  const subscriptionFetcher = useFetcher()
-  const broadcastFetcher = useFetcher()
-
-  const subscribe = async () => {
-    const subscription = await doSubscribe()
-    if (subscription) {
-      subscriptionFetcher.submit(
-        {
-          subscription: JSON.stringify(subscription),
-        },
-        {
-          method: 'post',
-          replace: true,
-          action: '/api/subscription',
-        },
-      )
-    }
-  }
-
-  const broadcast = async () => {
-    broadcastFetcher.load('/api/broadcast')
-  }
-
-  const list = async () => {
-    const sub = await getSubscription()
-    console.log('found sub: ', sub)
-  }
 
   return (
     <html lang="en" className="dark">
@@ -105,30 +75,19 @@ export default function App() {
         <Links />
         <PwaMeta />
       </head>
-      <body>
-        {data.user && (
-          <>
-            <button type="button" onClick={subscribe}>
-              Subscribe
-            </button>
-            <button type="button" onClick={broadcast}>
-              Send notification
-            </button>
-            <button type="button" onClick={list}>
-              List
-            </button>
-          </>
-        )}
-        <Outlet />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
-          }}
-        />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
+      <QueryClientProvider client={queryClient}>
+        <body>
+          <Outlet />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+            }}
+          />
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </QueryClientProvider>
     </html>
   )
 }

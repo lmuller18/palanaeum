@@ -1,11 +1,11 @@
+import clsx from 'clsx'
 import { Fragment, memo } from 'react'
 import { Link, NavLink } from 'remix'
 import { Dialog, Transition } from '@headlessui/react'
 import { BookOpenIcon, HomeIcon, XIcon } from '@heroicons/react/outline'
 
-import clsx from 'clsx'
-import { useUser } from '~/utils'
 import Button from '~/elements/Button'
+import BottomNavSection from './BottomNavSection'
 
 const links = [
   { name: 'Home', to: '/', icon: HomeIcon },
@@ -19,8 +19,6 @@ const Sidenav = ({
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-  const user = useUser()
-
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-[999]" onClose={setOpen}>
@@ -123,32 +121,7 @@ const Sidenav = ({
                   </Button>
                 </Link>
               </div>
-              <div className="flex flex-shrink-0 bg-background-primary p-4">
-                <Link
-                  to={`/users/${user.id}`}
-                  className="group block w-full flex-shrink-0"
-                >
-                  <button className="w-full" onClick={() => setOpen(false)}>
-                    <div className="flex items-center">
-                      <div>
-                        <img
-                          className="inline-block h-10 w-10 rounded-full"
-                          src={user.avatar}
-                          alt="User Avatar"
-                        />
-                      </div>
-                      <div className="ml-3 text-left">
-                        <p className="text-base font-medium text-white">
-                          {user.username}
-                        </p>
-                        <p className="text-sm font-medium text-gray-400 group-hover:text-gray-300">
-                          View profile
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                </Link>
-              </div>
+              <BottomNavSection setOpen={setOpen} />
             </Dialog.Panel>
           </Transition.Child>
           <div className="w-14 flex-shrink-0">

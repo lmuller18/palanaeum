@@ -51,12 +51,8 @@ export async function getSubscription() {
     return
   }
 
-  console.log('service worker found')
-
   try {
     const registration = await navigator.serviceWorker.ready
-
-    console.log('service worker ready')
 
     return registration.pushManager.getSubscription()
   } catch (e) {
@@ -70,12 +66,8 @@ export async function subscribe() {
     return
   }
 
-  console.log('service worker found')
-
   try {
     const registration = await navigator.serviceWorker.ready
-
-    console.log('service worker ready')
 
     // Subscribe to push notifications
     const subscription = await registration.pushManager.subscribe({

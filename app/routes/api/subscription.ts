@@ -33,9 +33,37 @@ export const action: ActionFunction = async ({ request }) => {
       } catch (error) {
         return json({ error: getErrorMessage(error) }, { status: 500 })
       }
+    case 'delete':
+      try {
+        const { endpoint } = await parseStringFormData(request)
+        invariant(endpoint, 'expected endpoint')
+
+        await removeSubscription(endpoint, userId)
+
+        return json({ ok: true })
+      } catch (error) {
+        return json({ error: getErrorMessage(error) }, { status: 500 })
+      }
     default:
       throw new Response('Invalid method', { status: 405 })
   }
+}
+
+async function removeSubscription(endpoint: string, userId: string) {
+  const sub = await prisma.subscription.findFirst({
+    where: {
+      endpoint,
+      userId,
+    },
+  })
+
+  if (!sub) return null
+
+  return prisma.subscription
+    .delete({
+      where: { endpoint },
+    })
+    .catch()
 }
 
 async function createNewSubscription(
