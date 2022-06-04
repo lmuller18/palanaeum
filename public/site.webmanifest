@@ -4,6 +4,7 @@
   "short_name": "Palanaeum",
   "background_color": "#12131a",
   "start_url": "/",
+  "scope": "/",
   "icons": [
     {
       "src": "/icons/manifest-icon-192.maskable.png",

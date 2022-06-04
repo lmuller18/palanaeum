@@ -1,7 +1,7 @@
-import webpush from 'web-push'
 import { ActionFunction } from 'remix'
 
 import { prisma } from '~/db.server'
+import { sendPush } from '~/utils/notifications.server'
 import { createNotification } from '~/utils/notifications.utils'
 
 export const action: ActionFunction = async ({ request }) => {
@@ -21,20 +21,7 @@ export const action: ActionFunction = async ({ request }) => {
 
     const notifications: Promise<any>[] = []
     subscriptions.forEach(subscription => {
-      notifications.push(
-        webpush
-          .sendNotification(
-            {
-              endpoint: subscription.endpoint,
-              keys: {
-                auth: subscription.auth,
-                p256dh: subscription.p256dh,
-              },
-            },
-            JSON.stringify(notification),
-          )
-          .catch(() => removeSubscription(subscription.endpoint)),
-      )
+      notifications.push(sendPush(subscription, notification))
     })
     await Promise.allSettled(notifications)
 
@@ -42,12 +29,4 @@ export const action: ActionFunction = async ({ request }) => {
   } catch (e) {
     throw new Response(JSON.stringify(e), { status: 500 })
   }
-}
-
-async function removeSubscription(endpoint: string) {
-  return prisma.subscription
-    .delete({
-      where: { endpoint },
-    })
-    .catch()
 }

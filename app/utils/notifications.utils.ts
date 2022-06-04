@@ -1,4 +1,4 @@
-interface AppNotification extends NotificationOptions {
+export interface AppNotification extends NotificationOptions {
   title: string
   data: {
     options: {
