@@ -128,7 +128,6 @@ self.addEventListener('notificationclick', function (event) {
         for (let i = 0; i < windowClients.length; i++) {
           const windowClient = windowClients[i]
           if (windowClient.url === urlToOpen) {
-            console.log('found client: ', windowClient)
             matchingClient = windowClient
             break
           }

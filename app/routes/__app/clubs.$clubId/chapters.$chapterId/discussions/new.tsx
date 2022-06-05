@@ -16,7 +16,9 @@ import Placeholder from '@tiptap/extension-placeholder'
 import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
+import { sendPush } from '~/utils/notifications.server'
 import DiscussionComposer from '~/components/DiscussionComposer'
+import { createNotification } from '~/utils/notifications.utils'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
@@ -67,9 +69,58 @@ export const action: ActionFunction = async ({ request, params }) => {
     content,
   })
 
-  return redirect(
-    `/clubs/${clubId}/chapters/${chapterId}/discussions/${discussion.id}`,
-  )
+  const discussionUrl = `/clubs/${clubId}/chapters/${chapterId}/discussions/${discussion.id}`
+
+  await notifyNewDiscussion(discussion, discussionUrl)
+
+  return redirect(discussionUrl)
+}
+
+async function notifyNewDiscussion(
+  discussion: Awaited<ReturnType<typeof createDiscussion>>,
+  discussionUrl: string,
+) {
+  const subscriptions = await prisma.subscription.findMany({
+    where: {
+      User: {
+        members: {
+          some: {
+            // TODO add back to not notify self
+            // id: {
+            //   not: discussion.member.id,
+            // },
+            progress: {
+              some: {
+                chapterId: discussion.chapter.id,
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+
+  // const origin = new URL(request.url).origin
+  const notification = createNotification({
+    title: `New Discussion: ${discussion.title}`,
+    body: `${discussion.member.user.username} posted a new discussion in ${discussion.chapter.title}`,
+    icon: discussion.member.user.avatar,
+    image: discussion.image ?? discussion.chapter.club.image,
+    data: {
+      options: {
+        action: 'navigate',
+        url: discussionUrl,
+      },
+    },
+  })
+
+  console.log('sending notification: ', notification)
+
+  const notifications: Promise<any>[] = []
+  subscriptions.forEach(subscription => {
+    notifications.push(sendPush(subscription, notification))
+  })
+  return Promise.allSettled(notifications)
 }
 
 export default function NewDiscussionPage() {
@@ -214,6 +265,36 @@ async function createDiscussion({
       image,
       content,
       memberId,
+    },
+    select: {
+      id: true,
+      image: true,
+      title: true,
+      member: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              avatar: true,
+              username: true,
+            },
+          },
+        },
+      },
+      chapter: {
+        select: {
+          id: true,
+          title: true,
+          club: {
+            select: {
+              id: true,
+              title: true,
+              image: true,
+            },
+          },
+        },
+      },
     },
   })
 }
