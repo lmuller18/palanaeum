@@ -14,14 +14,13 @@ const ChapterPagination = ({
       className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] border-l border-t border-r border-background-tertiary shadow-md hover:shadow-lg focus:shadow-lg"
       role="group"
     >
-      <LayoutGroup id="chapter-pagination-wrapper">
+      <LayoutGroup id="chapter-pagination">
         {pagination(currentPage, lastPage).map((page, i) => (
           <TabLink
             key={page.to + '-' + i}
             color="sky"
             to={page.to}
             active={page.active}
-            layoutId="chapter-pagination"
           >
             {page.label}
           </TabLink>
