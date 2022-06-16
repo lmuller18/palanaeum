@@ -92,8 +92,7 @@ export default function ClubPage() {
   return (
     <>
       {/* Next Chapter Block */}
-      {/* <motion.div
-        layout="position"
+      {/* <div
         className="mb-6 border-b border-t-2 border-teal-400 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 via-transparent p-4"
       >
         <div>
@@ -106,7 +105,7 @@ export default function ClubPage() {
             club={club}
           />
         </div>
-      </motion.div>*/}
+      </div>*/}
 
       <NextChapterSection
         chapter={nextChapter}

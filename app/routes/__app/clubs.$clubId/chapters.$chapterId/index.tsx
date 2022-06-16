@@ -1,6 +1,5 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import { LayoutGroup, motion } from 'framer-motion'
 import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
 import { useUser } from '~/utils'
@@ -68,16 +67,13 @@ export default function ChapterHome() {
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <LayoutGroup>
+    <>
       <Header size="h4" font="serif" className="my-4">
         Chapter Overview
       </Header>
 
       {/* Chart Block */}
-      <motion.div
-        layout="position"
-        className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent"
-      >
+      <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
         <div
           className="h-full w-full"
           style={{
@@ -107,18 +103,13 @@ export default function ChapterHome() {
             />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Top Post Block */}
-      <motion.div
-        layout
-        className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4"
-      >
-        <motion.div layout="position">
-          <Text variant="title2" className="mb-4" as="h3">
-            Top Post
-          </Text>
-        </motion.div>
+      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
+        <Text variant="title2" className="mb-4" as="h3">
+          Top Post
+        </Text>
         <div className="relative">
           {topPost ? (
             <>
@@ -144,13 +135,10 @@ export default function ChapterHome() {
             </div>
           )}
         </div>
-      </motion.div>
+      </div>
 
       {/* Top Discussion Block */}
-      <motion.div
-        layout="position"
-        className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4"
-      >
+      <div className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
         <Text variant="title2" className="mb-4" as="h3">
           Hottest Discussion
         </Text>
@@ -159,8 +147,8 @@ export default function ChapterHome() {
           chapter={{ id: '1', title: 'Chapter 5' }}
           discussion={{ id: '1', title: '3 Pure Tones and 3 Shards of Roshar' }}
         />
-      </motion.div>
-    </LayoutGroup>
+      </div>
+    </>
   )
 }
 
