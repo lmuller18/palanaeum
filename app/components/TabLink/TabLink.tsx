@@ -29,7 +29,6 @@ const TabLink = ({
   end,
   children,
   color,
-  layoutId,
   active,
 }: {
   to: string | null
@@ -38,7 +37,6 @@ const TabLink = ({
   // this will override navlink matching
   active?: boolean
   color: keyof typeof themes
-  layoutId: string
 }) => {
   if (to)
     return (
@@ -82,12 +80,10 @@ const TabLink = ({
             </div>
             {(active != null && active) || (active == null && isActive) ? (
               <motion.div
-                layoutId={layoutId + '-underline'}
+                layoutId="underline"
                 className={clsx('h-[2px] w-full', themes[color].border)}
               />
-            ) : (
-              <div className="h-[2px] w-full bg-background-tertiary" />
-            )}
+            ) : null}
           </>
         )}
       </NavLink>

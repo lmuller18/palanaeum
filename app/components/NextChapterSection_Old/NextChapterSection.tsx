@@ -1,10 +1,10 @@
+import clsx from 'clsx'
 import { Link, useFetcher } from 'remix'
 import useMeasure from 'react-use-measure'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
-import useValueChanged from '~/hooks/use-value-changed'
 
 interface NextChapterSectionProps {
   chapter: {
@@ -21,34 +21,35 @@ interface NextChapterSectionProps {
 }
 
 const NextChapterSection = ({ chapter, club }: NextChapterSectionProps) => {
-  const chapterChanged = useValueChanged(chapter)
-  const [ref, bounds] = useMeasure()
+  const [ref, { height }] = useMeasure()
 
   return (
-    <div
-      className="relative mx-auto mb-4 flex h-56"
-      style={{
-        height: bounds.height || 224,
-      }}
+    <motion.div
+      className="relative mx-auto mb-4 flex overflow-hidden"
+      style={{ height: height || 'auto' }}
     >
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         <motion.div
-          ref={ref}
-          initial={chapterChanged ? { x: '100%' } : false}
+          initial={{ x: '100%' }}
           animate={{ x: '0%' }}
           exit={{ x: '-100%' }}
           key={chapter?.id ?? 'complete'}
           data-cy="next-chapter"
-          className="absolute w-full flex-grow rounded-lg bg-background-secondary py-8 px-8 text-gray-100 shadow-xl"
-        >
-          {chapter ? (
-            <NextChapter chapter={chapter} club={club} />
-          ) : (
-            <NoChapter />
+          className={clsx(
+            height ? 'absolute w-full' : 'relative',
+            'flex-grow rounded-lg bg-background-secondary text-gray-100 shadow-xl',
           )}
+        >
+          <div ref={ref} className="py-8 px-8">
+            {chapter ? (
+              <NextChapter chapter={chapter} club={club} />
+            ) : (
+              <NoChapter />
+            )}
+          </div>
         </motion.div>
       </AnimatePresence>
-    </div>
+    </motion.div>
   )
 }
 

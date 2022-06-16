@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { Outlet, useMatches } from 'remix'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { FireIcon, HomeIcon, BookmarkIcon } from '@heroicons/react/outline'
 
 import TabLink from '~/components/TabLink'
@@ -62,14 +62,16 @@ const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
       !hasSecondaryNav && 'border-t',
     )}
   >
-    <TabLink to="posts" color="sky" layoutId="club-nav">
-      <FireIcon className="h-6 w-6" />
-    </TabLink>
-    <TabLink to="." end color="teal" layoutId="club-nav">
-      <HomeIcon className="h-6 w-6" />
-    </TabLink>
-    <TabLink to="chapters" color="indigo" layoutId="club-nav">
-      <BookmarkIcon className="h-6 w-6" />
-    </TabLink>
+    <LayoutGroup id="club-nav">
+      <TabLink to="posts" color="sky">
+        <FireIcon className="h-6 w-6" />
+      </TabLink>
+      <TabLink to="." end color="teal">
+        <HomeIcon className="h-6 w-6" />
+      </TabLink>
+      <TabLink to="chapters" color="indigo">
+        <BookmarkIcon className="h-6 w-6" />
+      </TabLink>
+    </LayoutGroup>
   </div>
 )
