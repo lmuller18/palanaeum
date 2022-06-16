@@ -2,7 +2,6 @@ import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { ChevronLeft } from 'react-feather'
 import { useEffect, useRef, useState } from 'react'
-import { LayoutGroup, motion } from 'framer-motion'
 import {
   json,
   useLocation,
@@ -100,36 +99,33 @@ export default function PostPage() {
       </div>
       <div>
         <div className="grid gap-2" ref={listRef}>
-          <LayoutGroup>
-            {data.posts.map(post => (
-              <motion.div
-                layout
-                key={`${post.post.id}-${key}`}
-                id={
-                  post.post.id === data.primaryPost.post.id
-                    ? 'primary-post'
-                    : 'secondary-post'
-                }
-                className={clsx(
-                  'scroll-m-16',
-                  post.post.parentId === data.primaryPost.post.id
-                    ? 'px-4 py-2'
-                    : 'p-4 pb-2',
-                  (post.post.id === data.primaryPost.post.id ||
-                    post.post.parentId === data.primaryPost.post.id) &&
-                    'border-b border-background-tertiary',
-                )}
-              >
-                {post.post.id === data.primaryPost.post.id ? (
-                  <PostDetails {...post} />
-                ) : post.post.parentId === data.primaryPost.post.id ? (
-                  <Post {...post} clubId={post.chapter.clubId} />
-                ) : (
-                  <SecondaryPost {...post} />
-                )}
-              </motion.div>
-            ))}
-          </LayoutGroup>
+          {data.posts.map(post => (
+            <div
+              key={`${post.post.id}-${key}`}
+              id={
+                post.post.id === data.primaryPost.post.id
+                  ? 'primary-post'
+                  : 'secondary-post'
+              }
+              className={clsx(
+                'scroll-m-16',
+                post.post.parentId === data.primaryPost.post.id
+                  ? 'px-4 py-2'
+                  : 'p-4 pb-2',
+                (post.post.id === data.primaryPost.post.id ||
+                  post.post.parentId === data.primaryPost.post.id) &&
+                  'border-b border-background-tertiary',
+              )}
+            >
+              {post.post.id === data.primaryPost.post.id ? (
+                <PostDetails {...post} />
+              ) : post.post.parentId === data.primaryPost.post.id ? (
+                <Post {...post} clubId={post.chapter.clubId} />
+              ) : (
+                <SecondaryPost {...post} />
+              )}
+            </div>
+          ))}
         </div>
         {data.posts.length > 1 && (
           <div style={{ height: `calc(100vh - ${lastPostHeight + 49}px)` }} />

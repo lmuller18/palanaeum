@@ -58,7 +58,7 @@ const CommentReplyComposer = ({
         console.log(fetcher.data.error)
       }
     }
-  }, [fetcher, editor?.commands, onSubmit])
+  }, [fetcher, onSubmit])
 
   const createComment = () => {
     // shouldnt happen

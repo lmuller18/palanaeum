@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant'
-import { LayoutGroup, motion } from 'framer-motion'
 import { json, LoaderFunction, useLoaderData, useParams } from 'remix'
 
 import Post from '~/components/Post'
@@ -65,43 +64,37 @@ export default function PostsPage() {
   if (!chapterId) throw new Error('Chapter Id Not Found')
 
   return (
-    <motion.div layout>
+    <div>
       <Header size="h4" font="serif" className="mb-4">
         Posts
       </Header>
-      <LayoutGroup>
-        <PostComposer defaultChapter={chapter} chapters={[chapter]} />
-        <motion.div
-          layout
-          className="grid gap-2 divide-y divide-background-tertiary border border-background-tertiary"
-        >
-          {!posts.length && (
-            <div className="p-4">
-              <Text variant="body1" as="p" className="mb-2">
-                No posts yet for this chapter.
-              </Text>
-              <Text variant="body2" as="p">
-                Start contributing to the conversation above.
-              </Text>
-            </div>
-          )}
-          {posts.map(post => (
-            <motion.div
-              layout
-              className="border-b border-background-tertiary p-4 pb-2"
-              key={post.post.id}
-            >
-              <Post
-                clubId={clubId}
-                user={post.user}
-                chapter={post.chapter}
-                post={post.post}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-      </LayoutGroup>
-    </motion.div>
+      <PostComposer defaultChapter={chapter} chapters={[chapter]} />
+      <div className="grid gap-2 border border-background-tertiary">
+        {!posts.length && (
+          <div className="p-4">
+            <Text variant="body1" as="p" className="mb-2">
+              No posts yet for this chapter.
+            </Text>
+            <Text variant="body2" as="p">
+              Start contributing to the conversation above.
+            </Text>
+          </div>
+        )}
+        {posts.map(post => (
+          <div
+            className="border-b border-background-tertiary p-4 pb-2"
+            key={post.post.id}
+          >
+            <Post
+              clubId={clubId}
+              user={post.user}
+              chapter={post.chapter}
+              post={post.post}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 

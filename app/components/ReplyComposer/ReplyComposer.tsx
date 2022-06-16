@@ -1,7 +1,9 @@
+import clsx from 'clsx'
 import { useFetcher } from 'remix'
+import useMeasure from 'react-use-measure'
 import { Image, Info } from 'react-feather'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 
 import Text from '@tiptap/extension-text'
 import History from '@tiptap/extension-history'
@@ -90,7 +92,7 @@ const ReplyComposer = ({
         console.log(fetcher.data.error)
       }
     }
-  }, [fetcher, editor?.commands, contextEditor?.commands])
+  }, [fetcher])
 
   const clickAway = useCallback(() => {
     if (clickedOutside) {
@@ -103,7 +105,7 @@ const ReplyComposer = ({
     }
   }, [clickedOutside, contextEditor?.commands])
 
-  const ref = useClickAway<HTMLDivElement>(clickAway)
+  const clickawayRef = useClickAway<HTMLDivElement>(clickAway)
 
   const handleContextButton = () => {
     if (showContextInput) {
@@ -140,28 +142,26 @@ const ReplyComposer = ({
   const maximumCharacters = 240
   const remaining = maximumCharacters - characters
 
-  return (
-    <LayoutGroup>
-      <motion.div
-        layout
-        ref={ref}
-        className="fixed bottom-0 left-0 right-0 min-h-[62px] w-full border-t border-background-tertiary bg-background-secondary"
-      >
-        <motion.div
-          layout
-          className="min-w-0 flex-grow border-x border-t border-background-tertiary p-4"
-        >
-          <motion.div layout="position">
-            <EditorContent editor={editor} />
-          </motion.div>
+  const [animateRef, { height }] = useMeasure()
 
-          <AnimatePresence presenceAffectsLayout exitBeforeEnter>
+  return (
+    <div
+      ref={clickawayRef}
+      className="fixed bottom-0 left-0 right-0 min-h-[62px] w-full border-t border-background-tertiary bg-background-secondary"
+    >
+      <div className="min-w-0 flex-grow border-x border-t border-background-tertiary p-4">
+        <EditorContent editor={editor} />
+
+        <motion.div
+          animate={{ height: height || 'auto' }}
+          className="relative overflow-hidden"
+        >
+          <AnimatePresence>
             {focused && (
               <motion.div
-                layout
                 initial="blurred"
                 animate="focused"
-                exit="blurred"
+                exit="exit"
                 variants={{
                   blurred: {
                     opacity: 0,
@@ -171,13 +171,15 @@ const ReplyComposer = ({
                     opacity: 1,
                     y: 0,
                   },
+                  exit: {
+                    opacity: 0,
+                    y: 10,
+                  },
                 }}
-                className="mt-6"
+                ref={animateRef}
+                className={clsx(height ? 'absolute w-full' : 'relative')}
               >
-                <motion.div
-                  layout="position"
-                  className="flex items-center justify-between"
-                >
+                <div className="mt-6 flex items-center justify-between">
                   <div className="flex items-center gap-3 text-blue-500">
                     <Image className="h-5 w-5" />
                     <button type="button" onClick={handleContextButton}>
@@ -208,12 +210,11 @@ const ReplyComposer = ({
                       Post
                     </Button>
                   </div>
-                </motion.div>
+                </div>
 
-                <AnimatePresence presenceAffectsLayout>
+                <AnimatePresence>
                   {showContextInput && (
                     <motion.div
-                      layout
                       initial="blurred"
                       animate="focused"
                       exit="blurred"
@@ -237,8 +238,8 @@ const ReplyComposer = ({
             )}
           </AnimatePresence>
         </motion.div>
-      </motion.div>
-    </LayoutGroup>
+      </div>
+    </div>
   )
 }
 

@@ -58,7 +58,7 @@ const NavSection = ({
 const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
   <div
     className={clsx(
-      'relative z-[999] flex h-14 items-end justify-around border-background-tertiary bg-background-secondary bg-opacity-50 backdrop-blur-md',
+      'relative z-[999] flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
       !hasSecondaryNav && 'border-t',
     )}
   >
@@ -69,7 +69,7 @@ const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
       <TabLink to="." end color="teal" layoutId="club-nav">
         <HomeIcon className="h-6 w-6" />
       </TabLink>
-      <TabLink to="chapters" end color="indigo" layoutId="club-nav">
+      <TabLink to="chapters" color="indigo" layoutId="club-nav">
         <BookmarkIcon className="h-6 w-6" />
       </TabLink>
     </LayoutGroup>

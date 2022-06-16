@@ -51,7 +51,7 @@ const DiscussionReplyComposer = ({
         console.log(fetcher.data.error)
       }
     }
-  }, [fetcher, editor?.commands])
+  }, [fetcher])
 
   const createComment = () => {
     // shouldnt happen

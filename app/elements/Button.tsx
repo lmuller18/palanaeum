@@ -8,7 +8,7 @@ interface ButtonProps
   > {
   size?: keyof typeof sizes
   variant?: keyof typeof variants
-  fullWidth?: keyof typeof fullWidths | true | false
+  fullWidth?: Exclude<keyof typeof fullWidths, 'always' | 'none'> | true | false
 }
 
 const sizes = {

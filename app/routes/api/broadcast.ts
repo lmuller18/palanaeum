@@ -1,23 +1,27 @@
 import { ActionFunction } from 'remix'
 
 import { prisma } from '~/db.server'
+import { requireUserId } from '~/session.server'
 import { sendPush } from '~/utils/notifications.server'
 import { createNotification } from '~/utils/notifications.utils'
 
 export const action: ActionFunction = async ({ request }) => {
+  const userId = await requireUserId(request)
+
   try {
-    const origin = new URL(request.url).origin
     const notification = createNotification({
       title: 'Hey, this is a push notification!',
       data: {
         options: {
           action: 'navigate',
-          url: `${origin}/clubs`,
+          url: '/clubs',
         },
       },
     })
 
-    const subscriptions = await prisma.subscription.findMany()
+    const subscriptions = await prisma.subscription.findMany({
+      where: { userId },
+    })
 
     const notifications: Promise<any>[] = []
     subscriptions.forEach(subscription => {

@@ -1,30 +1,23 @@
 import invariant from 'tiny-invariant'
-import { LayoutGroup, motion } from 'framer-motion'
-import {
-  json,
-  Link,
-  useParams,
-  useFetcher,
-  useLoaderData,
-  LoaderFunction,
-} from 'remix'
+import { json, useParams, useLoaderData, LoaderFunction } from 'remix'
 import {
   add,
-  eachDayOfInterval,
   isSameDay,
   parseISO,
   startOfDay,
   startOfToday,
+  eachDayOfInterval,
 } from 'date-fns'
 
 import { useUser } from '~/utils'
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'
-import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
+// import NextChapter from '~/components/NextChapter'
 import AreaChart from '~/components/Chart/AreaChart'
 import DiscussionSummary from '~/components/DiscussionSummary'
+import NextChapterSection from '~/components/NextChapterSection_Old'
 
 interface LoaderData {
   club: {
@@ -35,7 +28,7 @@ interface LoaderData {
     id: string
     title: string
     membersCompleted: number
-    status: 'complete' | 'incomplete' | 'not_started'
+    status: 'incomplete' | 'not_started'
   } | null
   counts: {
     read: number
@@ -90,95 +83,39 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 }
 
 export default function ClubPage() {
-  const { clubId } = useParams()
   const user = useUser()
+  const { clubId } = useParams()
   const { nextChapter, counts, club, topPost } = useLoaderData() as LoaderData
-  const nextChapterFetcher = useFetcher()
 
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <LayoutGroup>
+    <>
       {/* Next Chapter Block */}
-      <motion.div
+      {/* <motion.div
         layout="position"
         className="mb-6 border-b border-t-2 border-teal-400 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 via-transparent p-4"
       >
         <div>
           <Text variant="title2" className="mb-4" as="h3">
-            Next Chapter
+            Next Chapter: Not Started
           </Text>
 
-          {nextChapter ? (
-            <div>
-              <TextLink
-                to={`chapters/${nextChapter.id}`}
-                variant="title3"
-                className="mb-2 block w-fit"
-              >
-                {nextChapter.title}
-              </TextLink>
-
-              {nextChapter.status === 'incomplete' && (
-                <Text variant="body2">
-                  Completed by {nextChapter.membersCompleted - 1} other members.
-                </Text>
-              )}
-              {/* <Text variant="body2">Completed by all other members.</Text> */}
-              {nextChapter.status === 'not_started' && (
-                <Text variant="body2">Not completed by any other members.</Text>
-              )}
-
-              <div className="mt-3 flex items-center justify-around">
-                <Link
-                  to={`chapters/${nextChapter.id}`}
-                  className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-                >
-                  View Chapter
-                </Link>
-                <nextChapterFetcher.Form
-                  action={`/api/chapters/${nextChapter.id}/read`}
-                  method="post"
-                >
-                  {nextChapter.status === 'complete' ? (
-                    <button
-                      name="_action"
-                      value="MARK_UNREAD"
-                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-                    >
-                      Mark Unread
-                    </button>
-                  ) : (
-                    <button
-                      name="_action"
-                      value="MARK_READ"
-                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-                    >
-                      Mark Read
-                    </button>
-                  )}
-                </nextChapterFetcher.Form>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <Text as="p" variant="title3">
-                You have finished {club.title}!
-              </Text>
-              <Text as="p" variant="body1">
-                Remember to keep continuing in the conversations with other club
-                members.
-              </Text>
-            </div>
-          )}
+          <NextChapter
+            chapter={{ ...nextChapter, status: 'not_started' }}
+            club={club}
+          />
         </div>
-      </motion.div>
+      </motion.div>*/}
+
+      <NextChapterSection
+        chapter={nextChapter}
+        club={club}
+        recentDiscussion={null}
+      />
 
       {/* Chart Block */}
-      <motion.div
-        layout="position"
-        className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent"
-      >
+      <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
         <div
           className="relative h-full w-full"
           style={{
@@ -210,18 +147,13 @@ export default function ClubPage() {
             />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Top Post Block */}
-      <motion.div
-        layout
-        className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4"
-      >
-        <motion.div layout="position">
-          <Text variant="title2" className="mb-4" as="h3">
-            Top Post
-          </Text>
-        </motion.div>
+      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
+        <Text variant="title2" className="mb-4" as="h3">
+          Top Post
+        </Text>
         {topPost ? (
           <>
             {/* <div className={clsx(chapter.status !== 'complete' && 'blur-sm')}> */}
@@ -232,7 +164,7 @@ export default function ClubPage() {
               post={topPost.post}
             />
             {/* </div> */}
-            {/* {chapter.status !== 'complete' && (
+            {/* {topPost.chapter.status !== 'complete' && (
               <div className="absolute inset-0 flex h-full w-full items-center justify-center">
                 <Text variant="title2">Post Unavailable</Text>
               </div>
@@ -245,13 +177,10 @@ export default function ClubPage() {
             </Text>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Top Discussion Block */}
-      <motion.div
-        layout="position"
-        className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4"
-      >
+      <div className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
         <Text variant="title2" className="mb-4" as="h3">
           Hottest Discussion
         </Text>
@@ -260,8 +189,8 @@ export default function ClubPage() {
           chapter={{ id: '1', title: 'Chapter 5' }}
           discussion={{ id: '1', title: '3 Pure Tones and 3 Shards of Roshar' }}
         />
-      </motion.div>
-    </LayoutGroup>
+      </div>
+    </>
   )
 }
 
@@ -288,14 +217,9 @@ async function getNextChapter(userId: string, clubId: string) {
           },
         },
       },
-      progress: {
+      _count: {
         select: {
-          member: {
-            select: {
-              id: true,
-              userId: true,
-            },
-          },
+          progress: true,
         },
       },
     },
@@ -306,17 +230,13 @@ async function getNextChapter(userId: string, clubId: string) {
 
   if (!dbChapter) return null
 
-  const userComplete = dbChapter.progress.some(p => p.member.userId === userId)
-  const status: 'complete' | 'not_started' | 'incomplete' = userComplete
-    ? 'complete'
-    : dbChapter.progress.length === 0
-    ? 'not_started'
-    : 'incomplete'
+  const status: 'not_started' | 'incomplete' =
+    dbChapter._count.progress === 0 ? 'not_started' : 'incomplete'
 
   return {
     id: dbChapter.id,
     title: dbChapter.title,
-    membersCompleted: dbChapter.progress.length,
+    membersCompleted: dbChapter._count.progress,
     status,
   }
 }

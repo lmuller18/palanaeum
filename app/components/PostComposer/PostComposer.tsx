@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { Link, useFetcher } from 'remix'
+import useMeasure from 'react-use-measure'
 import { CheckIcon } from '@heroicons/react/solid'
 import { BookOpen, Image, Info } from 'react-feather'
 import { Listbox, Transition } from '@headlessui/react'
@@ -12,7 +13,7 @@ import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Placeholder from '@tiptap/extension-placeholder'
 import CharacterCount from '@tiptap/extension-character-count'
-import { useEditor, EditorContent, Extension } from '@tiptap/react'
+import { useEditor, EditorContent, Extension, Editor } from '@tiptap/react'
 
 import Button from '~/elements/Button'
 import { removeEmpty, useUser } from '~/utils'
@@ -106,7 +107,7 @@ const PostComposer = ({
         console.log(fetcher.data.error)
       }
     }
-  }, [fetcher, editor?.commands, contextEditor?.commands])
+  }, [fetcher.type, fetcher.data])
 
   const createPost = () => {
     if (!chapter) return
@@ -199,21 +200,46 @@ const PostComposer = ({
           </div>
         </div>
 
-        <AnimatePresence presenceAffectsLayout exitBeforeEnter>
-          {showContextInput && (
-            <motion.div
-              layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="col-span-full border-y border-background-tertiary py-2 "
-            >
-              <EditorContent editor={contextEditor} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <ContextInputSection
+          editor={contextEditor}
+          showContextInput={showContextInput}
+        />
       </div>
     </div>
+  )
+}
+
+const ContextInputSection = ({
+  editor,
+  showContextInput,
+}: {
+  editor: Editor | null
+  showContextInput: boolean
+}) => {
+  const [ref, { height }] = useMeasure()
+
+  return (
+    <motion.div
+      animate={{ height: height || 'auto' }}
+      className="relative col-span-full overflow-hidden"
+    >
+      <AnimatePresence initial={false}>
+        {showContextInput && (
+          <motion.div
+            ref={ref}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={clsx(
+              height ? 'absolute w-full' : 'relative',
+              'border-y border-background-tertiary py-2',
+            )}
+          >
+            <EditorContent editor={editor} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 }
 
