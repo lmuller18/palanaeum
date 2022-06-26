@@ -14,6 +14,7 @@ const useChapterActionsFetcher = (chapter: ChapterListItem) => {
     : 'idle'
 
   useEffect(() => {
+    console.log('useChapterActionsFetcher.ts:17')
     if (state === 'error') {
       console.error(fetcher.data.error)
       // toast.error(fetcher.data.error)

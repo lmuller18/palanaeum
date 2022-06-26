@@ -28,6 +28,7 @@ const BottomNavSection = ({
     isLoading || subFetcher.state !== 'idle' || unsubFetcher.state !== 'idle'
 
   useEffect(() => {
+    console.log('BottomNavSection.tsx:31')
     if (subFetcher.type === 'done' && subFetcher.data.ok) {
       refetch()
     }
@@ -38,6 +39,7 @@ const BottomNavSection = ({
   }, [data])
 
   useEffect(() => {
+    console.log('BottomNavSection.tsx:42')
     if (unsubFetcher.type === 'done' && unsubFetcher.data.ok) {
       doUnsub()
     }
