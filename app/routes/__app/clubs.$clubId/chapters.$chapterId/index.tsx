@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import { json, LoaderFunction } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 
 import { useUser } from '~/utils'

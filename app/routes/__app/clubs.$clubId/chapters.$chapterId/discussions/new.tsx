@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant'
 import { useEffect, useRef, useState } from 'react'
-import { ActionFunction, json, LoaderFunction, redirect } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
 
 import { useEditor } from '@tiptap/react'
@@ -107,8 +108,6 @@ async function notifyNewDiscussion(
       },
     },
   })
-
-  console.log('sending notification: ', notification)
 
   const notifications: Promise<any>[] = []
   subscriptions.forEach(subscription => {

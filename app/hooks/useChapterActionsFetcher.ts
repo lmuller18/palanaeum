@@ -1,7 +1,7 @@
 import { useFetcher } from '@remix-run/react'
 import { useEffect, useMemo } from 'react'
 
-import { ChapterListItem } from '~/models/chapter.server'
+import type { ChapterListItem } from '~/models/chapter.server'
 
 const useChapterActionsFetcher = (chapter: ChapterListItem) => {
   const fetcher = useFetcher()
@@ -14,7 +14,6 @@ const useChapterActionsFetcher = (chapter: ChapterListItem) => {
     : 'idle'
 
   useEffect(() => {
-    console.log('useChapterActionsFetcher.ts:17')
     if (state === 'error') {
       console.error(fetcher.data.error)
       // toast.error(fetcher.data.error)

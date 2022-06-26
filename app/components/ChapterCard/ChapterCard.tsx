@@ -1,12 +1,12 @@
 import clsx from 'clsx'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Link, useParams } from '@remix-run/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
 import useValueChanged from '~/hooks/use-value-changed'
-import { ChapterListItem } from '~/models/chapter.server'
+import type { ChapterListItem } from '~/models/chapter.server'
 import useChapterActionsFetcher from '~/hooks/useChapterActionsFetcher'
 
 interface ChapterCardProps {

@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 
-import { Editor, EditorContent } from '@tiptap/react'
+import type { Editor } from '@tiptap/react'
+import { EditorContent } from '@tiptap/react'
 
 import {
   FaBold,

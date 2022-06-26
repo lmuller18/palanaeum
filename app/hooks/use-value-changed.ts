@@ -4,7 +4,6 @@ const useValueChanged = (value: any) => {
   const changedValue = useRef(false)
 
   useEffect(() => {
-    console.log('useValueChanged.ts:7')
     changedValue.current = true
   }, [value])
 

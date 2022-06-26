@@ -1,4 +1,5 @@
-import { DateTime, ToRelativeOptions } from 'luxon'
+import type { ToRelativeOptions } from 'luxon'
+import { DateTime } from 'luxon'
 import { useMemo } from 'react'
 import { useMatches } from '@remix-run/react'
 import invariant from 'tiny-invariant'

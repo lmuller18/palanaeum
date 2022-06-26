@@ -1,4 +1,4 @@
-import { ActionFunction } from '@remix-run/node'
+import type { ActionFunction } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'

@@ -1,9 +1,9 @@
 import webpush from 'web-push'
 import invariant from 'tiny-invariant'
-import { Subscription } from '@prisma/client'
+import type { Subscription } from '@prisma/client'
 
 import { prisma } from '~/db.server'
-import { AppNotification } from './notifications.utils'
+import type { AppNotification } from './notifications.utils'
 
 // fail early on build
 invariant(process.env.VAPID_PUBLIC_KEY, 'VAPID_PUBLIC_KEY must be set')

@@ -1,4 +1,5 @@
-import { useQuery, UseQueryOptions } from 'react-query'
+import type { UseQueryOptions } from 'react-query'
+import { useQuery } from 'react-query'
 import { removeEmpty } from '~/utils'
 import { getSubscription } from '~/utils/notifications.utils'
 
