@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { NavLink } from "@remix-run/react";
+import { NavLink } from '@remix-run/react'
 import { motion } from 'framer-motion'
 import { memo, ReactNode } from 'react'
 

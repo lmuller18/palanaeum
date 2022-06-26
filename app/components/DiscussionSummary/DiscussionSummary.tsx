@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from '@remix-run/react'
 import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, MessageCircle } from 'react-feather'
 

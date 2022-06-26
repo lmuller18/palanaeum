@@ -1,4 +1,4 @@
-import { useCatch } from "@remix-run/react";
+import { useCatch } from '@remix-run/react'
 
 const CatchBoundary = () => {
   const caught = useCatch()

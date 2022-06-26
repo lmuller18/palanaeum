@@ -1,10 +1,18 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
-import { ReactNode, useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { useMemo } from 'react'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
-import { json, LoaderFunction } from "@remix-run/node";
-import { NavLink, Outlet, useLoaderData, useMatches, useParams } from "@remix-run/react";
+import type { LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
+import {
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useMatches,
+  useParams,
+} from '@remix-run/react'
 
 import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'
@@ -43,7 +51,7 @@ export default function ChapterPage() {
       .at(-1)
 
     if (foundBackNav) {
-      const nav = foundBackNav.handle.backNavigation()
+      const nav = foundBackNav.handle?.backNavigation()
 
       if (nav === null) return null
       if (typeof nav === 'string') return nav

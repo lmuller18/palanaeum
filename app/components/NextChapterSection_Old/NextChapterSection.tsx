@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Link, useFetcher } from "@remix-run/react";
+import { Link, useFetcher } from '@remix-run/react'
 import { Fragment, useState } from 'react'
 import useMeasure from 'react-use-measure'
 import { Menu, Transition } from '@headlessui/react'

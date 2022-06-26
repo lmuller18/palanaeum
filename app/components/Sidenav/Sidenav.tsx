@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { Fragment, memo } from 'react'
-import { Link, NavLink } from "@remix-run/react";
+import { Link, NavLink } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 import { BookOpenIcon, HomeIcon, XIcon } from '@heroicons/react/outline'
 

@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { ReactNode } from 'react'
-import { Link, useParams } from "@remix-run/react";
+import { Link, useParams } from '@remix-run/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline'
 

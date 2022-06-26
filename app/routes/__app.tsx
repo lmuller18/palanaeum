@@ -1,4 +1,4 @@
-import { Outlet } from "@remix-run/react";
+import { Outlet } from '@remix-run/react'
 import { useState } from 'react'
 import { MenuAlt2Icon } from '@heroicons/react/outline'
 

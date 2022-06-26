@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 import { DateTime } from 'luxon'
-import { Link, useNavigate } from "@remix-run/react";
+import { Link, useNavigate } from '@remix-run/react'
 import useMeasure from 'react-use-measure'
 import { BookOpen, Info } from 'react-feather'
 import { AnimatePresence, motion } from 'framer-motion'

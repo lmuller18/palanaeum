@@ -1,4 +1,4 @@
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from '@remix-run/react'
 import { useEffect, useMemo } from 'react'
 
 import { ChapterListItem } from '~/models/chapter.server'

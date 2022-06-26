@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
 import { useEffect, useRef, useState } from 'react'
-import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { ActionFunction, json, LoaderFunction, redirect } from '@remix-run/node'
+import { Form, useActionData } from '@remix-run/react'
 
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'

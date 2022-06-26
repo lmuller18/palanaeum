@@ -1,6 +1,6 @@
-import type { LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
 
 import { prisma } from '~/db.server'
 import ClubCard from '~/components/ClubCard'

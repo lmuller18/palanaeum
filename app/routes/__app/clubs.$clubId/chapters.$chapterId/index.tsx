@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import { json, LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { json, LoaderFunction } from '@remix-run/node'
+import { useLoaderData, useParams } from '@remix-run/react'
 
 import { useUser } from '~/utils'
 import { prisma } from '~/db.server'

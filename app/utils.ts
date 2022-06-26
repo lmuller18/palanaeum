@@ -1,6 +1,6 @@
 import { DateTime, ToRelativeOptions } from 'luxon'
 import { useMemo } from 'react'
-import { useMatches } from "@remix-run/react";
+import { useMatches } from '@remix-run/react'
 import invariant from 'tiny-invariant'
 
 import type { User } from '~/models/user.server'

@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import { json, LoaderFunction } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { json, LoaderFunction } from '@remix-run/node'
+import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 
 import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'
