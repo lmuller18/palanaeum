@@ -1,4 +1,4 @@
-import { Link, useFetcher } from 'remix'
+import { Link, useFetcher } from "@remix-run/react";
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 

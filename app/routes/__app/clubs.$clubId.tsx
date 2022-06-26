@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Outlet, useMatches } from 'remix'
+import { Outlet, useMatches } from "@remix-run/react";
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { FireIcon, HomeIcon, BookmarkIcon } from '@heroicons/react/outline'
 

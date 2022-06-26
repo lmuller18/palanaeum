@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Link } from 'remix'
+import { Link } from "@remix-run/react";
 import { variants } from './Typography/Text'
 import type { RemixLinkProps } from '@remix-run/react/components'
 

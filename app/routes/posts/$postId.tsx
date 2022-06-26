@@ -2,13 +2,8 @@ import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { ChevronLeft } from 'react-feather'
 import { useEffect, useRef, useState } from 'react'
-import {
-  json,
-  useLocation,
-  useNavigate,
-  useLoaderData,
-  LoaderFunction,
-} from 'remix'
+import { json, LoaderFunction } from "@remix-run/node";
+import { useLoaderData, useLocation, useNavigate } from "@remix-run/react";
 
 import Post from '~/components/Post'
 import { prisma } from '~/db.server'

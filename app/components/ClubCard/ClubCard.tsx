@@ -1,4 +1,4 @@
-import { Link } from 'remix'
+import { Link } from "@remix-run/react";
 
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'

@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Link, useFetcher } from 'remix'
+import { Link, useFetcher } from "@remix-run/react";
 import useMeasure from 'react-use-measure'
 import { CheckIcon } from '@heroicons/react/solid'
 import { BookOpen, Image, Info } from 'react-feather'

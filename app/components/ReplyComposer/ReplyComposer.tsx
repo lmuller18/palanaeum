@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useFetcher } from 'remix'
+import { useFetcher } from "@remix-run/react";
 import useMeasure from 'react-use-measure'
 import { Image, Info } from 'react-feather'
 import { AnimatePresence, motion } from 'framer-motion'

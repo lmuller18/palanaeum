@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
-import { json, useParams, useLoaderData, LoaderFunction } from 'remix'
+import { json, LoaderFunction } from "@remix-run/node";
+import { useLoaderData, useParams } from "@remix-run/react";
 import {
   add,
   isSameDay,

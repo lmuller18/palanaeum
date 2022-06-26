@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant'
-import { ActionFunction, json } from 'remix'
+import { ActionFunction, json } from "@remix-run/node";
 
 import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'

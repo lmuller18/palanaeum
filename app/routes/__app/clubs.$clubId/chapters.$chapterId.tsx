@@ -3,15 +3,8 @@ import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
 import { ReactNode, useMemo } from 'react'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
-import {
-  json,
-  Outlet,
-  NavLink,
-  useParams,
-  useMatches,
-  useLoaderData,
-  LoaderFunction,
-} from 'remix'
+import { json, LoaderFunction } from "@remix-run/node";
+import { NavLink, Outlet, useLoaderData, useMatches, useParams } from "@remix-run/react";
 
 import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'

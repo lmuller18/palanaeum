@@ -2,14 +2,8 @@ import clsx from 'clsx'
 import { useEffect, useRef } from 'react'
 import { Disclosure, Transition } from '@headlessui/react'
 import { ChevronUpIcon, InformationCircleIcon } from '@heroicons/react/outline'
-import {
-  Form,
-  json,
-  redirect,
-  useActionData,
-  ActionFunction,
-  LoaderFunction,
-} from 'remix'
+import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
+import { Form, useActionData } from "@remix-run/react";
 
 import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'

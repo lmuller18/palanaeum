@@ -2,7 +2,8 @@ import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { json, Link, LoaderFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 
 import { toRelative } from '~/utils'
 import { prisma } from '~/db.server'

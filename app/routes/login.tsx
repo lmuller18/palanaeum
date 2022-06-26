@@ -1,13 +1,7 @@
 import * as React from 'react'
-import type { ActionFunction, LoaderFunction, MetaFunction } from 'remix'
-import {
-  Form,
-  json,
-  Link,
-  redirect,
-  useActionData,
-  useSearchParams,
-} from 'remix'
+import type { ActionFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 
 import { validateEmail } from '~/utils'
 import { verifyLogin } from '~/models/user.server'

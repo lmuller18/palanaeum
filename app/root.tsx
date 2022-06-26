@@ -1,15 +1,7 @@
-import {
-  json,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  LiveReload,
-  useLoaderData,
-  ScrollRestoration,
-} from 'remix'
+import type { LinksFunction, LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "@remix-run/react";
 import { QueryClient, QueryClientProvider } from 'react-query'
-import type { LinksFunction, MetaFunction, LoaderFunction } from 'remix'
 
 import PwaMeta from './pwa-meta'
 import { removeEmpty } from './utils'

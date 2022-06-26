@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
-import { json, Link, Outlet, useLoaderData, LoaderFunction } from 'remix'
+import { json, LoaderFunction } from "@remix-run/node";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 
 import { prisma } from '~/db.server'
 import Text from '~/elements/Typography/Text'

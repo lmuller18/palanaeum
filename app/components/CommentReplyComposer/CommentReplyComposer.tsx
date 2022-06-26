@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useFetcher } from 'remix'
+import { useFetcher } from "@remix-run/react";
 import { useEffect, useRef } from 'react'
 
 import StarterKit from '@tiptap/starter-kit'

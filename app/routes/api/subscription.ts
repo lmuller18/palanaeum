@@ -1,4 +1,4 @@
-import { ActionFunction, json } from 'remix'
+import { ActionFunction, json } from "@remix-run/node";
 import invariant from 'tiny-invariant'
 
 import { getErrorMessage, parseStringFormData } from '~/utils'
