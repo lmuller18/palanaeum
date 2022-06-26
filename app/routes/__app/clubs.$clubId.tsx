@@ -1,5 +1,6 @@
 import clsx from 'clsx'
-import { Outlet, useMatches } from "@remix-run/react";
+import type { RouteMatch } from '@remix-run/react'
+import { Outlet, useMatches } from '@remix-run/react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { FireIcon, HomeIcon, BookmarkIcon } from '@heroicons/react/outline'
 
@@ -28,7 +29,7 @@ export default function ClubNavigationLayout() {
 const NavSection = ({
   secondaryNavSections,
 }: {
-  secondaryNavSections?: { handle: { nav: Function } }[]
+  secondaryNavSections?: RouteMatch[]
 }) => {
   const hasSecondaryNav =
     !!secondaryNavSections && secondaryNavSections.length > 0
@@ -43,11 +44,13 @@ const NavSection = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100, animationDelay: '.5s' }}
           >
-            {secondaryNavSections.map((match, index) => (
-              <div key={index} className="rounded-t-lg p-2">
-                {match.handle.nav(match)}
-              </div>
-            ))}
+            {secondaryNavSections.map((match, index) =>
+              match.handle?.nav ? (
+                <div key={index} className="rounded-t-lg p-2">
+                  {match.handle.nav(match)}
+                </div>
+              ) : null,
+            )}
           </motion.div>
         )}
       </AnimatePresence>
