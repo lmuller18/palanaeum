@@ -8,6 +8,7 @@ import useValueChanged from '~/hooks/use-value-changed'
 
 export default function ClubNavigationLayout() {
   const matches = useMatches()
+
   const secondaryNavSections = matches
     // skip routes that don't have a breadcrumb
     .filter(match => match.handle && match.handle.nav)

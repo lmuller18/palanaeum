@@ -1,4 +1,5 @@
-import { json, useLoaderData, LoaderFunction } from 'remix'
+import type { LoaderFunction } from 'remix'
+import { json, useLoaderData } from 'remix'
 
 import { prisma } from '~/db.server'
 import ClubCard from '~/components/ClubCard'
@@ -43,26 +44,26 @@ export default function ClubsPage() {
         </Header>
 
         <div className="grid gap-6 border-b border-t-2 border-rose-400 border-b-background-tertiary bg-gradient-to-b from-rose-400/10 via-transparent p-4">
-          {data.currentlyReading.map(club => (
+          {data.currentlyReading?.map(club => (
             <ClubCard club={club} key={club.id} />
           ))}
         </div>
 
-        {data.currentlyReading.length === 0 && (
+        {data.currentlyReading?.length === 0 && (
           <Text variant="body1">
             Add create club here since nothing being read
           </Text>
         )}
       </div>
 
-      {data.previouslyRead.length > 0 && (
+      {data.previouslyRead?.length > 0 && (
         <div>
           <Header size="h4" className="mb-2">
             Previously Read
           </Header>
 
           <div className="grid gap-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
-            {data.previouslyRead.map(club => (
+            {data.previouslyRead?.map(club => (
               <ClubCard club={club} key={club.id} />
             ))}
           </div>

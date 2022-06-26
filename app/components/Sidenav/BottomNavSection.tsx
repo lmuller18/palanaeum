@@ -4,7 +4,6 @@ import { LogoutIcon } from '@heroicons/react/outline'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useUser } from '~/utils'
-import Button from '~/elements/Button'
 import useWebPushSubscription from '~/hooks/use-web-push-subscription'
 import { subscribe as doSubscribe } from '~/utils/notifications.utils'
 
@@ -76,18 +75,8 @@ const BottomNavSection = ({
     }
   }
 
-  const broadcastFetcher = useFetcher()
-
-  const broadcast = async () => {
-    broadcastFetcher.submit(
-      {},
-      { method: 'post', replace: true, action: '/api/broadcast' },
-    )
-  }
-
   return (
     <div className="flex flex-shrink-0 flex-col gap-4 bg-background-primary p-4">
-      <Button onClick={broadcast}>Broadcast</Button>
       <Switch.Group>
         <div className="flex items-center justify-between">
           <Switch.Label className="mr-4">Enable notifications</Switch.Label>
