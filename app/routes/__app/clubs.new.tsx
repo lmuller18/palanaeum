@@ -1,13 +1,14 @@
 import clsx from 'clsx'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Disclosure, Transition } from '@headlessui/react'
 import { ChevronUpIcon, InformationCircleIcon } from '@heroicons/react/outline'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
-import { Form, useActionData } from '@remix-run/react'
+import { Form, Link, useActionData } from '@remix-run/react'
 
 import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'
+import { Upload } from 'react-feather'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
@@ -75,6 +76,10 @@ export default function NewClubPage() {
   const titleRef = useRef<HTMLInputElement>(null)
   const authorRef = useRef<HTMLInputElement>(null)
   const chaptersRef = useRef<HTMLInputElement>(null)
+  const uploadRef = useRef<HTMLInputElement>(null)
+
+  const [img, setImg] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
 
   useEffect(() => {
     if (actionData?.errors?.title) {
@@ -86,9 +91,38 @@ export default function NewClubPage() {
     }
   }, [actionData])
 
+  useEffect(() => {
+    if (!img) return
+
+    if (preview) URL.revokeObjectURL(preview)
+
+    const objectUrl = URL.createObjectURL(img)
+    setPreview(objectUrl)
+
+    return () => {
+      if (preview) URL.revokeObjectURL(preview)
+    }
+  }, [img])
+
+  const handleFileUploadClick = () => {
+    if (!uploadRef?.current) return
+    uploadRef.current.click()
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e?.target?.files?.[0]) return
+    const image = e.target.files[0]
+    setImg(image)
+  }
+
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
+        <Link
+          to={`/api/books/search?q=${encodeURIComponent('The Alloy of Law')}`}
+        >
+          Search
+        </Link>
         <p className="my-8 w-fit bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-3xl font-bold text-transparent">
           Create New Club
         </p>
@@ -116,6 +150,69 @@ export default function NewClubPage() {
                   {actionData.errors.title}
                 </div>
               )}
+            </div>
+          </div>
+
+          <div className="relative mt-2 h-32 w-full overflow-hidden rounded-lg">
+            {preview && (
+              <img src={preview} className="h-full w-full object-cover" />
+            )}
+            <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-black/70 p-4 text-white">
+              <button type="button" onClick={handleFileUploadClick}>
+                <Upload />
+              </button>
+            </div>
+          </div>
+          <input
+            ref={uploadRef}
+            onChange={handleImageChange}
+            accept="image/jpeg,image/png,image/webp"
+            type="file"
+            name="image"
+            className="absolute opacity-0"
+            required
+            style={{ zIndex: -1, width: 0.1, height: 0.1 }}
+          />
+
+          <div className="sm:col-span-6">
+            <label
+              htmlFor="cover-photo"
+              className="block text-sm font-medium text-white"
+            >
+              Cover photo
+            </label>
+            <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-white px-6 pt-5 pb-6">
+              <div className="space-y-1 text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-white"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <div className="flex text-sm text-white">
+                  <label
+                    htmlFor="file-upload"
+                    className="relative cursor-pointer rounded-md bg-background-primary font-medium text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                  >
+                    <span>Upload a file</span>
+                    <input
+                      id="file-upload"
+                      name="file-upload"
+                      type="file"
+                      className="sr-only"
+                    />
+                  </label>
+                </div>
+                <p className="text-xs text-white">PNG, JPG, GIF up to 10MB</p>
+              </div>
             </div>
           </div>
 
