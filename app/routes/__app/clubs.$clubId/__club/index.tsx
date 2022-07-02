@@ -20,6 +20,8 @@ import { requireUserId } from '~/session.server'
 import AreaChart from '~/components/Chart/AreaChart'
 import DiscussionSummary from '~/components/DiscussionSummary'
 import NextChapterSection from '~/components/NextChapterSection_Old'
+import { InformationCircleIcon } from '@heroicons/react/solid'
+import TextLink from '~/elements/TextLink'
 
 interface LoaderData {
   club: {
@@ -60,6 +62,7 @@ interface LoaderData {
       createdAt: Date
     }
   } | null
+  isOwner: boolean
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
@@ -81,18 +84,50 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     counts,
     club,
     topPost,
+    isOwner: club.ownerId === userId,
   })
 }
 
 export default function ClubPage() {
   const user = useUser()
   const { clubId } = useParams()
-  const { nextChapter, counts, club, topPost } = useLoaderData() as LoaderData
+  const { nextChapter, counts, club, topPost, isOwner } =
+    useLoaderData() as LoaderData
 
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
     <>
+      {/* Owner Actions */}
+      {isOwner && (
+        <div className="mb-6 rounded-md bg-background-secondary p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <InformationCircleIcon
+                className="mt-[2px] h-5 w-5 text-blue-400"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="ml-3 flex-1">
+              <p className="font-medium text-blue-400">Admin Actions</p>
+              <p className="mt-3 flex items-center gap-4 text-sm">
+                <TextLink to="." color="default">
+                  Edit Club
+                </TextLink>
+                <TextLink to="members/manage" color="default">
+                  Manage Members
+                </TextLink>
+                <div className="flex flex-grow items-center justify-end">
+                  <TextLink to="." color="rose">
+                    Delete Club
+                  </TextLink>
+                </div>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Next Chapter Block */}
       {/* <div
         className="mb-6 border-b border-t-2 border-teal-400 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 via-transparent p-4"
@@ -334,7 +369,7 @@ async function getChaptersReadByDay(userId: string, clubId: string) {
 async function getClub(clubId: string, userId: string) {
   const club = await prisma.club.findFirst({
     where: { id: clubId, members: { some: { userId } } },
-    select: { id: true, title: true },
+    select: { id: true, title: true, ownerId: true },
   })
 
   return club

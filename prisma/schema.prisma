@@ -17,10 +17,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  managedClubs  Club[]
-  members       Member[]
-  subscriptions Subscription[]
-  password      Password?
+  managedClubs    Club[]
+  members         Member[]
+  subscriptions   Subscription[]
+  password        Password?
+  sentInvites     ClubInvite[]   @relation(name: "sentInvites")
+  receivedInvites ClubInvite[]   @relation(name: "receivedInvites")
 }
 
 model Password {
@@ -39,11 +41,27 @@ model Club {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner    User         @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   chapters Chapter[]
   members  Member[]
+  invites  ClubInvite[]
 
   ownerId String
+}
+
+model ClubInvite {
+  club    Club @relation(fields: [clubId], references: [id])
+  inviter User @relation(fields: [inviterId], references: [id], name: "sentInvites")
+  invitee User @relation(fields: [inviteeId], references: [id], name: "receivedInvites")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clubId    String
+  inviterId String
+  inviteeId String
+
+  @@id([inviterId, inviteeId, clubId])
 }
 
 model Chapter {

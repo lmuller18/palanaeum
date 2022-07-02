@@ -1,18 +1,25 @@
-import type { LoaderFunction } from '@remix-run/node'
+import clsx from 'clsx'
+import { DateTime } from 'luxon'
 import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { Tab } from '@headlessui/react'
+import type { LoaderFunction } from '@remix-run/node'
+import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 
 import { prisma } from '~/db.server'
-import ClubCard from '~/components/ClubCard'
+import { toLuxonDate } from '~/utils'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
-import Header from '~/elements/Typography/Header'
-
 interface Club {
   id: string
   title: string
   author: string
   image: string
+  createdAt: Date
+  owner: {
+    id: string
+    username: string
+    avatar: string
+  }
   members: {
     id: string
     username: string
@@ -38,38 +45,159 @@ export default function ClubsPage() {
   const data = useLoaderData() as LoaderData
 
   return (
-    <div className="mx-auto mt-4 max-w-lg p-3">
-      <div className="mb-8">
-        <Header size="h4" className="mb-2">
-          Currently Reading
-        </Header>
-
-        <div className="grid gap-6 border-b border-t-2 border-rose-400 border-b-background-tertiary bg-gradient-to-b from-rose-400/10 via-transparent p-4">
-          {data.currentlyReading?.map(club => (
-            <ClubCard club={club} key={club.id} />
-          ))}
-        </div>
-
-        {data.currentlyReading?.length === 0 && (
-          <Text variant="body1">
-            Add create club here since nothing being read
-          </Text>
-        )}
-      </div>
-
-      {data.previouslyRead?.length > 0 && (
-        <div>
-          <Header size="h4" className="mb-2">
+    <div className="mx-auto max-w-lg p-4">
+      <Tab.Group>
+        <Tab.List className="flex space-x-1 rounded-xl bg-background-secondary/70 p-1">
+          <Tab
+            className={({ selected }) =>
+              clsx(
+                'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-white',
+                'focus:outline-none',
+                selected
+                  ? 'bg-background-tertiary shadow'
+                  : 'text-blue-100 hover:bg-white/[0.12] hover:text-white',
+              )
+            }
+          >
+            Currently Reading
+          </Tab>
+          <Tab
+            className={({ selected }) =>
+              clsx(
+                'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-white',
+                'focus:outline-none',
+                selected
+                  ? 'bg-background-tertiary shadow'
+                  : 'text-blue-100 hover:bg-white/[0.12] hover:text-white',
+              )
+            }
+          >
             Previously Read
-          </Header>
+          </Tab>
+        </Tab.List>
+        <Tab.Panels className="mt-2">
+          <Tab.Panel
+            className={clsx(
+              'rounded-xl bg-background-tertiary p-3',
+              'focus:outline-none',
+            )}
+          >
+            <div className="grid gap-4">
+              {!data.currentlyReading ||
+                (data.currentlyReading.length === 0 && (
+                  <div className="flex items-center justify-center py-6">
+                    <Text variant="title3" serif>
+                      No Clubs Found
+                    </Text>
+                  </div>
+                ))}
+              {data.currentlyReading.map(club => (
+                <ClubCard key={club.id} club={club} />
+              ))}
+            </div>
+          </Tab.Panel>
 
-          <div className="grid gap-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
-            {data.previouslyRead?.map(club => (
-              <ClubCard club={club} key={club.id} />
-            ))}
+          <Tab.Panel
+            className={clsx(
+              'rounded-xl bg-background-tertiary p-3',
+              'focus:outline-none',
+            )}
+          >
+            <div className="grid gap-4">
+              {!data.previouslyRead ||
+                (data.previouslyRead.length === 0 && (
+                  <div className="flex items-center justify-center py-6">
+                    <Text variant="title3" serif>
+                      No Clubs Found
+                    </Text>
+                  </div>
+                ))}
+              {data.previouslyRead.map(club => (
+                <ClubCard key={club.id} club={club} />
+              ))}
+            </div>
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
+    </div>
+  )
+}
+
+const ClubCard = ({
+  club,
+}: {
+  club: LoaderData['currentlyReading'][number]
+}) => {
+  const navigate = useNavigate()
+  return (
+    <div
+      className="rounded-lg bg-background-secondary p-4 active:bg-background-secondary/70"
+      onClick={() => {
+        navigate(club.id)
+      }}
+    >
+      <div className="grid grid-cols-[1fr,2fr] gap-6">
+        <Link
+          onClick={e => e.stopPropagation()}
+          to={club.id}
+          className="relative mx-auto aspect-[0.66/1] w-full overflow-hidden rounded-lg shadow-md"
+        >
+          <img
+            className="h-full w-full object-cover"
+            src={club.image}
+            alt="selected cover"
+          />
+        </Link>
+        <div className="flex flex-col justify-between">
+          <div>
+            <Link
+              to={club.id}
+              onClick={e => e.stopPropagation()}
+              className="w-fit"
+            >
+              <Text variant="title3" as="p" className="line-clamp-1">
+                {club.title}
+              </Text>
+            </Link>
+            <Text variant="subtitle2" as="p" className="line-clamp-1">
+              By {club.author}
+            </Text>
+          </div>
+
+          <div className="grid grid-cols-[auto,1fr] items-center gap-x-4">
+            <Text variant="body2">Chapters</Text>
+            <Text variant="caption">{club.chapters}</Text>
+            <Text variant="body2">Members</Text>
+            <Text variant="caption">{club.members.length}</Text>
+            <Text variant="body2">Club Created</Text>
+            <Text variant="caption">
+              {toLuxonDate(club.createdAt).toLocaleString(DateTime.DATE_MED)}
+            </Text>
+          </div>
+
+          <div className="flex flex-col justify-end">
+            <Link
+              to={`/users/${club.owner.id}`}
+              onClick={e => e.stopPropagation()}
+              className="flex w-fit items-center justify-start gap-2"
+            >
+              <img
+                src={club.owner.avatar}
+                className="h-10 w-10 flex-shrink-0 rounded-full"
+                alt={`${club.owner.username} avatar`}
+              />
+              <div>
+                <Text as="p" variant="caption">
+                  Owner
+                </Text>
+                <Text as="p" variant="subtitle2">
+                  {club.owner.username}
+                </Text>
+              </div>
+            </Link>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -82,6 +210,14 @@ async function getClubList(userId: string) {
       title: true,
       author: true,
       image: true,
+      createdAt: true,
+      owner: {
+        select: {
+          avatar: true,
+          id: true,
+          username: true,
+        },
+      },
       members: {
         select: {
           user: {
@@ -100,6 +236,7 @@ async function getClubList(userId: string) {
       _count: {
         select: {
           chapters: true,
+          members: true,
         },
       },
     },
@@ -121,6 +258,8 @@ async function getClubList(userId: string) {
       author: dbClub.author,
       image: dbClub.image,
       chapters: dbClub._count.chapters,
+      owner: dbClub.owner,
+      createdAt: dbClub.createdAt,
       members: dbClub.members
         .map(m => ({
           id: m.user.id,

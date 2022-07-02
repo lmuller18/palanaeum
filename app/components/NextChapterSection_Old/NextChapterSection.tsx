@@ -171,7 +171,7 @@ const NextChapter = ({ chapter, club }: NextChapterProps) => {
             <Menu.Button as={Button} variant="secondary">
               Options
               <ChevronDownIcon
-                className="ml-2 -mr-1 h-5 w-5 text-indigo-700/70"
+                className="ml-2 -mr-1 h-5 w-5 text-gray-200"
                 aria-hidden="true"
               />
             </Menu.Button>

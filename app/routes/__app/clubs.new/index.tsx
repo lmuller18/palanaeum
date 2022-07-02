@@ -1,14 +1,21 @@
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
-import { Disclosure, Transition } from '@headlessui/react'
-import { ChevronUpIcon, InformationCircleIcon } from '@heroicons/react/outline'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { Upload } from 'react-feather'
 import { json, redirect } from '@remix-run/node'
-import { Form, Link, useActionData } from '@remix-run/react'
+import { useEffect, useRef, useState } from 'react'
+import { Form, useActionData, useNavigate } from '@remix-run/react'
+import { Disclosure, Transition } from '@headlessui/react'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import {
+  BookOpenIcon,
+  ChevronUpIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/outline'
 
 import { prisma } from '~/db.server'
+import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
-import { Upload } from 'react-feather'
+import Button from '~/elements/Button'
+import OutlinedInput from '~/elements/OutlinedInput'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
@@ -71,6 +78,8 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function NewClubPage() {
+  const navigate = useNavigate()
+
   const actionData = useActionData() as ActionData
 
   const titleRef = useRef<HTMLInputElement>(null)
@@ -78,7 +87,7 @@ export default function NewClubPage() {
   const chaptersRef = useRef<HTMLInputElement>(null)
   const uploadRef = useRef<HTMLInputElement>(null)
 
-  const [img, setImg] = useState<File | null>(null)
+  // const [img, setImg] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
   useEffect(() => {
@@ -92,42 +101,142 @@ export default function NewClubPage() {
   }, [actionData])
 
   useEffect(() => {
-    if (!img) return
-
-    if (preview) URL.revokeObjectURL(preview)
-
-    const objectUrl = URL.createObjectURL(img)
-    setPreview(objectUrl)
-
     return () => {
       if (preview) URL.revokeObjectURL(preview)
     }
-  }, [img])
-
-  const handleFileUploadClick = () => {
-    if (!uploadRef?.current) return
-    uploadRef.current.click()
-  }
+  }, [preview])
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e?.target?.files?.[0]) return
     const image = e.target.files[0]
-    setImg(image)
+    // setImg(image)
+    if (preview) URL.revokeObjectURL(preview)
+    const objectUrl = URL.createObjectURL(image)
+    setPreview(objectUrl)
+  }
+
+  const clearPhoto = () => {
+    // setImg(null)
+    setPreview(null)
   }
 
   return (
     <div className="flex min-h-full flex-col justify-center">
       <div className="mx-auto w-full max-w-md px-8">
-        <Link
-          to={`/api/books/search?q=${encodeURIComponent('The Alloy of Law')}`}
-        >
-          Search
-        </Link>
         <p className="my-8 w-fit bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-3xl font-bold text-transparent">
           Create New Club
         </p>
+
+        <div className="flex items-center justify-center">
+          <Button onClick={() => navigate('search')}>
+            <BookOpenIcon className="mr-2 h-5 w-5" /> Search Books
+          </Button>
+        </div>
+
+        <div className="relative my-6">
+          <div
+            className="absolute inset-0 flex items-center"
+            aria-hidden="true"
+          >
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-background-primary px-2 text-white">
+              Or create manually
+            </span>
+          </div>
+        </div>
+
         <Form method="post" className="space-y-6">
           <div>
+            <label
+              htmlFor="cover-photo"
+              className="block text-sm font-medium text-white"
+            >
+              {preview ? 'Preview Cover' : 'Cover photo'}
+            </label>
+            {preview ? (
+              <div>
+                <div className="relative py-6">
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,<svg id='patternId' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='20' height='20' patternTransform='scale(1) rotate(0)'><rect x='0' y='0' width='100%' height='100%' fill='transparent'/><path d='M3.25 10h13.5M10 3.25v13.5'  stroke-linecap='square' stroke-width='1' stroke='hsla(220, 17%, 14%, 1)' fill='none'/></pattern></defs><rect width='800%' height='800%' transform='translate(0,0)' fill='url(%23a)'/></svg>")`,
+                    }}
+                  />
+                  <div className="relative my-2 mx-auto aspect-[0.66/1] w-full max-w-[200px] overflow-hidden rounded-lg shadow-md">
+                    <img
+                      className="h-full w-full object-cover"
+                      src={preview}
+                      alt="preview cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-end">
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={clearPhoto}
+                  >
+                    Change Cover
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-white px-6 pt-5 pb-6">
+                <div className="space-y-1 text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-white"
+                    stroke="currentColor"
+                    fill="none"
+                    viewBox="0 0 48 48"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <div className="flex text-sm text-white">
+                    <label
+                      htmlFor="file-upload"
+                      className="relative cursor-pointer rounded-md bg-background-primary font-medium text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                    >
+                      <span>Upload a file</span>
+                      <input
+                        ref={uploadRef}
+                        onChange={handleImageChange}
+                        id="file-upload"
+                        name="file-upload"
+                        type="file"
+                        className="sr-only"
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs text-white">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <OutlinedInput
+            labelProps={{
+              htmlFor: 'title',
+              children: 'Title',
+            }}
+            inputProps={{
+              id: 'title',
+              required: true,
+              type: 'text',
+              name: 'title',
+              'aria-invalid': actionData?.errors?.title ? true : undefined,
+              'aria-describedby': 'title-error',
+            }}
+          />
+
+          {/* <div>
             <label
               htmlFor="title"
               className="block text-sm font-medium text-gray-200"
@@ -151,72 +260,24 @@ export default function NewClubPage() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
-          <div className="relative mt-2 h-32 w-full overflow-hidden rounded-lg">
-            {preview && (
-              <img src={preview} className="h-full w-full object-cover" />
-            )}
-            <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-black/70 p-4 text-white">
-              <button type="button" onClick={handleFileUploadClick}>
-                <Upload />
-              </button>
-            </div>
-          </div>
-          <input
-            ref={uploadRef}
-            onChange={handleImageChange}
-            accept="image/jpeg,image/png,image/webp"
-            type="file"
-            name="image"
-            className="absolute opacity-0"
-            required
-            style={{ zIndex: -1, width: 0.1, height: 0.1 }}
+          <OutlinedInput
+            labelProps={{
+              htmlFor: 'author',
+              children: 'Author',
+            }}
+            inputProps={{
+              id: 'author',
+              required: true,
+              type: 'text',
+              name: 'author',
+              'aria-invalid': actionData?.errors?.author ? true : undefined,
+              'aria-describedby': 'author-error',
+            }}
           />
 
-          <div className="sm:col-span-6">
-            <label
-              htmlFor="cover-photo"
-              className="block text-sm font-medium text-white"
-            >
-              Cover photo
-            </label>
-            <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-white px-6 pt-5 pb-6">
-              <div className="space-y-1 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-white"
-                  stroke="currentColor"
-                  fill="none"
-                  viewBox="0 0 48 48"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <div className="flex text-sm text-white">
-                  <label
-                    htmlFor="file-upload"
-                    className="relative cursor-pointer rounded-md bg-background-primary font-medium text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
-                  >
-                    <span>Upload a file</span>
-                    <input
-                      id="file-upload"
-                      name="file-upload"
-                      type="file"
-                      className="sr-only"
-                    />
-                  </label>
-                </div>
-                <p className="text-xs text-white">PNG, JPG, GIF up to 10MB</p>
-              </div>
-            </div>
-          </div>
-
-          <div>
+          {/* <div>
             <label
               htmlFor="author"
               className="block text-sm font-medium text-gray-200"
@@ -240,9 +301,24 @@ export default function NewClubPage() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
-          <div>
+          <OutlinedInput
+            labelProps={{
+              htmlFor: 'chapters',
+              children: 'How Many Chapters?',
+            }}
+            inputProps={{
+              id: 'chapters',
+              required: true,
+              type: 'text',
+              name: 'chapters',
+              'aria-invalid': actionData?.errors?.chapters ? true : undefined,
+              'aria-describedby': 'chapters-error',
+            }}
+          />
+
+          {/* <div>
             <label
               htmlFor="chapters"
               className="block text-sm font-medium text-gray-200"
@@ -266,7 +342,7 @@ export default function NewClubPage() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
           <div className="w-full">
             <div className="rounded-lg bg-purple-100 text-purple-700">

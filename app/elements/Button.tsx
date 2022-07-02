@@ -23,7 +23,7 @@ const variants = {
   primary:
     'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 disabled:bg-indigo-600/70 disabled:text-white/70 disabled:focus:ring-indigo-500/70',
   secondary:
-    'bg-indigo-100 text-indigo-700 hover:bg-indigo-200 focus:ring-indigo-500 disabled:bg-indigo-100/70 text-indigo-700/70 disabled:focus:ring-indigo-500/70',
+    'bg-background-tertiary text-gray-200 hover:bg-background-tertiary/70 focus:ring-indigo-500 disabled:bg-background-tertiary/70 hover:text-white disabled:text-gray-500 disabled:focus:ring-indigo-500/70',
 }
 
 const fullWidths = {
@@ -45,7 +45,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={clsx(
-          'inline-flex items-center justify-center border border-transparent font-medium shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
+          'inline-flex items-center justify-center border border-transparent font-medium shadow-sm transition-colors focus:outline-none focus:ring-2',
           variants[variant],
           sizes[size],
           fullWidths[

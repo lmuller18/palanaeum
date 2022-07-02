@@ -2,7 +2,12 @@ import clsx from 'clsx'
 import { Fragment, memo } from 'react'
 import { Link, NavLink } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
-import { BookOpenIcon, HomeIcon, XIcon } from '@heroicons/react/outline'
+import {
+  BookOpenIcon,
+  HomeIcon,
+  InboxIcon,
+  XIcon,
+} from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
 import BottomNavSection from './BottomNavSection'
@@ -10,6 +15,7 @@ import BottomNavSection from './BottomNavSection'
 const links = [
   { name: 'Home', to: '/', icon: HomeIcon },
   { name: 'Clubs', to: '/clubs', icon: BookOpenIcon },
+  { name: 'Invites', to: '/invites', icon: InboxIcon },
 ]
 
 const Sidenav = ({
