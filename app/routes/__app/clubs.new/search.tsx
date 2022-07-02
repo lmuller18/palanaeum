@@ -8,6 +8,7 @@ import { Form, Link, useLoaderData, useSearchParams } from '@remix-run/react'
 import { toLuxonDate } from '~/utils'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
+import { requireUserId } from '~/session.server'
 
 type LoaderData = {
   results: {
@@ -21,6 +22,8 @@ type LoaderData = {
 } | null
 
 export const loader: LoaderFunction = async ({ request }) => {
+  await requireUserId(request)
+
   const search = new URL(request.url).searchParams.get('q')
 
   if (!search) return null
@@ -99,23 +102,6 @@ export default function Page() {
               </button>
             </div>
           </div>
-
-          {/* <label
-            htmlFor="search-title"
-            className="block text-sm font-medium text-gray-200"
-          >
-            Search Books
-          </label>
-          <div className="mt-1">
-            <input
-              id="search-title"
-              required
-              type="text"
-              name="q"
-              defaultValue={params.get('q') ?? undefined}
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
-            />
-          </div> */}
         </Form>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">

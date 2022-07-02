@@ -1,9 +1,8 @@
 import clsx from 'clsx'
-import { Upload } from 'react-feather'
 import { json, redirect } from '@remix-run/node'
 import { useEffect, useRef, useState } from 'react'
-import { Form, useActionData, useNavigate } from '@remix-run/react'
 import { Disclosure, Transition } from '@headlessui/react'
+import { Form, useActionData, useNavigate } from '@remix-run/react'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import {
   BookOpenIcon,
@@ -12,9 +11,8 @@ import {
 } from '@heroicons/react/outline'
 
 import { prisma } from '~/db.server'
-import Text from '~/elements/Typography/Text'
-import { requireUserId } from '~/session.server'
 import Button from '~/elements/Button'
+import { requireUserId } from '~/session.server'
 import OutlinedInput from '~/elements/OutlinedInput'
 
 export const loader: LoaderFunction = async ({ request }) => {

@@ -2,7 +2,7 @@ import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
 import { forbidden, notFound } from 'remix-utils'
 import { PlusSmIcon } from '@heroicons/react/solid'
-import { Form, useLoaderData } from '@remix-run/react'
+import { useFetcher, useLoaderData } from '@remix-run/react'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 
 import { useUser } from '~/utils'
@@ -11,6 +11,7 @@ import Text from '~/elements/Typography/Text'
 import { sendPush } from '~/utils/notifications.server'
 import { requireUser, requireUserId } from '~/session.server'
 import { createNotification } from '~/utils/notifications.utils'
+import { useEffect, useRef } from 'react'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request)
@@ -42,6 +43,14 @@ export default function ManageMembersPage() {
 
   const { id } = useUser()
 
+  const inviteRef = useRef<HTMLFormElement>(null)
+  const inviteFetcher = useFetcher()
+  useEffect(() => {
+    if (inviteFetcher.type === 'done' && inviteFetcher.data.ok) {
+      inviteRef.current?.reset()
+    }
+  }, [inviteFetcher])
+
   return (
     <div className="px-4">
       <div>
@@ -67,7 +76,7 @@ export default function ManageMembersPage() {
             As club owner, you have permission to add or remove other members.
           </Text>
         </div>
-        <Form method="post" className="mt-6 flex">
+        <inviteFetcher.Form method="post" className="mt-6 flex" ref={inviteRef}>
           <label htmlFor="email" className="sr-only">
             Email address
           </label>
@@ -80,11 +89,23 @@ export default function ManageMembersPage() {
           />
           <button
             type="submit"
+            disabled={inviteFetcher.state === 'submitting'}
             className="ml-4 flex-shrink-0 rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Send invite
           </button>
-        </Form>
+        </inviteFetcher.Form>
+        {inviteFetcher.type === 'done' ? (
+          inviteFetcher.data.ok ? (
+            <Text as="p" className="mt-2 ml-2">
+              Invite Sent!
+            </Text>
+          ) : inviteFetcher.data.error ? (
+            <Text as="p" className="mt-2 ml-2 text-red-500">
+              {inviteFetcher.data.error}
+            </Text>
+          ) : null
+        ) : null}
       </div>
       <div className="mt-10">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-100">
@@ -141,10 +162,8 @@ export default function ManageMembersPage() {
 }
 
 interface ActionData {
-  errors?: {
-    email?: string
-  }
-  success?: boolean
+  error?: string
+  ok?: boolean
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -156,16 +175,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   const email = await (await request.formData()).get('email')
 
   if (typeof email !== 'string' || email.length === 0) {
-    return json<ActionData>(
-      { errors: { email: 'email is required' } },
-      { status: 400 },
-    )
+    return json<ActionData>({ error: 'Email is required.' }, { status: 400 })
   }
 
   const invitee = await findUser(email)
 
-  if (!invitee)
-    throw notFound({ message: 'No user found with email: ' + email })
+  if (!invitee) return json<ActionData>({ error: 'No user found.' })
 
   const invite = await createInvite({
     clubId,
@@ -176,7 +191,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   await notifyNewInvite(invite)
 
   return json({
-    success: true,
+    ok: true,
   })
 }
 
