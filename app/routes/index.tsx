@@ -1,4 +1,4 @@
-import { Form, Link } from 'remix'
+import { Form, Link } from '@remix-run/react'
 
 import { useOptionalUser } from '~/utils'
 
@@ -11,6 +11,7 @@ export default function Index() {
           <img
             src={user.avatar}
             className="h-24 w-24 rounded-full object-cover"
+            alt="user avatar"
           />
           <h1>{user.username}</h1>
           <Form action="/logout" method="post">
@@ -25,10 +26,13 @@ export default function Index() {
       ) : (
         <div className="flex flex-col items-start gap-2">
           <Link to="/join">Sign Up</Link>
-          <Link to="/join">Log in</Link>
+          <Link to="/login">Log in</Link>
         </div>
       )}
-      <Link to="/clubs">Clubs</Link>
+      <div className="grid">
+        <Link to="/clubs_old">Clubs Old</Link>
+        <Link to="/clubs">Clubs</Link>
+      </div>
     </main>
   )
 }

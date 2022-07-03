@@ -2,8 +2,37 @@
 
 @layer base {
   html {
+    /* default bg color */
     @apply bg-background-primary;
+    /* default text color */
     @apply text-white;
+    /* default to body1 text variant */
+    /* @apply text-base font-normal leading-6 tracking-[0.00938em]; */
+  }
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 

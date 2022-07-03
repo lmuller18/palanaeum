@@ -1,5 +1,6 @@
-import { Club, PrismaClient, User } from '@prisma/client'
 import bcrypt from '@node-rs/bcrypt'
+import { PrismaClient } from '@prisma/client'
+import type { Club, User } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -34,20 +35,31 @@ const createUser = async (
   })
 }
 
+const createChapters = async (clubId: string, count = 5) => {
+  for (let i = 0; i < count; i++) {
+    await prisma.chapter.create({
+      data: {
+        order: i,
+        title: `Chapter ${i + 1}`,
+        club: { connect: { id: clubId } },
+      },
+    })
+  }
+}
+
 async function seed() {
   // // cleanup the existing database
-
   const emails = ['rachel@palanaeum.club', 'kevin@palanaeum.club']
 
   for (const email of emails) {
-    await prisma.user
-      .delete({
+    try {
+      await prisma.user.delete({
         where: { email },
       })
-      .catch(e => {
-        // no worries if it doesn't exist yet
-        console.log('failed deleting', e)
-      })
+    } catch (e) {
+      // no worries if it doesn't exist yet
+      console.log('failed deleting', e)
+    }
   }
 
   const user1 = await createUser(
@@ -64,6 +76,7 @@ async function seed() {
   const club = await prisma.club.create({
     data: {
       title: 'Book Club',
+      author: 'author',
       image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
       owner: { connect: { id: user1.id } },
     },
@@ -71,6 +84,7 @@ async function seed() {
 
   await createMember(user1, club)
   await createMember(user2, club)
+  await createChapters(club.id, 5)
 
   console.log(`Database has been seeded. 🌱`)
 }

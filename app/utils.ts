@@ -1,5 +1,8 @@
+import type { ToRelativeOptions } from 'luxon'
+import { DateTime } from 'luxon'
 import { useMemo } from 'react'
-import { useMatches } from 'remix'
+import { useMatches } from '@remix-run/react'
+import invariant from 'tiny-invariant'
 
 import type { User } from '~/models/user.server'
 
@@ -44,4 +47,37 @@ export function useUser(): User {
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === 'string' && email.length > 3 && email.includes('@')
+}
+
+export function toLuxonDate(date: Date | string) {
+  return DateTime.fromJSDate(new Date(date))
+}
+
+export function toRelative(date: Date | string, options?: ToRelativeOptions) {
+  if (toLuxonDate(date).diffNow().as('seconds') > -30) return 'just now'
+  return toLuxonDate(date).toRelative(options)
+}
+
+export function pluralize(singular: string, plural: string, count: number) {
+  if (count === 1) return singular
+  return plural
+}
+
+export async function parseStringFormData(request: Request) {
+  let formData = await request.formData()
+  let obj: { [key: string]: string | undefined } = {}
+  for (let [key, val] of formData.entries()) {
+    invariant(typeof val === 'string', `expected string in for ${key}`)
+    obj[key] = val
+  }
+  return obj
+}
+
+export function removeEmpty(obj: object) {
+  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != null))
+}
+
+export function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message
+  return String(error)
 }

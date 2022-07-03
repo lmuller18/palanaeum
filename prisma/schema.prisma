@@ -17,9 +17,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  managedClubs Club[]
-  members      Member[]
-  password     Password?
+  managedClubs    Club[]
+  members         Member[]
+  subscriptions   Subscription[]
+  password        Password?
+  sentInvites     ClubInvite[]   @relation(name: "sentInvites")
+  receivedInvites ClubInvite[]   @relation(name: "receivedInvites")
 }
 
 model Password {
@@ -30,18 +33,35 @@ model Password {
 }
 
 model Club {
-  id    String @id @default(cuid())
-  title String
-  image String
+  id     String @id @default(cuid())
+  title  String
+  author String
+  image  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  owner    User      @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  owner    User         @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   chapters Chapter[]
   members  Member[]
+  invites  ClubInvite[]
 
   ownerId String
+}
+
+model ClubInvite {
+  club    Club @relation(fields: [clubId], references: [id])
+  inviter User @relation(fields: [inviterId], references: [id], name: "sentInvites")
+  invitee User @relation(fields: [inviteeId], references: [id], name: "receivedInvites")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clubId    String
+  inviterId String
+  inviteeId String
+
+  @@id([inviterId, inviteeId, clubId])
 }
 
 model Chapter {
@@ -52,8 +72,10 @@ model Chapter {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  club     Club       @relation(fields: [clubId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Progress Progress[]
+  club        Club         @relation(fields: [clubId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  progress    Progress[]
+  posts       Post[]
+  discussions Discussion[]
 
   clubId String
 }
@@ -66,9 +88,12 @@ model Member {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  club     Club       @relation(fields: [clubId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  progress Progress[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  club        Club         @relation(fields: [clubId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  progress    Progress[]
+  posts       Post[]
+  discussions Discussion[]
+  comments    Comment[]
 
   userId String
   clubId String
@@ -86,4 +111,73 @@ model Progress {
   chapterId String
 
   @@id([memberId, chapterId])
+}
+
+model Post {
+  id      String  @id @default(cuid())
+  content String
+  context String?
+  image   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  member  Member  @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parent  Post?   @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  root    Post?   @relation("PostToRoot", fields: [rootId], references: [id])
+  posts   Post[]  @relation("PostToRoot")
+
+  chapterId String
+  memberId  String
+  parentId  String?
+  rootId    String?
+  replies   Post[]  @relation("CommentThread")
+}
+
+model Discussion {
+  id      String  @id @default(cuid())
+  title   String
+  content String?
+  image   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chapter Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  member  Member    @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  replies Comment[]
+
+  chapterId String
+  memberId  String
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  discussion Discussion @relation(fields: [discussionId], references: [id])
+  member     Member     @relation(fields: [memberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parent     Comment?   @relation("DiscussionCommentThread", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  root       Comment?   @relation("CommentToRoot", fields: [rootId], references: [id])
+  posts      Comment[]  @relation("CommentToRoot")
+
+  discussionId String
+  memberId     String
+  parentId     String?
+  rootId       String?
+  replies      Comment[] @relation("DiscussionCommentThread")
+}
+
+model Subscription {
+  endpoint       String @unique
+  expirationTime Int?
+  auth           String
+  p256dh         String
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String
 }

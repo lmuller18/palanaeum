@@ -1,13 +1,11 @@
 import * as React from 'react'
-import type { ActionFunction, LoaderFunction, MetaFunction } from 'remix'
-import {
-  Form,
-  json,
-  Link,
-  redirect,
-  useActionData,
-  useSearchParams,
-} from 'remix'
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
+import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
 
 import { validateEmail } from '~/utils'
 import { verifyLogin } from '~/models/user.server'
@@ -31,8 +29,6 @@ export const action: ActionFunction = async ({ request }) => {
   const email = formData.get('email')
   const password = formData.get('password')
   const redirectTo = formData.get('redirectTo')
-
-  console.log('redirectTo: ', redirectTo)
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -96,94 +92,109 @@ export default function LoginPage() {
   }, [actionData])
 
   return (
-    <div className="flex min-h-full flex-col justify-center">
-      <div className="mx-auto w-full max-w-md px-8">
-        <Form
-          method="post"
-          className="space-y-6"
-          noValidate
-          action={
-            redirectTo
-              ? `?redirectTo=${encodeURIComponent(redirectTo)}`
-              : undefined
-          }
-        >
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Email address
-            </label>
-            <div className="mt-1">
-              <input
-                ref={emailRef}
-                id="email"
-                required
-                autoFocus={true}
-                name="email"
-                type="email"
-                autoComplete="email"
-                aria-invalid={actionData?.errors?.email ? true : undefined}
-                aria-describedby="email-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
-              />
+    <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <img
+          className="mx-auto h-24 w-auto overflow-hidden rounded-full"
+          src="/images/gradient-logo-192.png"
+          alt="Palanaeum"
+        />
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-100">
+          Sign in to your account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-300">
+          Or{' '}
+          <Link
+            className="font-medium text-indigo-500 hover:text-indigo-400"
+            to={{
+              pathname: '/join',
+              search: searchParams.toString(),
+            }}
+          >
+            create a new account now
+          </Link>
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-background-secondary py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <Form
+            method="post"
+            className="space-y-6"
+            noValidate
+            action={
+              redirectTo
+                ? `?redirectTo=${encodeURIComponent(redirectTo)}`
+                : undefined
+            }
+          >
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-100"
+              >
+                Email address
+              </label>
+              <div className="mt-1">
+                <input
+                  ref={emailRef}
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  autoFocus
+                  className="block w-full appearance-none rounded-md border border-background-tertiary bg-background-tertiary px-3 py-2 text-white placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                  aria-invalid={actionData?.errors?.email ? true : undefined}
+                  aria-describedby="email-error"
+                />
+              </div>
               {actionData?.errors?.email && (
                 <div className="pt-1 text-red-700" id="email-error">
                   {actionData.errors.email}
                 </div>
               )}
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Password
-            </label>
-            <div className="mt-1">
-              <input
-                id="password"
-                ref={passwordRef}
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                aria-invalid={actionData?.errors?.password ? true : undefined}
-                aria-describedby="password-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
-              />
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-100"
+              >
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  ref={passwordRef}
+                  aria-invalid={actionData?.errors?.password ? true : undefined}
+                  aria-describedby="password-error"
+                  className="block w-full appearance-none rounded-md border border-background-tertiary bg-background-tertiary px-3 py-2 text-white placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                />
+              </div>
               {actionData?.errors?.password && (
                 <div className="pt-1 text-red-700" id="password-error">
                   {actionData.errors.password}
                 </div>
               )}
             </div>
-          </div>
 
-          <input type="hidden" name="redirectTo" value={redirectTo ?? ''} />
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
-            Log in
-          </button>
-          <div className="flex items-center justify-between">
-            <div className="text-center text-sm text-gray-300">
-              Don't have an account?{' '}
-              <Link
-                className="text-blue-500 underline"
-                to={{
-                  pathname: '/join',
-                  search: searchParams.toString(),
-                }}
+            <input type="hidden" name="redirectTo" value={redirectTo ?? ''} />
+
+            <div>
+              <button
+                type="submit"
+                className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
-                Sign up
-              </Link>
+                Sign in
+              </button>
             </div>
-          </div>
-        </Form>
+          </Form>
+        </div>
       </div>
     </div>
   )

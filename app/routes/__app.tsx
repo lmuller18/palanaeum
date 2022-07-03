@@ -1,30 +1,42 @@
-import { Form, Outlet } from 'remix'
-import Header from '~/components/Typography/Header'
+import { Outlet } from '@remix-run/react'
+import { useState } from 'react'
+import { MenuAlt2Icon } from '@heroicons/react/outline'
+
+import { useUser } from '~/utils'
+import Sidenav from '~/components/Sidenav'
+import Text from '~/elements/Typography/Text'
 
 export default function AppLayout() {
+  const user = useUser()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
-    <div className="flex h-full min-h-screen flex-col">
-      <header
-        style={{
-          backdropFilter: 'blur(2px)',
-        }}
-        className="fixed top-0 right-0 flex h-16 w-full items-center justify-between bg-background-secondary bg-opacity-50 p-4 text-white"
-      >
-        <Header size="h3">Palanaeum</Header>
-        <Form action="/logout" method="post">
-          <button
-            type="submit"
-            className="rounded bg-slate-600 py-2 px-4 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
-          >
-            Logout
+    <>
+      <header>
+        <div className="flex items-center justify-between bg-background-secondary px-4 py-2 shadow-lg">
+          <button type="button" onClick={() => setSidebarOpen(o => !o)}>
+            <MenuAlt2Icon className="h-8 w-8" />
           </button>
-        </Form>
-        <div className="absolute inset-0 h-full w-full blur-lg" />
+
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col justify-start text-right">
+              <Text variant="caption">Welcome</Text>
+              <Text>{user.username}</Text>
+            </div>
+            <img
+              src={user.avatar}
+              className="h-10 w-10 rounded-md"
+              alt="user avatar"
+            />
+          </div>
+        </div>
       </header>
 
-      <main className="h-full">
+      <Sidenav open={sidebarOpen} setOpen={setSidebarOpen} />
+
+      <main className="mb-4">
         <Outlet />
       </main>
-    </div>
+    </>
   )
 }
