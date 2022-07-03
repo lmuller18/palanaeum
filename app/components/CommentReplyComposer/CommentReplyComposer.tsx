@@ -58,6 +58,7 @@ const CommentReplyComposer = ({
         console.log(fetcher.data.error)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetcher, onSubmit])
 
   const createComment = () => {
