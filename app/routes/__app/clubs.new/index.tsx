@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { json, redirect } from '@remix-run/node'
+import cuid from 'cuid'
 import { useEffect, useRef, useState } from 'react'
 import { Disclosure, Transition } from '@headlessui/react'
 import { Form, useActionData, useNavigate } from '@remix-run/react'
@@ -9,9 +9,17 @@ import {
   ChevronUpIcon,
   InformationCircleIcon,
 } from '@heroicons/react/outline'
+import {
+  json,
+  redirect,
+  unstable_composeUploadHandlers as composeUploadHandlers,
+  unstable_parseMultipartFormData as parseMultipartFormData,
+  unstable_createMemoryUploadHandler as createMemoryUploadHandler,
+} from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import Button from '~/elements/Button'
+import { uploadS3Handler } from '~/s3.server'
 import { requireUserId } from '~/session.server'
 import OutlinedInput from '~/elements/OutlinedInput'
 
@@ -25,15 +33,31 @@ interface ActionData {
     title?: string
     chapters?: string
     author?: string
+    image?: string
   }
 }
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
-  const formData = await request.formData()
+
+  const clubId = cuid()
+  const imgKey = cuid()
+
+  const formData = await parseMultipartFormData(
+    request,
+    composeUploadHandlers(
+      uploadS3Handler({
+        key: `clubs/${clubId}/${imgKey}`,
+        filename: imgKey,
+      }),
+      createMemoryUploadHandler(),
+    ),
+  )
+
   const title = formData.get('title')
   const author = formData.get('author')
   const chapters = formData.get('chapters')
+  const image = formData.get('image')
 
   if (typeof title !== 'string' || title.length === 0) {
     return json<ActionData>(
@@ -65,12 +89,20 @@ export const action: ActionFunction = async ({ request }) => {
     )
   }
 
+  if (typeof image !== 'string' || image.length === 0 || image === '_') {
+    return json<ActionData>(
+      { errors: { image: 'Club image is required' } },
+      { status: 400 },
+    )
+  }
+
   const club = await createClub({
+    clubId,
     title,
     chapterCount,
     author,
     userId,
-    image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0',
+    image: `/reserve/${image}`,
   })
   return redirect(`/clubs/${club.id}`)
 }
@@ -107,15 +139,13 @@ export default function NewClubPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e?.target?.files?.[0]) return
     const image = e.target.files[0]
-    // setImg(image)
     if (preview) URL.revokeObjectURL(preview)
     const objectUrl = URL.createObjectURL(image)
     setPreview(objectUrl)
   }
 
-  const clearPhoto = () => {
-    // setImg(null)
-    setPreview(null)
+  const changePhoto = () => {
+    uploadRef.current?.click()
   }
 
   return (
@@ -145,7 +175,7 @@ export default function NewClubPage() {
           </div>
         </div>
 
-        <Form method="post" className="space-y-6">
+        <Form method="post" className="space-y-6" encType="multipart/form-data">
           <div>
             <label
               htmlFor="cover-photo"
@@ -153,7 +183,7 @@ export default function NewClubPage() {
             >
               {preview ? 'Preview Cover' : 'Cover photo'}
             </label>
-            {preview ? (
+            {preview && (
               <div>
                 <div className="relative py-6">
                   <div
@@ -170,54 +200,63 @@ export default function NewClubPage() {
                     />
                   </div>
                 </div>
-                <div className="flex items-center justify-end">
+                <div className="mt-2 flex items-center justify-end">
                   <Button
                     variant="secondary"
                     type="button"
-                    onClick={clearPhoto}
+                    onClick={changePhoto}
                   >
                     Change Cover
                   </Button>
                 </div>
               </div>
-            ) : (
-              <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-white px-6 pt-5 pb-6">
-                <div className="space-y-1 text-center">
-                  <svg
-                    className="mx-auto h-12 w-12 text-white"
-                    stroke="currentColor"
-                    fill="none"
-                    viewBox="0 0 48 48"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                      strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <div className="flex text-sm text-white">
-                    <label
-                      htmlFor="file-upload"
-                      className="relative cursor-pointer rounded-md bg-background-primary font-medium text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
-                    >
-                      <span>Upload a file</span>
-                      <input
-                        ref={uploadRef}
-                        onChange={handleImageChange}
-                        id="file-upload"
-                        name="file-upload"
-                        type="file"
-                        className="sr-only"
-                      />
-                    </label>
-                  </div>
-                  <p className="text-xs text-white">PNG, JPG, GIF up to 10MB</p>
-                </div>
-              </div>
             )}
+            <div
+              className={clsx(
+                preview && 'hidden',
+                'mt-1 flex justify-center rounded-md border-2 border-dashed border-white px-6 pt-5 pb-6',
+              )}
+            >
+              <div className="space-y-1 text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-white"
+                  stroke="currentColor"
+                  fill="none"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <div className="flex text-sm text-white">
+                  <label
+                    htmlFor="image"
+                    className="relative cursor-pointer rounded-md bg-background-primary font-medium text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                  >
+                    <span>Upload a file</span>
+                    <input
+                      ref={uploadRef}
+                      onChange={handleImageChange}
+                      id="image"
+                      name="image"
+                      type="file"
+                      className="sr-only"
+                    />
+                  </label>
+                </div>
+                <p className="text-xs text-white">PNG, JPG, GIF up to 10MB</p>
+              </div>
+            </div>
           </div>
+          {actionData?.errors?.image && (
+            <div className="pt-1 text-red-700" id="image-error">
+              {actionData.errors.image}
+            </div>
+          )}
 
           <OutlinedInput
             labelProps={{
@@ -233,6 +272,11 @@ export default function NewClubPage() {
               'aria-describedby': 'title-error',
             }}
           />
+          {actionData?.errors?.title && (
+            <div className="pt-1 text-red-500" id="title-error">
+              {actionData.errors.title}
+            </div>
+          )}
 
           {/* <div>
             <label
@@ -274,6 +318,11 @@ export default function NewClubPage() {
               'aria-describedby': 'author-error',
             }}
           />
+          {actionData?.errors?.author && (
+            <div className="pt-1 text-red-700" id="author-error">
+              {actionData.errors.author}
+            </div>
+          )}
 
           {/* <div>
             <label
@@ -315,6 +364,11 @@ export default function NewClubPage() {
               'aria-describedby': 'chapters-error',
             }}
           />
+          {actionData?.errors?.chapters && (
+            <div className="pt-1 text-red-700" id="chapters-error">
+              {actionData.errors.chapters}
+            </div>
+          )}
 
           {/* <div>
             <label
@@ -432,12 +486,14 @@ export default function NewClubPage() {
 }
 
 async function createClub({
+  clubId,
   title,
   author,
   image,
   chapterCount,
   userId,
 }: {
+  clubId: string
   title: string
   author: string
   image: string
@@ -451,6 +507,7 @@ async function createClub({
 
   return prisma.club.create({
     data: {
+      id: clubId,
       title,
       image,
       author,
