@@ -1,5 +1,6 @@
-import { notFound } from 'remix-utils'
+import mime from 'mime-types'
 import { Readable } from 'stream'
+import { notFound } from 'remix-utils'
 import { GetObjectCommand } from '@aws-sdk/client-s3'
 
 import { s3Client } from './storage.server'
@@ -26,17 +27,21 @@ export const uploadS3Handler = ({
   key: string
   filename: string
 }): UploadHandler => {
-  return async ({ data, contentType }) => {
-    try {
-      await putObject({
-        filename,
-        key,
-        data,
-        contentType,
-      })
+  return async ({ data, contentType, name }) => {
+    if (name !== 'image') return undefined
+    if (!contentType.startsWith('image/')) return undefined
+    const ext = mime.extension(contentType)
+    if (!ext) return undefined
+    const fName = `${filename}.${ext}`
+    const fullKey = `${key}.${ext}`
+    await putObject({
+      filename: fName,
+      key: fullKey,
+      data,
+      contentType,
+    })
 
-      return key
-    } catch (e) {}
+    return fullKey
   }
 }
 

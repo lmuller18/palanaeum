@@ -52,13 +52,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     getDetails(params.bookId),
   ])
 
-  // const covers = await getCovers(details.product.title)
-
   const defaultCover =
     details.product.product_images?.[720] ?? '/images/no-cover.png'
+
   return json({
     book: {
-      chapters: chapters.content_metadata.chapter_info.chapters,
+      chapters: chapters?.content_metadata?.chapter_info.chapters ?? [],
       id: details.product.asin,
       title: details.product.title,
       subtitle: details.product.subtitle,

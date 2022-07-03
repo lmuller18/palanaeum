@@ -30,7 +30,6 @@ export default function Index() {
         </div>
       )}
       <div className="grid">
-        <Link to="/clubs_old">Clubs Old</Link>
         <Link to="/clubs">Clubs</Link>
       </div>
     </main>
