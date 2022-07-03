@@ -171,7 +171,7 @@ async function getPosts(postId: string, userId: string) {
   const dbPost = await prisma.post.findFirst({
     where: {
       id: postId,
-      chapter: { club: { members: { some: { userId } } } },
+      chapter: { club: { members: { some: { userId, removed: false } } } },
     },
     select: {
       id: true,

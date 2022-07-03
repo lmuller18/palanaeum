@@ -204,7 +204,7 @@ const ClubCard = ({
 
 async function getClubList(userId: string) {
   const dbClubs = await prisma.club.findMany({
-    where: { members: { some: { userId } } },
+    where: { members: { some: { userId, removed: false } } },
     select: {
       id: true,
       title: true,
@@ -219,6 +219,7 @@ async function getClubList(userId: string) {
         },
       },
       members: {
+        where: { removed: false },
         select: {
           user: {
             select: {

@@ -26,6 +26,30 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 async function addUserToClub(clubId: string, userId: string) {
+  const existingMember = await prisma.member.findFirst({
+    where: {
+      clubId,
+      userId,
+    },
+  })
+
+  // if the user is already part of the club
+  // check if the user has been removed from the club
+  // if not, return the existing member.
+  // otherwise, un-remove the existing member.
+  // Otherwise create the new member
+
+  if (existingMember) {
+    if (!existingMember.removed) return existingMember
+
+    return prisma.member.update({
+      where: { id: existingMember.id },
+      data: {
+        removed: false,
+      },
+    })
+  }
+
   return prisma.member.create({
     data: {
       clubId,

@@ -1,24 +1,28 @@
 import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
+import { useEffect, useRef } from 'react'
+import { XIcon } from '@heroicons/react/outline'
 import { forbidden, notFound } from 'remix-utils'
-import { PlusSmIcon } from '@heroicons/react/solid'
-import { useFetcher, useLoaderData } from '@remix-run/react'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import { useFetcher, useLoaderData, useParams } from '@remix-run/react'
 
 import { useUser } from '~/utils'
 import { prisma } from '~/db.server'
+import Button from '~/elements/Button'
 import Text from '~/elements/Typography/Text'
 import { sendPush } from '~/utils/notifications.server'
 import { requireUser, requireUserId } from '~/session.server'
 import { createNotification } from '~/utils/notifications.utils'
-import { useEffect, useRef } from 'react'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request)
 
   invariant(params.clubId, 'expected clubId')
 
-  const club = await getClub(params.clubId, userId)
+  const [club, invites] = await Promise.all([
+    getClub(params.clubId, userId),
+    getInvites(params.clubId),
+  ])
 
   if (!club) throw notFound({ message: 'Club not found' })
 
@@ -27,6 +31,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   return json({
     members: club.members,
+    invites,
   })
 }
 
@@ -36,12 +41,15 @@ interface LoaderData {
     avatar: string
     username: string
   }[]
+  invites: {
+    id: string
+    avatar: string
+    username: string
+  }[]
 }
 
 export default function ManageMembersPage() {
   const data = useLoaderData() as LoaderData
-
-  const { id } = useUser()
 
   const inviteRef = useRef<HTMLFormElement>(null)
   const inviteFetcher = useFetcher()
@@ -113,51 +121,96 @@ export default function ManageMembersPage() {
         </h3>
         <ul className="mt-4 divide-y divide-background-tertiary border-t border-b border-background-tertiary">
           {data.members.map(user => (
-            <li
-              key={user.id}
-              className="flex items-center justify-between space-x-3 py-4"
-            >
-              <div className="flex min-w-0 flex-1 items-center space-x-3">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src={user.avatar}
-                    alt=""
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-100">
-                    {user.username}
-                  </p>
-                  <p className="truncate text-sm font-medium text-gray-400">
-                    {user.id === id ? 'Owner' : 'Member'}
-                  </p>
-                </div>
-              </div>
-              {user.id !== id && (
-                <div className="flex-shrink-0">
-                  <button
-                    type="button"
-                    className="inline-flex items-center rounded-full border border-transparent bg-background-secondary py-2 px-3 hover:bg-background-secondary/70 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    <PlusSmIcon
-                      className="-ml-1 mr-0.5 h-5 w-5 text-gray-300"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm font-medium text-gray-100">
-                      {' '}
-                      Invite <span className="sr-only">
-                        {user.username}
-                      </span>{' '}
-                    </span>
-                  </button>
-                </div>
-              )}
-            </li>
+            <MemberRow key={`member-${user.id}`} user={user} />
+          ))}
+          {data.invites.map(user => (
+            <MemberRow key={`invite-${user.id}`} user={user} invite />
           ))}
         </ul>
       </div>
     </div>
+  )
+}
+
+const MemberRow = ({
+  user,
+  invite = false,
+}: {
+  user: LoaderData['members'][number]
+  invite?: boolean
+}) => {
+  const { id } = useUser()
+  const { clubId } = useParams()
+
+  const removeFetcher = useFetcher()
+
+  const remove = () => {
+    if (!clubId) return
+    if (invite) {
+      removeFetcher.submit(
+        {
+          clubId,
+          inviteeId: user.id,
+          inviterId: id,
+        },
+        {
+          action: '/api/invites?index',
+          method: 'delete',
+        },
+      )
+    } else {
+      removeFetcher.submit(
+        {
+          clubId,
+          userId: user.id,
+        },
+        {
+          action: '/api/club/members',
+          method: 'delete',
+        },
+      )
+    }
+  }
+
+  return (
+    <li
+      key={user.id}
+      className="flex items-center justify-between space-x-3 py-4"
+    >
+      <div className="flex min-w-0 flex-1 items-center space-x-3">
+        <div className="flex-shrink-0">
+          <img className="h-10 w-10 rounded-full" src={user.avatar} alt="" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-gray-100">
+            {user.username}
+          </p>
+          <p className="truncate text-sm font-medium text-gray-400">
+            {user.id === id ? 'Owner' : invite ? 'Invited' : 'Member'}
+          </p>
+        </div>
+      </div>
+      {user.id !== id && (
+        <div className="flex-shrink-0">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={remove}
+            disabled={removeFetcher.state !== 'idle'}
+            // className="inline-flex items-center rounded-full border border-transparent bg-background-secondary py-2 px-3 hover:bg-background-secondary/70 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            <XIcon
+              className="-ml-1 mr-0.5 h-5 w-5 text-gray-300"
+              aria-hidden="true"
+            />
+            <span className="text-sm font-medium text-gray-100">
+              {' '}
+              Remove <span className="sr-only">{user.username}</span>{' '}
+            </span>
+          </Button>
+        </div>
+      )}
+    </li>
   )
 }
 
@@ -273,15 +326,34 @@ async function findUser(email: string) {
   return user
 }
 
+async function getInvites(clubId: string) {
+  const invites = await prisma.clubInvite.findMany({
+    where: { clubId },
+    select: {
+      invitee: {
+        select: {
+          avatar: true,
+          id: true,
+          username: true,
+        },
+      },
+    },
+  })
+  return invites.map(inv => ({
+    ...inv.invitee,
+  }))
+}
+
 async function getClub(clubId: string, userId: string) {
   const club = await prisma.club.findFirst({
     where: {
       id: clubId,
-      members: { some: { userId } },
+      members: { some: { userId, removed: false } },
     },
     select: {
       ownerId: true,
       members: {
+        where: { removed: false },
         select: {
           user: {
             select: {

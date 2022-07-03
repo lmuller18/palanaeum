@@ -114,7 +114,7 @@ async function getPosts(clubId: string, chapterId: string, userId: string) {
       chapter: {
         clubId,
         club: {
-          members: { some: { userId } },
+          members: { some: { userId, removed: false } },
         },
       },
     },
@@ -178,7 +178,10 @@ async function getPosts(clubId: string, chapterId: string, userId: string) {
 
 async function getChapter(chapterId: string, userId: string) {
   const dbChapter = await prisma.chapter.findFirst({
-    where: { id: chapterId, club: { members: { some: { userId } } } },
+    where: {
+      id: chapterId,
+      club: { members: { some: { userId, removed: false } } },
+    },
     select: {
       id: true,
       order: true,

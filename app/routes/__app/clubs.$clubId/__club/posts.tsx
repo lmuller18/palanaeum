@@ -100,7 +100,7 @@ export { default as CatchBoundary } from '~/components/CatchBoundary'
 
 async function getChapterList(clubId: string, userId: string) {
   const dbChapters = await prisma.chapter.findMany({
-    where: { clubId, club: { members: { some: { userId } } } },
+    where: { clubId, club: { members: { some: { userId, removed: false } } } },
     select: {
       id: true,
       title: true,
@@ -121,7 +121,7 @@ async function getNextChapter(userId: string, clubId: string) {
       progress: {
         none: { member: { userId } },
       },
-      club: { members: { some: { userId } } },
+      club: { members: { some: { userId, removed: false } } },
     },
     select: {
       id: true,
@@ -156,7 +156,7 @@ async function getPosts(
       chapter: {
         clubId,
         club: {
-          members: { some: { userId } },
+          members: { some: { userId, removed: false } },
         },
       },
     }
@@ -182,7 +182,7 @@ async function getPosts(
           chapter: {
             clubId,
             club: {
-              members: { some: { userId } },
+              members: { some: { userId, removed: false } },
             },
           },
         }

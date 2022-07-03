@@ -150,7 +150,10 @@ export const handle = {
 async function getChapter(chapterId: string, userId: string) {
   const [dbChapter, dbClub] = await Promise.all([
     prisma.chapter.findFirst({
-      where: { id: chapterId, club: { members: { some: { userId } } } },
+      where: {
+        id: chapterId,
+        club: { members: { some: { userId, removed: false } } },
+      },
       select: {
         id: true,
         order: true,

@@ -137,7 +137,10 @@ async function getChapters(
 ) {
   const [dbChapters, dbClub] = await Promise.all([
     prisma.chapter.findMany({
-      where: { clubId, club: { members: { some: { userId } } } },
+      where: {
+        clubId,
+        club: { members: { some: { userId, removed: false } } },
+      },
       skip: page * size,
       take: size,
       select: {
@@ -170,7 +173,7 @@ async function getChapters(
       },
     }),
     prisma.club.findFirst({
-      where: { id: clubId, members: { some: { userId } } },
+      where: { id: clubId, members: { some: { userId, removed: false } } },
       select: {
         _count: {
           select: {

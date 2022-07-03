@@ -41,18 +41,19 @@ export async function createClub({
 
 export function getClub({ userId, id }: { userId: string; id: string }) {
   return prisma.club.findFirst({
-    where: { id, members: { some: { userId } } },
+    where: { id, members: { some: { userId, removed: false } } },
   })
 }
 
 export function getClubListItems({ userId }: { userId: string }) {
   return prisma.club.findMany({
-    where: { members: { some: { userId } } },
+    where: { members: { some: { userId, removed: false } } },
     select: {
       id: true,
       title: true,
       image: true,
       members: {
+        where: { removed: false },
         select: {
           user: {
             select: {

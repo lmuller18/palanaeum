@@ -67,7 +67,7 @@ export default function ClubNavigationLayout() {
 
 async function getClub(clubId: string, userId: string) {
   const dbClub = await prisma.club.findFirst({
-    where: { id: clubId, members: { some: { userId } } },
+    where: { id: clubId, members: { some: { userId, removed: false } } },
     select: {
       id: true,
       title: true,

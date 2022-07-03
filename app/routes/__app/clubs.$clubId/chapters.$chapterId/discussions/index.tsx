@@ -97,7 +97,7 @@ async function getDiscussions(chapterId: string, userId: string) {
   const dbDiscussions = await prisma.discussion.findMany({
     where: {
       chapterId,
-      chapter: { club: { members: { some: { userId } } } },
+      chapter: { club: { members: { some: { userId, removed: false } } } },
     },
     select: {
       id: true,

@@ -59,7 +59,7 @@ export async function getChapterList({
 }> {
   const [club, chapters, nextChapter] = await Promise.all([
     prisma.club.findFirst({
-      where: { id: clubId, members: { some: { userId } } },
+      where: { id: clubId, members: { some: { userId, removed: false } } },
       select: { _count: { select: { members: true, chapters: true } } },
     }),
     prisma.chapter.findMany({
@@ -67,7 +67,7 @@ export async function getChapterList({
       skip: size * page,
       where: {
         clubId,
-        club: { members: { some: { userId } } },
+        club: { members: { some: { userId, removed: false } } },
       },
       select: {
         id: true,
@@ -133,11 +133,11 @@ export async function getChapterDetails({
 }) {
   const [club, chapter] = await Promise.all([
     prisma.club.findFirst({
-      where: { id: clubId, members: { some: { userId } } },
+      where: { id: clubId, members: { some: { userId, removed: false } } },
       select: { _count: { select: { members: true } } },
     }),
     prisma.chapter.findFirst({
-      where: { id, club: { members: { some: { userId } } } },
+      where: { id, club: { members: { some: { userId, removed: false } } } },
       select: {
         id: true,
         order: true,

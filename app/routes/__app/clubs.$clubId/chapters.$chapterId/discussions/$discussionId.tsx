@@ -273,7 +273,7 @@ async function getDiscussion(discussionId: string, userId: string) {
   const dbDiscussion = await prisma.discussion.findFirst({
     where: {
       id: discussionId,
-      chapter: { club: { members: { some: { userId } } } },
+      chapter: { club: { members: { some: { userId, removed: false } } } },
     },
     select: {
       id: true,

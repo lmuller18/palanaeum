@@ -80,10 +80,10 @@ async function notifyNewDiscussion(
       User: {
         members: {
           some: {
-            // TODO add back to not notify self
-            // id: {
-            //   not: discussion.member.id,
-            // },
+            removed: false,
+            id: {
+              not: discussion.member.id,
+            },
             progress: {
               some: {
                 chapterId: discussion.chapter.id,

@@ -4,7 +4,6 @@ import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 
-import { useUser } from '~/utils'
 import { prisma } from '~/db.server'
 import Post from '~/components/Post'
 import Text from '~/elements/Typography/Text'
@@ -43,28 +42,44 @@ interface LoaderData {
       createdAt: Date
     }
   } | null
+  topDiscussion: {
+    user: {
+      id: string
+      avatar: string
+      username: string
+    }
+    chapter: {
+      id: string
+      title: string
+    }
+    discussion: {
+      id: string
+      title: string
+    }
+  } | null
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
 
-  const [counts, chapter, topPost] = await Promise.all([
+  const [counts, chapter, topPost, topDiscussion] = await Promise.all([
     getCompletedMembersCount(params.chapterId, userId),
     getChapter(params.chapterId, userId),
     getTopPost(params.chapterId),
+    getTopDiscussion(params.chapterId),
   ])
 
   if (!counts) throw new Response('Club not found', { status: 404 })
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
 
-  return json<LoaderData>({ counts, chapter, topPost })
+  return json<LoaderData>({ counts, chapter, topPost, topDiscussion })
 }
 
 export default function ChapterHome() {
-  const user = useUser()
   const { clubId } = useParams()
-  const { counts, chapter, topPost } = useLoaderData() as LoaderData
+  const { counts, chapter, topPost, topDiscussion } =
+    useLoaderData() as LoaderData
 
   if (!clubId) throw new Error('Club Id Not Found')
 
@@ -107,6 +122,8 @@ export default function ChapterHome() {
         </div>
       </div>
 
+      {/* TODO: Spoilers for top post and hottest discussion */}
+
       {/* Top Post Block */}
       <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
         <Text variant="title2" className="mb-4" as="h3">
@@ -124,14 +141,16 @@ export default function ChapterHome() {
                 />
               </div>
               {chapter.status !== 'complete' && (
-                <div className="absolute inset-0 flex h-full w-full items-center justify-center">
-                  <Text variant="title2">Post Unavailable</Text>
+                <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
+                  <Text variant="title2">
+                    Spoilers! Catch up to your friends to view this post.
+                  </Text>
                 </div>
               )}
             </>
           ) : (
-            <div className="flex h-32 flex-col items-center justify-center">
-              <Text variant="title2" as="p" className="-mt-6">
+            <div className="flex h-32 flex-col items-center justify-center text-center">
+              <Text variant="title2" as="p" className="-mt-6" serif>
                 No Posts Yet.
               </Text>
             </div>
@@ -144,11 +163,32 @@ export default function ChapterHome() {
         <Text variant="title2" className="mb-4" as="h3">
           Hottest Discussion
         </Text>
-        <DiscussionSummary
-          user={user}
-          chapter={{ id: '1', title: 'Chapter 5' }}
-          discussion={{ id: '1', title: '3 Pure Tones and 3 Shards of Roshar' }}
-        />
+        <div className="relative">
+          {topDiscussion ? (
+            <>
+              <div className={clsx(chapter.status !== 'complete' && 'blur-sm')}>
+                <DiscussionSummary
+                  user={topDiscussion?.user}
+                  chapter={topDiscussion?.chapter}
+                  discussion={topDiscussion?.discussion}
+                />
+              </div>
+              {chapter.status !== 'complete' && (
+                <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
+                  <Text variant="title2" serif>
+                    Spoilers! Catch up to your friends to view this discussion.
+                  </Text>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex h-32 flex-col items-center justify-center text-center">
+              <Text variant="title2" as="p" className="-mt-6" serif>
+                No Discussions Yet.
+              </Text>
+            </div>
+          )}
+        </div>
       </div>
     </>
   )
@@ -168,7 +208,7 @@ async function getCompletedMembersCount(chapterId: string, userId: string) {
     prisma.club.findFirst({
       where: {
         chapters: { some: { id: chapterId } },
-        members: { some: { userId } },
+        members: { some: { userId, removed: false } },
       },
       select: { createdAt: true, _count: { select: { members: true } } },
     }),
@@ -187,7 +227,10 @@ async function getCompletedMembersCount(chapterId: string, userId: string) {
 async function getChapter(chapterId: string, userId: string) {
   const [dbChapter, dbClub] = await Promise.all([
     prisma.chapter.findFirst({
-      where: { id: chapterId, club: { members: { some: { userId } } } },
+      where: {
+        id: chapterId,
+        club: { members: { some: { userId, removed: false } } },
+      },
       select: {
         id: true,
         order: true,
@@ -230,6 +273,60 @@ async function getChapter(chapterId: string, userId: string) {
     title: dbChapter.title,
     order: dbChapter.order,
     status,
+  }
+}
+
+async function getTopDiscussion(chapterId: string) {
+  const dbDiscussion = await prisma.discussion.findFirst({
+    where: { chapterId },
+    select: {
+      id: true,
+      title: true,
+      member: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              avatar: true,
+              username: true,
+            },
+          },
+        },
+      },
+      chapter: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+      _count: {
+        select: {
+          replies: true,
+        },
+      },
+    },
+    take: 1,
+    orderBy: [
+      {
+        replies: {
+          _count: 'desc',
+        },
+      },
+      {
+        createdAt: 'desc',
+      },
+    ],
+  })
+
+  if (!dbDiscussion) return null
+
+  return {
+    user: dbDiscussion.member.user,
+    chapter: dbDiscussion.chapter,
+    discussion: {
+      id: dbDiscussion.id,
+      title: dbDiscussion.title,
+    },
   }
 }
 
