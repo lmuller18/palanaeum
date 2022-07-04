@@ -13,7 +13,7 @@ import {
 } from '@heroicons/react/outline'
 
 import { prisma } from '~/db.server'
-import { toLuxonDate, toRelative } from '~/utils'
+import { toLuxonDate, toRelative, useUser } from '~/utils'
 import { requireUserId } from '~/session.server'
 import clsx from 'clsx'
 import Button from '~/elements/Button'
@@ -114,27 +114,9 @@ export default function InvitesPage() {
                   </div>
                 ))}
               {data.sentInvites.map((inv, i) => (
-                <InviteCard
+                <SentInviteCard
                   key={`${inv.club.id}-${inv.user.id}-${i}`}
                   invite={inv}
-                  menuItems={[
-                    {
-                      activeIcon: (
-                        <ActiveTrashIcon
-                          className="mr-2 h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      ),
-                      inactiveIcon: (
-                        <InactiveTrashIcon
-                          className="mr-2 h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      ),
-                      name: 'Remove Invite',
-                      onClick: () => {},
-                    },
-                  ]}
                 />
               ))}
             </div>
@@ -142,6 +124,49 @@ export default function InvitesPage() {
         </Tab.Panels>
       </Tab.Group>
     </div>
+  )
+}
+
+const SentInviteCard = ({
+  invite,
+}: {
+  invite: LoaderData['receivedInvites'][number]
+}) => {
+  const user = useUser()
+  const removeFetcher = useFetcher()
+
+  const declineInvite = () => {
+    removeFetcher.submit(
+      {
+        clubId: invite.club.id,
+        inviteeId: invite.user.id,
+        inviterId: user.id,
+      },
+      {
+        action: '/api/invites?index',
+        method: 'delete',
+      },
+    )
+  }
+
+  return (
+    <InviteCard
+      invite={invite}
+      menuItems={[
+        {
+          activeIcon: (
+            <ActiveTrashIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+          ),
+          inactiveIcon: (
+            <InactiveTrashIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+          ),
+          name: 'Remove Invite',
+          onClick: () => {
+            declineInvite()
+          },
+        },
+      ]}
+    />
   )
 }
 
@@ -252,8 +277,6 @@ const InviteCard = ({
               DateTime.DATE_MED,
             )}
           </Text>
-          <Text variant="body2">Invited</Text>
-          <Text variant="caption">{toRelative(invite.invitedAt)}</Text>
         </div>
 
         <div className="flex flex-col justify-end">

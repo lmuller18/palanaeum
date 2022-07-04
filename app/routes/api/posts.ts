@@ -26,6 +26,15 @@ export const action: ActionFunction = async ({ params, request }) => {
           rootId,
           memberId,
         })
+
+        // localFetch(request, '/api/notifications/post')
+        // TODO notifications
+        // if(post.rootId == null) {
+        // alert people who have read
+        // } else {
+        // alert people who are in comment chain
+        // }
+
         return json({ ok: true, post })
       } catch (error) {
         return json(
