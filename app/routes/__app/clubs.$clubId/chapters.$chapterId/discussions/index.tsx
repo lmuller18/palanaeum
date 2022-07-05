@@ -1,38 +1,24 @@
 import invariant from 'tiny-invariant'
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
 import { useLoaderData, useNavigate } from '@remix-run/react'
 
-import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
 import DiscussionSummary from '~/components/DiscussionSummary'
+import { getDiscussionsByChapter } from '~/models/discussions.server'
 
 interface LoaderData {
-  discussions: {
-    user: {
-      id: string
-      username: string
-      avatar: string
-    }
-    discussion: {
-      id: string
-      title: string
-    }
-    chapter: {
-      id: string
-      title: string
-    }
-  }[]
+  discussions: FuncType<typeof getDiscussionsByChapter>
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const userId = await requireUserId(request)
   invariant(params.chapterId, 'expected chapterId')
 
-  const discussions = await getDiscussions(params.chapterId, userId)
+  const discussions = await getDiscussionsByChapter(params.chapterId, userId)
 
   if (!discussions)
     throw new Response('Problem finding discussions', { status: 500 })
@@ -92,49 +78,3 @@ export const handle = {
 }
 
 export { default as CatchBoundary } from '~/components/CatchBoundary'
-
-async function getDiscussions(chapterId: string, userId: string) {
-  const dbDiscussions = await prisma.discussion.findMany({
-    where: {
-      chapterId,
-      chapter: { club: { members: { some: { userId, removed: false } } } },
-    },
-    select: {
-      id: true,
-      title: true,
-      member: {
-        select: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-              avatar: true,
-            },
-          },
-        },
-      },
-      chapter: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-    },
-  })
-
-  return dbDiscussions.map(d => ({
-    user: {
-      id: d.member.user.id,
-      username: d.member.user.username,
-      avatar: d.member.user.avatar,
-    },
-    discussion: {
-      id: d.id,
-      title: d.title,
-    },
-    chapter: {
-      id: d.chapter.id,
-      title: d.chapter.title,
-    },
-  }))
-}

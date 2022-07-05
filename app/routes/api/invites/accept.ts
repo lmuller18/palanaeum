@@ -1,10 +1,11 @@
 import invariant from 'tiny-invariant'
 import { redirect } from '@remix-run/node'
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
-import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
+import { addUserToClub } from '~/models/clubs.server'
+import { deleteInvite } from '~/models/invites.server'
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
@@ -25,57 +26,5 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect(`/clubs/${formData.clubId}`)
 }
 
-async function addUserToClub(clubId: string, userId: string) {
-  const existingMember = await prisma.member.findFirst({
-    where: {
-      clubId,
-      userId,
-    },
-  })
-
-  // if the user is already part of the club
-  // check if the user has been removed from the club
-  // if not, return the existing member.
-  // otherwise, un-remove the existing member.
-  // Otherwise create the new member
-
-  if (existingMember) {
-    if (!existingMember.removed) return existingMember
-
-    return prisma.member.update({
-      where: { id: existingMember.id },
-      data: {
-        removed: false,
-      },
-    })
-  }
-
-  return prisma.member.create({
-    data: {
-      clubId,
-      userId,
-    },
-  })
-}
-
-async function deleteInvite({
-  inviteeId,
-  inviterId,
-  clubId,
-}: {
-  inviteeId: string
-  inviterId: string
-  clubId: string
-}) {
-  return prisma.clubInvite
-    .delete({
-      where: {
-        inviterId_inviteeId_clubId: {
-          clubId,
-          inviteeId,
-          inviterId,
-        },
-      },
-    })
-    .catch(e => console.log('invite not found'))
-}
+export const loader: LoaderFunction = () =>
+  new Response('Invalid method', { status: 405 })

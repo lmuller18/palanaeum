@@ -1,20 +1,20 @@
 import * as React from 'react'
 import type {
+  MetaFunction,
   ActionFunction,
   LoaderFunction,
-  MetaFunction,
 } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
 
 import { validateEmail } from '~/utils'
-import { verifyLogin } from '~/models/user.server'
+import { verifyLogin } from '~/models/users.server'
 import { createUserSession, getUserId } from '~/session.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request)
   if (userId) return redirect('/')
-  return json({})
+  return null
 }
 
 interface ActionData {

@@ -1,61 +1,31 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
+import { json } from '@remix-run/node'
 import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import type { LoaderFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 
 import { toRelative } from '~/utils'
-import { prisma } from '~/db.server'
 import Modal from '~/components/Modal'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import TextButton from '~/elements/TextButton'
 import { requireUserId } from '~/session.server'
+import type { ThreadedComment } from '~/models/comments.server'
+import { getThreadedDiscussion } from '~/models/discussions.server'
 import CommentReplyComposer from '~/components/CommentReplyComposer'
 import DiscussionReplyComposer from '~/components/DiscussionReplyComposer'
 
-interface Comment {
-  id: string
-  content: string
-  replyCount: number
-  createdAt: Date
-  discussionId: string
-  parentId: string | null
-  rootId: string | null
-
-  user: {
-    id: string
-    avatar: string
-    username: string
-  }
-
-  replies?: Comment[]
-}
-
 interface LoaderData {
-  discussion: {
-    id: string
-    title: string
-    content: string | null
-    image: string | null
-    createdAt: Date
-
-    comments: Comment[]
-    user: {
-      id: string
-      username: string
-      avatar: string
-    }
-  }
+  discussion: RequiredFuncType<typeof getThreadedDiscussion>
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request)
   invariant(params.discussionId, userId)
 
-  const discussion = await getDiscussion(params.discussionId, userId)
+  const discussion = await getThreadedDiscussion(params.discussionId, userId)
 
   if (!discussion) throw new Response('Discussion Not Found', { status: 404 })
 
@@ -115,14 +85,14 @@ export default function DiscussionPage() {
 
       <div className="mt-4">
         {data.discussion.comments.map(comment => (
-          <ThreadedComment key={comment.id} comment={comment} />
+          <ThreadedCommentItem key={comment.id} comment={comment} />
         ))}
       </div>
     </>
   )
 }
 
-const ThreadedComment = ({ comment }: { comment: Comment }) => {
+const ThreadedCommentItem = ({ comment }: { comment: ThreadedComment }) => {
   const [open, setOpen] = useState(false)
 
   const isRoot = comment.parentId == null
@@ -135,7 +105,7 @@ const ThreadedComment = ({ comment }: { comment: Comment }) => {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         )
         .map(comment => {
-          return <ThreadedComment key={comment.id} comment={comment} />
+          return <ThreadedCommentItem key={comment.id} comment={comment} />
         }),
     [comment.replies],
   )
@@ -245,117 +215,3 @@ export const handle = {
 }
 
 export { default as CatchBoundary } from '~/components/CatchBoundary'
-
-function threadComments(commentList: Omit<Comment, 'replies'>[]) {
-  // create an id --> comment map
-  const commentMap = commentList.reduce(
-    (acc, cur) => ({
-      ...acc,
-      [cur.id]: cur,
-    }),
-    {} as { [key: string]: Comment },
-  )
-
-  commentList.forEach(comment => {
-    if (comment != null && comment.parentId != null) {
-      const parent = commentMap[comment.parentId]
-      parent.replies = [...(parent.replies ?? []), comment]
-    }
-  })
-
-  // return
-  return commentList
-    .filter(comment => comment.parentId == null)
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-}
-
-async function getDiscussion(discussionId: string, userId: string) {
-  const dbDiscussion = await prisma.discussion.findFirst({
-    where: {
-      id: discussionId,
-      chapter: { club: { members: { some: { userId, removed: false } } } },
-    },
-    select: {
-      id: true,
-      image: true,
-      title: true,
-      content: true,
-      createdAt: true,
-      member: {
-        select: {
-          user: {
-            select: {
-              id: true,
-              avatar: true,
-              username: true,
-            },
-          },
-        },
-      },
-      replies: {
-        select: {
-          id: true,
-          content: true,
-          createdAt: true,
-          parentId: true,
-          rootId: true,
-          discussionId: true,
-
-          member: {
-            select: {
-              user: {
-                select: {
-                  id: true,
-                  avatar: true,
-                  username: true,
-                },
-              },
-            },
-          },
-
-          _count: {
-            select: {
-              replies: true,
-            },
-          },
-        },
-      },
-    },
-  })
-
-  if (!dbDiscussion) return null
-
-  const comments = threadComments(
-    dbDiscussion.replies.map(r => ({
-      id: r.id,
-      content: r.content,
-
-      discussionId: r.discussionId,
-      parentId: r.parentId,
-      rootId: r.rootId,
-      createdAt: r.createdAt,
-
-      replyCount: r._count.replies,
-
-      user: {
-        id: r.member.user.id,
-        avatar: r.member.user.avatar,
-        username: r.member.user.username,
-      },
-    })),
-  )
-
-  return {
-    id: dbDiscussion.id,
-    title: dbDiscussion.title,
-    image: dbDiscussion.image,
-    content: dbDiscussion.content,
-    createdAt: dbDiscussion.createdAt,
-    user: {
-      id: dbDiscussion.member.user.id,
-      avatar: dbDiscussion.member.user.avatar,
-      username: dbDiscussion.member.user.username,
-    },
-    comments,
-  }
-}

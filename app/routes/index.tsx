@@ -1,6 +1,14 @@
+import { redirect } from '@remix-run/node'
 import { Form, Link } from '@remix-run/react'
+import type { LoaderFunction } from '@remix-run/node'
 
 import { useOptionalUser } from '~/utils'
+import { requireUserId } from '~/session.server'
+
+export const loader: LoaderFunction = async ({ request }) => {
+  await requireUserId(request)
+  return redirect('/clubs')
+}
 
 export default function Index() {
   const user = useOptionalUser()

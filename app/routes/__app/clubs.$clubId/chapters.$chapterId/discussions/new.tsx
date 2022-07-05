@@ -1,119 +1,24 @@
 import invariant from 'tiny-invariant'
-import { useEffect, useRef, useState } from 'react'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { forbidden } from 'remix-utils'
 import { json, redirect } from '@remix-run/node'
+import { useEffect, useRef, useState } from 'react'
 import { Form, useActionData } from '@remix-run/react'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 
-import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
-import { sendPush } from '~/utils/notifications.server'
+import { getMemberIdFromUser } from '~/models/users.server'
+import { createDiscussion } from '~/models/discussions.server'
 import DiscussionComposer from '~/components/DiscussionComposer'
-import { createNotification } from '~/utils/notifications.utils'
+import { notifyNewDiscussion } from '~/models/notifications.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
-  return json({})
-}
-
-interface ActionData {
-  errors: {
-    title?: string
-    content?: string
-  }
-}
-
-export const action: ActionFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request)
-  const { clubId, chapterId } = params
-  invariant(clubId, 'Expected clubId')
-  invariant(chapterId, 'Expected chapterId')
-
-  const formData = await request.formData()
-  const title = formData.get('title')
-  const content = formData.get('content')
-
-  if (typeof title !== 'string' || title.length === 0) {
-    return json<ActionData>(
-      { errors: { title: 'Title is required' } },
-      { status: 400 },
-    )
-  }
-
-  if (
-    typeof content !== 'string' ||
-    content.length === 0 ||
-    content === '<p></p>'
-  ) {
-    return json<ActionData>(
-      { errors: { content: 'Discussion content is required' } },
-      { status: 400 },
-    )
-  }
-
-  const memberId = await getMemberIdFromUser(userId, clubId)
-
-  const discussion = await createDiscussion({
-    memberId,
-    chapterId,
-    title,
-    content,
-  })
-
-  const discussionUrl = `/clubs/${clubId}/chapters/${chapterId}/discussions/${discussion.id}`
-
-  await notifyNewDiscussion(discussion, discussionUrl)
-
-  return redirect(discussionUrl)
-}
-
-async function notifyNewDiscussion(
-  discussion: Awaited<ReturnType<typeof createDiscussion>>,
-  discussionUrl: string,
-) {
-  const subscriptions = await prisma.subscription.findMany({
-    where: {
-      User: {
-        members: {
-          some: {
-            removed: false,
-            id: {
-              not: discussion.member.id,
-            },
-            progress: {
-              some: {
-                chapterId: discussion.chapter.id,
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-
-  // const origin = new URL(request.url).origin
-  const notification = createNotification({
-    title: `New Discussion: ${discussion.title}`,
-    body: `${discussion.member.user.username} posted a new discussion in ${discussion.chapter.title}`,
-    icon: discussion.member.user.avatar,
-    image: discussion.image ?? discussion.chapter.club.image,
-    data: {
-      options: {
-        action: 'navigate',
-        url: discussionUrl,
-      },
-    },
-  })
-
-  const notifications: Promise<any>[] = []
-  subscriptions.forEach(subscription => {
-    notifications.push(sendPush(subscription, notification))
-  })
-  return Promise.allSettled(notifications)
+  return null
 }
 
 export default function NewDiscussionPage() {
@@ -223,71 +128,57 @@ export const handle = {
   backNavigation: () => 'discussions',
 }
 
-async function getMemberIdFromUser(userId: string, clubId: string) {
-  const member = await prisma.member.findFirst({
-    where: {
-      userId,
-      clubId,
-    },
-    select: { id: true },
-  })
-  if (!member) {
-    throw new Response('Member not associated with Club', { status: 403 })
+interface ActionData {
+  errors: {
+    title?: string
+    content?: string
+  }
+}
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const userId = await requireUserId(request)
+  const { clubId, chapterId } = params
+  invariant(clubId, 'Expected clubId')
+  invariant(chapterId, 'Expected chapterId')
+
+  const formData = await request.formData()
+  const title = formData.get('title')
+  const content = formData.get('content')
+
+  if (typeof title !== 'string' || title.length === 0) {
+    return json<ActionData>(
+      { errors: { title: 'Title is required' } },
+      { status: 400 },
+    )
   }
 
-  return member.id
+  if (
+    typeof content !== 'string' ||
+    content.length === 0 ||
+    content === '<p></p>'
+  ) {
+    return json<ActionData>(
+      { errors: { content: 'Discussion content is required' } },
+      { status: 400 },
+    )
+  }
+
+  const memberId = await getMemberIdFromUser(clubId, userId)
+
+  if (!memberId) throw forbidden({ message: 'Member not associated with club' })
+
+  const discussion = await createDiscussion({
+    memberId,
+    chapterId,
+    title,
+    content,
+  })
+
+  const discussionUrl = `/clubs/${clubId}/chapters/${chapterId}/discussions/${discussion.id}`
+
+  await notifyNewDiscussion(discussion, discussionUrl)
+
+  return redirect(discussionUrl)
 }
 
-async function createDiscussion({
-  title,
-  chapterId,
-  content,
-  image,
-  memberId,
-}: {
-  title: string
-  chapterId: string
-  image?: string
-  content?: string
-  memberId: string
-}) {
-  return prisma.discussion.create({
-    data: {
-      title,
-      chapterId,
-      image,
-      content,
-      memberId,
-    },
-    select: {
-      id: true,
-      image: true,
-      title: true,
-      member: {
-        select: {
-          id: true,
-          user: {
-            select: {
-              id: true,
-              avatar: true,
-              username: true,
-            },
-          },
-        },
-      },
-      chapter: {
-        select: {
-          id: true,
-          title: true,
-          club: {
-            select: {
-              id: true,
-              title: true,
-              image: true,
-            },
-          },
-        },
-      },
-    },
-  })
-}
+export { default as CatchBoundary } from '~/components/CatchBoundary'

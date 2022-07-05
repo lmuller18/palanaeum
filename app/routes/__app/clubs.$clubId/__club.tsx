@@ -1,10 +1,10 @@
 import invariant from 'tiny-invariant'
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
 import { Link, Outlet, useLoaderData } from '@remix-run/react'
 
-import { prisma } from '~/db.server'
 import Text from '~/elements/Typography/Text'
+import { getClub } from '~/models/clubs.server'
 import { requireUserId } from '~/session.server'
 
 interface LoaderData {
@@ -23,7 +23,14 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!club) throw new Response('Club not found', { status: 404 })
 
-  return json<LoaderData>({ club })
+  return json<LoaderData>({
+    club: {
+      id: club.id,
+      title: club.title,
+      author: club.author,
+      image: club.image,
+    },
+  })
 }
 
 export default function ClubNavigationLayout() {
@@ -65,23 +72,4 @@ export default function ClubNavigationLayout() {
   )
 }
 
-async function getClub(clubId: string, userId: string) {
-  const dbClub = await prisma.club.findFirst({
-    where: { id: clubId, members: { some: { userId, removed: false } } },
-    select: {
-      id: true,
-      title: true,
-      author: true,
-      image: true,
-    },
-  })
-
-  if (!dbClub) return null
-
-  return {
-    id: dbClub.id,
-    title: dbClub.title,
-    author: dbClub.author,
-    image: dbClub.image,
-  }
-}
+export { default as CatchBoundary } from '~/components/CatchBoundary'

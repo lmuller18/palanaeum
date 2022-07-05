@@ -1,23 +1,19 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 
-import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import ChapterPagination from '~/components/ChapterPagination'
+import { getPaginatedChapterList } from '~/models/chapters.server'
 
 const PAGE_SIZE = 5
 
 interface LoaderData {
-  chapters: {
-    id: string
-    title: string
-    status: 'complete' | 'incomplete' | 'not_started'
-  }[]
+  chapters: FuncType<typeof getPaginatedChapterList>['chapters']
   page: number
   totalPages: number
 }
@@ -32,7 +28,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   // const page = paginate(CHAPTERS, PAGE_SIZE, pageNum)
 
-  const page = await getChapters(params.clubId, userId, pageNum - 1, PAGE_SIZE)
+  const page = await getPaginatedChapterList(
+    params.clubId,
+    userId,
+    pageNum - 1,
+    PAGE_SIZE,
+  )
 
   if (!page) throw new Response('Problem finding chapters', { status: 500 })
 
@@ -128,84 +129,3 @@ export default function ChaptersPage() {
 }
 
 export { default as CatchBoundary } from '~/components/CatchBoundary'
-
-async function getChapters(
-  clubId: string,
-  userId: string,
-  page: number,
-  size: number,
-) {
-  const [dbChapters, dbClub] = await Promise.all([
-    prisma.chapter.findMany({
-      where: {
-        clubId,
-        club: { members: { some: { userId, removed: false } } },
-      },
-      skip: page * size,
-      take: size,
-      select: {
-        id: true,
-        title: true,
-        order: true,
-        club: {
-          include: {
-            _count: {
-              select: {
-                members: true,
-                chapters: true,
-              },
-            },
-          },
-        },
-        progress: {
-          select: {
-            member: {
-              select: {
-                id: true,
-                userId: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        order: 'asc',
-      },
-    }),
-    prisma.club.findFirst({
-      where: { id: clubId, members: { some: { userId, removed: false } } },
-      select: {
-        _count: {
-          select: {
-            chapters: true,
-            members: true,
-          },
-        },
-      },
-    }),
-  ])
-
-  if (!dbClub) throw new Error('Club not found')
-
-  const chapters = dbChapters.map(c => {
-    const userComplete = c.progress.some(p => p.member.userId === userId)
-    const status = userComplete
-      ? 'complete'
-      : c.progress.length === 0
-      ? 'not_started'
-      : 'incomplete'
-
-    const chapter: LoaderData['chapters'][number] = {
-      id: c.id,
-      title: c.title,
-      status,
-    }
-
-    return chapter
-  })
-
-  return {
-    chapters,
-    totalPages: Math.ceil(dbClub._count.chapters / size),
-  }
-}

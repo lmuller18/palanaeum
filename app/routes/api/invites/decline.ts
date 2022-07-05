@@ -1,10 +1,10 @@
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
-import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
+import { deleteInvite } from '~/models/invites.server'
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
@@ -25,24 +25,5 @@ export const action: ActionFunction = async ({ request }) => {
   })
 }
 
-async function deleteInvite({
-  inviteeId,
-  inviterId,
-  clubId,
-}: {
-  inviteeId: string
-  inviterId: string
-  clubId: string
-}) {
-  return prisma.clubInvite
-    .delete({
-      where: {
-        inviterId_inviteeId_clubId: {
-          clubId,
-          inviteeId,
-          inviterId,
-        },
-      },
-    })
-    .catch(e => console.log('invite not found'))
-}
+export const loader: LoaderFunction = () =>
+  new Response('Invalid method', { status: 405 })

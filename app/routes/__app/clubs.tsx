@@ -5,38 +5,20 @@ import { Tab } from '@headlessui/react'
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 
-import { prisma } from '~/db.server'
 import { toLuxonDate } from '~/utils'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
-interface Club {
-  id: string
-  title: string
-  author: string
-  image: string
-  createdAt: Date
-  owner: {
-    id: string
-    username: string
-    avatar: string
-  }
-  members: {
-    id: string
-    username: string
-  }[]
-  progress: number
-  chapters: number
-}
+import { getClubListDetails } from '~/models/clubs.server'
 
 interface LoaderData {
-  currentlyReading: Club[]
-  previouslyRead: Club[]
+  currentlyReading: FuncType<typeof getClubListDetails>['currentlyReading']
+  previouslyRead: FuncType<typeof getClubListDetails>['previouslyRead']
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request)
 
-  const { currentlyReading, previouslyRead } = await getClubList(userId)
+  const { currentlyReading, previouslyRead } = await getClubListDetails(userId)
 
   return json<LoaderData>({ currentlyReading, previouslyRead })
 }
@@ -166,9 +148,9 @@ const ClubCard = ({
 
           <div className="grid grid-cols-[auto,1fr] items-center gap-x-4">
             <Text variant="body2">Chapters</Text>
-            <Text variant="caption">{club.chapters}</Text>
+            <Text variant="caption">{club.chapterCount}</Text>
             <Text variant="body2">Members</Text>
-            <Text variant="caption">{club.members.length}</Text>
+            <Text variant="caption">{club.memberCount}</Text>
             <Text variant="body2">Club Created</Text>
             <Text variant="caption">
               {toLuxonDate(club.createdAt).toLocaleString(DateTime.DATE_MED)}
@@ -202,80 +184,4 @@ const ClubCard = ({
   )
 }
 
-async function getClubList(userId: string) {
-  const dbClubs = await prisma.club.findMany({
-    where: { members: { some: { userId, removed: false } } },
-    select: {
-      id: true,
-      title: true,
-      author: true,
-      image: true,
-      createdAt: true,
-      owner: {
-        select: {
-          avatar: true,
-          id: true,
-          username: true,
-        },
-      },
-      members: {
-        where: { removed: false },
-        select: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-            },
-          },
-          _count: {
-            select: {
-              progress: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          chapters: true,
-          members: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
-
-  const currentlyReading: Club[] = []
-  const previouslyRead: Club[] = []
-
-  dbClubs.forEach(dbClub => {
-    const userProgress =
-      dbClub.members.find(m => m.user.id === userId)?._count.progress ?? 0
-
-    const club: Club = {
-      id: dbClub.id,
-      title: dbClub.title,
-      author: dbClub.author,
-      image: dbClub.image,
-      chapters: dbClub._count.chapters,
-      owner: dbClub.owner,
-      createdAt: dbClub.createdAt,
-      members: dbClub.members
-        .map(m => ({
-          id: m.user.id,
-          username: m.user.username,
-        }))
-        .filter(m => m.id !== userId),
-      progress: (userProgress / dbClub._count.chapters) * 100,
-    }
-
-    if (userProgress === dbClub._count.chapters) {
-      previouslyRead.push(club)
-    } else {
-      currentlyReading.push(club)
-    }
-  })
-
-  return { currentlyReading, previouslyRead }
-}
+export { default as CatchBoundary } from '~/components/CatchBoundary'

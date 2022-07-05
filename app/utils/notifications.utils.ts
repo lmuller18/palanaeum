@@ -1,3 +1,5 @@
+import invariant from 'tiny-invariant'
+
 export interface AppNotification extends NotificationOptions {
   title: string
   data: {
@@ -78,5 +80,59 @@ export async function subscribe() {
     return subscription
   } catch (e) {
     console.error('error registering subscription: ', e)
+  }
+}
+
+export interface WebNotification {
+  endpoint: string
+  expirationTime?: number
+  keys: {
+    auth: string
+    p256dh: string
+  }
+}
+
+export function toWebNotification(subStr: string): WebNotification {
+  let subObj
+  try {
+    const object = JSON.parse(subStr)
+    subObj = object
+  } catch (e) {
+    throw new Error('Error parsing notification: ' + e)
+  }
+
+  if (subObj == null || typeof subObj !== 'object')
+    throw new Error('Error parsing web notification: ' + subObj)
+
+  invariant(
+    subObj.endpoint && typeof subObj.endpoint === 'string',
+    'endpoint expected',
+  )
+  invariant(subObj.keys, 'keys expected')
+  invariant(
+    subObj.keys.auth && typeof subObj.keys.auth === 'string',
+    'auth expected',
+  )
+  invariant(
+    subObj.keys.p256dh && typeof subObj.keys.p256dh === 'string',
+    'p256dh expected',
+  )
+
+  let expirationTime = subObj.expirationTime
+
+  if (typeof expirationTime === 'string') {
+    const expNumber = Number(expirationTime)
+    if (!isNaN(expNumber)) expirationTime = expNumber
+  } else if (expirationTime != null) {
+    throw new Error('Invalid expiration time: ' + expirationTime)
+  }
+
+  return {
+    endpoint: subObj.endpoint,
+    expirationTime: subObj.expirationTime,
+    keys: {
+      auth: subObj.keys.auth,
+      p256dh: subObj.keys.p256dh,
+    },
   }
 }

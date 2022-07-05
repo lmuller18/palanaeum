@@ -1,4 +1,4 @@
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'
@@ -34,3 +34,6 @@ export const action: ActionFunction = async ({ request }) => {
     throw new Response(JSON.stringify(e), { status: 500 })
   }
 }
+
+export const loader: LoaderFunction = () =>
+  new Response('Invalid method', { status: 405 })

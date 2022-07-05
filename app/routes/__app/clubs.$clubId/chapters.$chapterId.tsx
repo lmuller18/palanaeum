@@ -1,30 +1,28 @@
 import clsx from 'clsx'
+import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
+import { json } from '@remix-run/node'
 import type { ReactNode } from 'react'
-import { useMemo } from 'react'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
 import type { LoaderFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
 import {
-  NavLink,
   Outlet,
-  useLoaderData,
-  useMatches,
+  NavLink,
   useParams,
+  useMatches,
+  useLoaderData,
 } from '@remix-run/react'
 
-import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
+import { getChapter } from '~/models/chapters.server'
 
 interface LoaderData {
   chapter: {
     id: string
     title: string
-    order: number
-    status: 'complete' | 'not_started' | 'incomplete'
   }
 }
 
@@ -36,7 +34,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
 
-  return json<LoaderData>({ chapter })
+  return json<LoaderData>({
+    chapter: {
+      id: chapter.id,
+      title: chapter.title,
+    },
+  })
 }
 
 export default function ChapterPage() {
@@ -147,54 +150,4 @@ export const handle = {
   ),
 }
 
-async function getChapter(chapterId: string, userId: string) {
-  const [dbChapter, dbClub] = await Promise.all([
-    prisma.chapter.findFirst({
-      where: {
-        id: chapterId,
-        club: { members: { some: { userId, removed: false } } },
-      },
-      select: {
-        id: true,
-        order: true,
-        title: true,
-        progress: {
-          select: {
-            member: {
-              select: {
-                id: true,
-                userId: true,
-              },
-            },
-          },
-        },
-      },
-    }),
-    prisma.club.findFirst({
-      where: { chapters: { some: { id: chapterId } } },
-      select: {
-        _count: {
-          select: {
-            members: true,
-          },
-        },
-      },
-    }),
-  ])
-
-  if (!dbClub || !dbChapter) return null
-
-  const userComplete = dbChapter.progress.some(p => p.member.userId === userId)
-  const status: 'complete' | 'not_started' | 'incomplete' = userComplete
-    ? 'complete'
-    : dbChapter.progress.length === 0
-    ? 'not_started'
-    : 'incomplete'
-
-  return {
-    id: dbChapter.id,
-    title: dbChapter.title,
-    order: dbChapter.order,
-    status,
-  }
-}
+export { default as CatchBoundary } from '~/components/CatchBoundary'

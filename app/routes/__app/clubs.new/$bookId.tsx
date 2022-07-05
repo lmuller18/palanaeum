@@ -6,11 +6,11 @@ import { Form, useLoaderData } from '@remix-run/react'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 
-import { prisma } from '~/db.server'
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
+import { createClub } from '~/models/clubs.server'
 import OutlinedInput from '~/elements/OutlinedInput'
 import CoverSelectSlideOver from '~/components/CoverSelectSlideOver'
 
@@ -295,25 +295,15 @@ export const action: ActionFunction = async ({ request }) => {
     }
   })
 
-  const club = await prisma.club.create({
-    data: {
-      title,
-      image,
-      author,
-      ownerId: userId,
-      members: {
-        create: {
-          isOwner: true,
-          userId,
-        },
-      },
-      chapters: {
-        createMany: {
-          data: chapters,
-        },
-      },
-    },
+  const club = await createClub({
+    title,
+    image,
+    author,
+    userId,
+    chapters,
   })
 
   return redirect(`/clubs/${club.id}/members/manage`)
 }
+
+export { default as CatchBoundary } from '~/components/CatchBoundary'

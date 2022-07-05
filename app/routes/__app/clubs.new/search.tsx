@@ -137,3 +137,5 @@ export default function Page() {
     </div>
   )
 }
+
+export { default as CatchBoundary } from '~/components/CatchBoundary'
