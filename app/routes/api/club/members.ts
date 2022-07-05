@@ -1,7 +1,7 @@
 import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
 import { forbidden, notFound } from 'remix-utils'
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
@@ -51,3 +51,6 @@ export const action: ActionFunction = async ({ request }) => {
       throw new Response('Invalid method', { status: 405 })
   }
 }
+
+export const loader: LoaderFunction = () =>
+  new Response('Invalid method', { status: 405 })

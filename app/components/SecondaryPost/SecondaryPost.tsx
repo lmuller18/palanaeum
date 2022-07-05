@@ -74,7 +74,7 @@ const SecondaryPost = ({
               {user.username}
             </TextLink>
             <Text variant="caption" className="text-gray-500">
-              {toRelative(post.createdAt, { style: 'short' })} secondary post
+              {toRelative(post.createdAt, { style: 'short' })}
             </Text>
           </div>
 

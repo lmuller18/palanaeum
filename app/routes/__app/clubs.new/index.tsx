@@ -17,94 +17,15 @@ import {
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
 } from '@remix-run/node'
 
-import { prisma } from '~/db.server'
 import Button from '~/elements/Button'
 import { uploadS3Handler } from '~/s3.server'
 import { requireUserId } from '~/session.server'
 import OutlinedInput from '~/elements/OutlinedInput'
+import { createManualClub } from '~/models/clubs.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUserId(request)
-  return json({})
-}
-
-interface ActionData {
-  errors: {
-    title?: string
-    chapters?: string
-    author?: string
-    image?: string
-  }
-}
-
-export const action: ActionFunction = async ({ request }) => {
-  const userId = await requireUserId(request)
-
-  const clubId = cuid()
-  const imgKey = cuid()
-
-  const formData = await parseMultipartFormData(
-    request,
-    composeUploadHandlers(
-      uploadS3Handler({
-        key: `clubs/${clubId}/${imgKey}`,
-        filename: imgKey,
-      }),
-      createMemoryUploadHandler(),
-    ),
-  )
-
-  const title = formData.get('title')
-  const author = formData.get('author')
-  const chapters = formData.get('chapters')
-  const image = formData.get('image')
-
-  if (typeof title !== 'string' || title.length === 0) {
-    return json<ActionData>(
-      { errors: { title: 'Title is required' } },
-      { status: 400 },
-    )
-  }
-
-  if (typeof author !== 'string' || author.length === 0) {
-    return json<ActionData>(
-      { errors: { title: 'Author is required' } },
-      { status: 400 },
-    )
-  }
-
-  if (typeof chapters !== 'string' || chapters.length === 0) {
-    return json<ActionData>(
-      { errors: { chapters: 'Number of chapters is required' } },
-      { status: 400 },
-    )
-  }
-
-  const chapterCount = parseInt(chapters)
-
-  if (isNaN(chapterCount)) {
-    return json<ActionData>(
-      { errors: { chapters: 'Number of chapters is not a number' } },
-      { status: 400 },
-    )
-  }
-
-  if (typeof image !== 'string' || image.length === 0 || image === '_') {
-    return json<ActionData>(
-      { errors: { image: 'Club image is required' } },
-      { status: 400 },
-    )
-  }
-
-  const club = await createClub({
-    clubId,
-    title,
-    chapterCount,
-    author,
-    userId,
-    image: `/reserve/${image}`,
-  })
-  return redirect(`/clubs/${club.id}`)
+  return null
 }
 
 export default function NewClubPage() {
@@ -117,7 +38,6 @@ export default function NewClubPage() {
   const chaptersRef = useRef<HTMLInputElement>(null)
   const uploadRef = useRef<HTMLInputElement>(null)
 
-  // const [img, setImg] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
   useEffect(() => {
@@ -278,32 +198,6 @@ export default function NewClubPage() {
             </div>
           )}
 
-          {/* <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Title
-            </label>
-            <div className="mt-1">
-              <input
-                ref={titleRef}
-                id="title"
-                required
-                type="text"
-                name="title"
-                aria-invalid={actionData?.errors?.title ? true : undefined}
-                aria-describedby="title-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
-              />
-              {actionData?.errors?.title && (
-                <div className="pt-1 text-red-500" id="title-error">
-                  {actionData.errors.title}
-                </div>
-              )}
-            </div>
-          </div> */}
-
           <OutlinedInput
             labelProps={{
               htmlFor: 'author',
@@ -324,32 +218,6 @@ export default function NewClubPage() {
             </div>
           )}
 
-          {/* <div>
-            <label
-              htmlFor="author"
-              className="block text-sm font-medium text-gray-200"
-            >
-              Author
-            </label>
-            <div className="mt-1">
-              <input
-                ref={authorRef}
-                id="author"
-                required
-                type="text"
-                name="author"
-                aria-invalid={actionData?.errors?.author ? true : undefined}
-                aria-describedby="author-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
-              />
-              {actionData?.errors?.author && (
-                <div className="pt-1 text-red-700" id="author-error">
-                  {actionData.errors.author}
-                </div>
-              )}
-            </div>
-          </div> */}
-
           <OutlinedInput
             labelProps={{
               htmlFor: 'chapters',
@@ -369,32 +237,6 @@ export default function NewClubPage() {
               {actionData.errors.chapters}
             </div>
           )}
-
-          {/* <div>
-            <label
-              htmlFor="chapters"
-              className="block text-sm font-medium text-gray-200"
-            >
-              How Many Chapters?
-            </label>
-            <div className="mt-1">
-              <input
-                ref={chaptersRef}
-                id="chapters"
-                required
-                type="number"
-                name="chapters"
-                aria-invalid={actionData?.errors?.chapters ? true : undefined}
-                aria-describedby="chapters-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg text-black"
-              />
-              {actionData?.errors?.chapters && (
-                <div className="pt-1 text-red-700" id="chapters-error">
-                  {actionData.errors.chapters}
-                </div>
-              )}
-            </div>
-          </div> */}
 
           <div className="w-full">
             <div className="rounded-lg bg-purple-100 text-purple-700">
@@ -485,44 +327,84 @@ export default function NewClubPage() {
   )
 }
 
-async function createClub({
-  clubId,
-  title,
-  author,
-  image,
-  chapterCount,
-  userId,
-}: {
-  clubId: string
-  title: string
-  author: string
-  image: string
-  chapterCount: number
-  userId: string
-}) {
-  const chapters = Array.from(Array(chapterCount).keys()).map(i => ({
-    order: i,
-    title: `Chapter ${i + 1}`,
-  }))
-
-  return prisma.club.create({
-    data: {
-      id: clubId,
-      title,
-      image,
-      author,
-      ownerId: userId,
-      members: {
-        create: {
-          isOwner: true,
-          userId,
-        },
-      },
-      chapters: {
-        createMany: {
-          data: chapters,
-        },
-      },
-    },
-  })
+interface ActionData {
+  errors: {
+    title?: string
+    chapters?: string
+    author?: string
+    image?: string
+  }
 }
+
+export const action: ActionFunction = async ({ request }) => {
+  const userId = await requireUserId(request)
+
+  const clubId = cuid()
+  const imgKey = cuid()
+
+  const formData = await parseMultipartFormData(
+    request,
+    composeUploadHandlers(
+      uploadS3Handler({
+        key: `clubs/${clubId}/${imgKey}`,
+        filename: imgKey,
+      }),
+      createMemoryUploadHandler(),
+    ),
+  )
+
+  const title = formData.get('title')
+  const author = formData.get('author')
+  const chapters = formData.get('chapters')
+  const image = formData.get('image')
+
+  if (typeof title !== 'string' || title.length === 0) {
+    return json<ActionData>(
+      { errors: { title: 'Title is required' } },
+      { status: 400 },
+    )
+  }
+
+  if (typeof author !== 'string' || author.length === 0) {
+    return json<ActionData>(
+      { errors: { title: 'Author is required' } },
+      { status: 400 },
+    )
+  }
+
+  if (typeof chapters !== 'string' || chapters.length === 0) {
+    return json<ActionData>(
+      { errors: { chapters: 'Number of chapters is required' } },
+      { status: 400 },
+    )
+  }
+
+  const chapterCount = parseInt(chapters)
+
+  if (isNaN(chapterCount)) {
+    return json<ActionData>(
+      { errors: { chapters: 'Number of chapters is not a number' } },
+      { status: 400 },
+    )
+  }
+
+  if (typeof image !== 'string' || image.length === 0 || image === '_') {
+    return json<ActionData>(
+      { errors: { image: 'Club image is required' } },
+      { status: 400 },
+    )
+  }
+
+  const club = await createManualClub({
+    clubId,
+    title,
+    chapterCount,
+    author,
+    userId,
+    image: `/reserve/${image}`,
+  })
+
+  return redirect(`/clubs/${club.id}/members/manage`)
+}
+
+export { default as CatchBoundary } from '~/components/CatchBoundary'

@@ -1,83 +1,37 @@
+import clsx from 'clsx'
 import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
 import type { LoaderFunction } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
-import {
-  add,
-  isSameDay,
-  parseISO,
-  startOfDay,
-  startOfToday,
-  eachDayOfInterval,
-} from 'date-fns'
+import { InformationCircleIcon } from '@heroicons/react/solid'
 
 import Post from '~/components/Post'
-import { prisma } from '~/db.server'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
+import { getClub } from '~/models/clubs.server'
 import { requireUserId } from '~/session.server'
+import { getTopPostByClub } from '~/models/posts.server'
 import AreaChart from '~/components/Chart/AreaChart'
 import DiscussionSummary from '~/components/DiscussionSummary'
-import { InformationCircleIcon } from '@heroicons/react/solid'
+import { getTopDiscussionByClub } from '~/models/discussions.server'
 import NextChapterSection from '~/components/NextChapterSection_Old'
-import clsx from 'clsx'
+import {
+  getReadChapters,
+  getChaptersReadByDay,
+  getNextChapterDetails,
+} from '~/models/chapters.server'
 
 interface LoaderData {
   club: {
     id: string
     title: string
   }
-  readChapters: string[]
-  nextChapter: {
-    id: string
-    title: string
-    membersCompleted: number
-    status: 'incomplete' | 'not_started'
-  } | null
-  counts: {
-    read: number
-    remaining: number
-    countsByDay: {
-      name: string
-      date: Date
-      y: number
-    }[]
-  }
-  topPost: {
-    user: {
-      id: string
-      avatar: string
-      username: string
-    }
-    chapter: {
-      id: string
-      title: string
-    }
-    post: {
-      id: string
-      content: string
-      image: string | null
-      context: string | null
-      replies: number
-      createdAt: Date
-    }
-  } | null
-  topDiscussion: {
-    user: {
-      id: string
-      avatar: string
-      username: string
-    }
-    chapter: {
-      id: string
-      title: string
-    }
-    discussion: {
-      id: string
-      title: string
-    }
-  } | null
   isOwner: boolean
+  topPost: FuncType<typeof getTopPostByClub>
+  readChapters: FuncType<typeof getReadChapters>
+  nextChapter: FuncType<typeof getNextChapterDetails>
+  counts: RequiredFuncType<typeof getChaptersReadByDay>
+  topDiscussion: FuncType<typeof getTopDiscussionByClub>
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
@@ -86,11 +40,11 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   const [nextChapter, counts, club, topPost, topDiscussion, readChapters] =
     await Promise.all([
-      getNextChapter(userId, params.clubId),
+      getNextChapterDetails(userId, params.clubId),
       getChaptersReadByDay(userId, params.clubId),
       getClub(params.clubId, userId),
-      getTopPost(params.clubId),
-      getTopDiscussion(params.clubId),
+      getTopPostByClub(params.clubId),
+      getTopDiscussionByClub(params.clubId),
       getReadChapters(userId, params.clubId),
     ])
 
@@ -98,26 +52,29 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (!counts) throw new Response('Club not found', { status: 404 })
 
   return json<LoaderData>({
-    nextChapter,
     counts,
-    club,
     topPost,
+    nextChapter,
+    readChapters,
     topDiscussion,
     isOwner: club.ownerId === userId,
-    readChapters,
+    club: {
+      id: club.id,
+      title: club.title,
+    },
   })
 }
 
 export default function ClubPage() {
   const { clubId } = useParams()
   const {
-    nextChapter,
-    counts,
     club,
+    counts,
     topPost,
     isOwner,
-    topDiscussion,
+    nextChapter,
     readChapters,
+    topDiscussion,
   } = useLoaderData() as LoaderData
 
   if (!clubId) throw new Error('Club Id Not Found')
@@ -155,21 +112,6 @@ export default function ClubPage() {
       )}
 
       {/* Next Chapter Block */}
-      {/* <div
-        className="mb-6 border-b border-t-2 border-teal-400 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 via-transparent p-4"
-      >
-        <div>
-          <Text variant="title2" className="mb-4" as="h3">
-            Next Chapter: Not Started
-          </Text>
-
-          <NextChapter
-            chapter={{ ...nextChapter, status: 'not_started' }}
-            club={club}
-          />
-        </div>
-      </div>*/}
-
       <NextChapterSection
         chapter={nextChapter}
         club={club}
@@ -233,7 +175,7 @@ export default function ClubPage() {
             </div>
             {!readChapters.includes(topPost.chapter.id) && (
               <div className="absolute inset-0 flex h-full w-full items-center justify-center">
-                <Text variant="title2">
+                <Text variant="title2" serif>
                   Spoilers! Catch up to your friends to view this post.
                 </Text>
               </div>
@@ -268,7 +210,7 @@ export default function ClubPage() {
             </div>
             {!readChapters.includes(topDiscussion.chapter.id) && (
               <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
-                <Text variant="title2">
+                <Text variant="title2" serif>
                   Spoilers! Catch up to your friends to view this post.
                 </Text>
               </div>
@@ -286,295 +228,4 @@ export default function ClubPage() {
   )
 }
 
-async function getMemberIdFromUser(clubId: string, userId: string) {
-  const member = await prisma.member.findFirst({
-    where: {
-      userId,
-      clubId,
-    },
-    select: { id: true },
-  })
-  if (!member) return null
-
-  return member.id
-}
-
-async function getReadChapters(userId: string, clubId: string) {
-  const memberId = await getMemberIdFromUser(clubId, userId)
-  if (!memberId) return []
-  const dbProgress = await prisma.progress.findMany({
-    where: { memberId },
-    select: { chapterId: true },
-  })
-  return dbProgress.map(p => p.chapterId)
-}
-
-async function getNextChapter(userId: string, clubId: string) {
-  const dbChapter = await prisma.chapter.findFirst({
-    where: {
-      clubId,
-      progress: {
-        none: { member: { userId } },
-      },
-      club: { members: { some: { userId, removed: false } } },
-    },
-    select: {
-      id: true,
-      title: true,
-      order: true,
-      club: {
-        include: {
-          _count: {
-            select: {
-              members: true,
-              chapters: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          progress: true,
-        },
-      },
-    },
-    orderBy: {
-      order: 'asc',
-    },
-  })
-
-  if (!dbChapter) return null
-
-  const status: 'not_started' | 'incomplete' =
-    dbChapter._count.progress === 0 ? 'not_started' : 'incomplete'
-
-  return {
-    id: dbChapter.id,
-    title: dbChapter.title,
-    membersCompleted: dbChapter._count.progress,
-    status,
-  }
-}
-
-async function getChaptersReadByDay(userId: string, clubId: string) {
-  const [dbProgress, dbClub] = await Promise.all([
-    prisma.progress.findMany({
-      where: { chapter: { clubId }, member: { userId, removed: false } },
-    }),
-    prisma.club.findFirst({
-      where: { id: clubId, members: { some: { userId, removed: false } } },
-      select: { createdAt: true, _count: { select: { chapters: true } } },
-    }),
-  ])
-
-  if (!dbClub) return null
-  if (!dbProgress || dbProgress.length === 0)
-    return {
-      read: 0,
-      remaining: dbClub._count.chapters,
-      countsByDay: [],
-    }
-
-  const progress = dbProgress.reduce((acc, cur) => {
-    const key = startOfDay(cur.completedAt).toISOString()
-
-    if (acc[key]) {
-      return {
-        ...acc,
-        [key]: acc[key] + 1,
-      }
-    } else {
-      return {
-        ...acc,
-        [key]: 1,
-      }
-    }
-  }, {} as { [key: string]: number })
-
-  const { counts, remaining } = Object.keys(progress)
-    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
-    .reduce(
-      (acc, cur) => {
-        return {
-          remaining: acc.remaining - progress[cur],
-          counts: [
-            ...acc.counts,
-            {
-              name: cur,
-              date: parseISO(cur),
-              y: acc.remaining - progress[cur],
-            },
-          ],
-        }
-      },
-      { counts: [], remaining: dbClub._count.chapters } as {
-        counts: { name: string; date: Date; y: number }[]
-        remaining: number
-      },
-    )
-
-  const startDate = add(dbClub.createdAt, { days: -1 })
-
-  let current = {
-    name: startDate.toISOString(),
-    date: startDate,
-    y: dbClub._count.chapters,
-  }
-
-  const range = eachDayOfInterval({
-    start: startDate,
-    end: startOfToday(),
-  })
-
-  const countsByDay: Array<{ name: string; date: Date; y: number }> = [current]
-
-  range.forEach(date => {
-    const foundDate = counts.find(d => isSameDay(date, d.date))
-    if (foundDate) {
-      countsByDay.push(foundDate)
-      current = foundDate
-    } else {
-      countsByDay.push(current)
-    }
-  })
-
-  return {
-    read: dbProgress.length,
-    remaining: remaining,
-    countsByDay,
-  }
-}
-
-async function getClub(clubId: string, userId: string) {
-  const club = await prisma.club.findFirst({
-    where: { id: clubId, members: { some: { userId, removed: false } } },
-    select: { id: true, title: true, ownerId: true },
-  })
-
-  return club
-}
-
-async function getTopDiscussion(clubId: string) {
-  const dbDiscussion = await prisma.discussion.findFirst({
-    where: { chapter: { clubId } },
-    select: {
-      id: true,
-      title: true,
-      member: {
-        select: {
-          user: {
-            select: {
-              id: true,
-              avatar: true,
-              username: true,
-            },
-          },
-        },
-      },
-      chapter: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      _count: {
-        select: {
-          replies: true,
-        },
-      },
-    },
-    take: 1,
-    orderBy: [
-      {
-        replies: {
-          _count: 'desc',
-        },
-      },
-      {
-        createdAt: 'desc',
-      },
-    ],
-  })
-
-  if (!dbDiscussion) return null
-
-  return {
-    user: dbDiscussion.member.user,
-    chapter: dbDiscussion.chapter,
-    discussion: {
-      id: dbDiscussion.id,
-      title: dbDiscussion.title,
-    },
-  }
-}
-
-async function getTopPost(clubId: string) {
-  const dbPost = await prisma.post.findFirst({
-    where: { chapter: { clubId }, parentId: null },
-    select: {
-      id: true,
-      content: true,
-      image: true,
-      context: true,
-      createdAt: true,
-      chapter: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      member: {
-        select: {
-          id: true,
-          user: {
-            select: {
-              id: true,
-              avatar: true,
-              username: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          replies: true,
-        },
-      },
-    },
-    take: 1,
-    orderBy: [
-      {
-        replies: {
-          _count: 'desc',
-        },
-      },
-      {
-        createdAt: 'desc',
-      },
-    ],
-  })
-
-  if (!dbPost) return null
-
-  const post = {
-    user: {
-      id: dbPost.member.user.id,
-      avatar: dbPost.member.user.avatar,
-      username: dbPost.member.user.username,
-    },
-    chapter: {
-      id: dbPost.chapter.id,
-      title: dbPost.chapter.title,
-    },
-    post: {
-      id: dbPost.id,
-      content: dbPost.content,
-      image: dbPost.image,
-      context: dbPost.context,
-      replies: dbPost._count.replies,
-      createdAt: dbPost.createdAt,
-    },
-  }
-
-  return post
-}
+export { default as CatchBoundary } from '~/components/CatchBoundary'

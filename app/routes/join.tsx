@@ -1,95 +1,20 @@
 import * as React from 'react'
 import type {
-  ActionFunction,
-  LoaderFunction,
   MetaFunction,
+  LoaderFunction,
+  ActionFunction,
 } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
 
-import { getUserId, createUserSession } from '~/session.server'
-
 import { validateEmail } from '~/utils'
-import { createUser, getUserByEmail } from '~/models/user.server'
+import { getUserId, createUserSession } from '~/session.server'
+import { createUser, getUserByEmail } from '~/models/users.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request)
   if (userId) return redirect('/')
-  return json({})
-}
-
-interface ActionData {
-  errors: {
-    email?: string
-    password?: string
-    username?: string
-  }
-}
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const email = formData.get('email')
-  const username = formData.get('username')
-  const password = formData.get('password')
-  const redirectTo = formData.get('redirectTo')
-
-  if (!validateEmail(email)) {
-    return json<ActionData>(
-      { errors: { email: 'Email is invalid' } },
-      { status: 400 },
-    )
-  }
-
-  if (typeof username !== 'string' || username.length === 0) {
-    return json<ActionData>(
-      { errors: { username: 'Username is required' } },
-      { status: 400 },
-    )
-  }
-
-  if (username.length < 4) {
-    return json<ActionData>(
-      { errors: { username: 'Username is too short' } },
-      { status: 400 },
-    )
-  }
-
-  if (typeof password !== 'string') {
-    return json<ActionData>(
-      { errors: { password: 'Password is required' } },
-      { status: 400 },
-    )
-  }
-
-  if (password.length < 8) {
-    return json<ActionData>(
-      { errors: { password: 'Password is too short' } },
-      { status: 400 },
-    )
-  }
-
-  const existingEmail = await getUserByEmail(email)
-  if (existingEmail) {
-    return json<ActionData>(
-      { errors: { email: 'A user already exists with this email' } },
-      { status: 400 },
-    )
-  }
-
-  const user = await createUser({
-    email,
-    avatar: `https://ui-avatars.com/api/?size=128&name=${encodeURIComponent(
-      username,
-    )}`,
-    password,
-    username,
-  })
-
-  return createUserSession({
-    request,
-    userId: user.id,
-    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
-  })
+  return null
 }
 
 export const meta: MetaFunction = () => {
@@ -250,3 +175,79 @@ export default function Join() {
     </div>
   )
 }
+
+interface ActionData {
+  errors: {
+    email?: string
+    password?: string
+    username?: string
+  }
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+  const email = formData.get('email')
+  const username = formData.get('username')
+  const password = formData.get('password')
+  const redirectTo = formData.get('redirectTo')
+
+  if (!validateEmail(email)) {
+    return json<ActionData>(
+      { errors: { email: 'Email is invalid' } },
+      { status: 400 },
+    )
+  }
+
+  if (typeof username !== 'string' || username.length === 0) {
+    return json<ActionData>(
+      { errors: { username: 'Username is required' } },
+      { status: 400 },
+    )
+  }
+
+  if (username.length < 4) {
+    return json<ActionData>(
+      { errors: { username: 'Username is too short' } },
+      { status: 400 },
+    )
+  }
+
+  if (typeof password !== 'string') {
+    return json<ActionData>(
+      { errors: { password: 'Password is required' } },
+      { status: 400 },
+    )
+  }
+
+  if (password.length < 8) {
+    return json<ActionData>(
+      { errors: { password: 'Password is too short' } },
+      { status: 400 },
+    )
+  }
+
+  const existingEmail = await getUserByEmail(email)
+  if (existingEmail) {
+    return json<ActionData>(
+      { errors: { email: 'A user already exists with this email' } },
+      { status: 400 },
+    )
+  }
+
+  const user = await createUser({
+    email,
+    avatar: `https://ui-avatars.com/api/?size=128&name=${encodeURIComponent(
+      username,
+    )}`,
+    password,
+    username,
+  })
+
+  return createUserSession({
+    request,
+    userId: user.id,
+    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
+  })
+}
+
+export { default as CatchBoundary } from '~/components/CatchBoundary'

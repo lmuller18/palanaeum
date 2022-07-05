@@ -1,22 +1,22 @@
+import clsx from 'clsx'
 import { DateTime } from 'luxon'
-import type { ReactNode } from 'react'
 import { Fragment } from 'react'
+import type { ReactNode } from 'react'
 import { json } from '@remix-run/node'
 import Text from '~/elements/Typography/Text'
 import type { LoaderFunction } from '@remix-run/node'
-import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { Menu, Tab, Transition } from '@headlessui/react'
+import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { TrashIcon as ActiveTrashIcon } from '@heroicons/react/outline'
 import {
   DotsVerticalIcon,
   TrashIcon as InactiveTrashIcon,
 } from '@heroicons/react/outline'
 
-import { prisma } from '~/db.server'
-import { toLuxonDate, toRelative, useUser } from '~/utils'
-import { requireUserId } from '~/session.server'
-import clsx from 'clsx'
 import Button from '~/elements/Button'
+import { toLuxonDate, useUser } from '~/utils'
+import { requireUserId } from '~/session.server'
+import { getReceivedInvites, getSentInvites } from '~/models/invites.server'
 
 interface LoaderData {
   sentInvites: Awaited<ReturnType<typeof getSentInvites>>
@@ -349,77 +349,3 @@ const InviteMenu = ({
     </Transition>
   </Menu>
 )
-
-async function getReceivedInvites(userId: string) {
-  const invites = await prisma.clubInvite.findMany({
-    where: { inviteeId: userId },
-    select: {
-      updatedAt: true,
-      inviter: {
-        select: {
-          id: true,
-          avatar: true,
-          username: true,
-        },
-      },
-      club: {
-        select: {
-          id: true,
-          image: true,
-          title: true,
-          author: true,
-          createdAt: true,
-          _count: {
-            select: {
-              chapters: true,
-              members: true,
-            },
-          },
-        },
-      },
-    },
-  })
-
-  return invites.map(i => ({
-    invitedAt: i.updatedAt,
-    user: i.inviter,
-    club: i.club,
-  }))
-}
-
-async function getSentInvites(userId: string) {
-  const invites = await prisma.clubInvite.findMany({
-    where: { inviterId: userId },
-    select: {
-      updatedAt: true,
-      invitee: {
-        select: {
-          id: true,
-          avatar: true,
-          username: true,
-        },
-      },
-      club: {
-        select: {
-          id: true,
-          image: true,
-          title: true,
-          author: true,
-          createdAt: true,
-          _count: {
-            select: {
-              chapters: true,
-              members: true,
-            },
-          },
-        },
-      },
-    },
-  })
-
-  return invites.map(i => ({
-    invitedAt: i.updatedAt,
-    user: i.invitee,
-    club: i.club,
-  }))
-}

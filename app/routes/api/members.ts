@@ -1,7 +1,7 @@
 import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
 import { forbidden, notFound } from 'remix-utils'
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
@@ -40,7 +40,7 @@ export const action: ActionFunction = async ({ request }) => {
             removed: true,
           },
         })
-        .catch(e => 'member not found')
+        .catch(e => console.log('member not found'))
 
       return json({
         ok: true,
@@ -50,3 +50,6 @@ export const action: ActionFunction = async ({ request }) => {
       return new Response('Invalid method', { status: 405 })
   }
 }
+
+export const loader: LoaderFunction = () =>
+  new Response('Invalid method', { status: 405 })

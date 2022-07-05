@@ -7,12 +7,18 @@ import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import { useFetcher, useLoaderData, useParams } from '@remix-run/react'
 
 import { useUser } from '~/utils'
-import { prisma } from '~/db.server'
 import Button from '~/elements/Button'
 import Text from '~/elements/Typography/Text'
-import { sendPush } from '~/utils/notifications.server'
+import { getUserByEmail } from '~/models/users.server'
 import { requireUser, requireUserId } from '~/session.server'
-import { createNotification } from '~/utils/notifications.utils'
+import { getClubWithUserMembers } from '~/models/clubs.server'
+import { notifyNewInvite } from '~/models/notifications.server'
+import { createInvite, getInvitesWithInvitee } from '~/models/invites.server'
+
+interface LoaderData {
+  members: RequiredFuncType<typeof getClubWithUserMembers>['members']
+  invites: FuncType<typeof getInvitesWithInvitee>
+}
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const userId = await requireUserId(request)
@@ -20,8 +26,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.clubId, 'expected clubId')
 
   const [club, invites] = await Promise.all([
-    getClub(params.clubId, userId),
-    getInvites(params.clubId),
+    getClubWithUserMembers(params.clubId, userId),
+    getInvitesWithInvitee(params.clubId),
   ])
 
   if (!club) throw notFound({ message: 'Club not found' })
@@ -29,23 +35,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (club.ownerId !== userId)
     throw forbidden({ message: 'Not authorized to manage members' })
 
-  return json({
+  return json<LoaderData>({
     members: club.members,
     invites,
   })
-}
-
-interface LoaderData {
-  members: {
-    id: string
-    avatar: string
-    username: string
-  }[]
-  invites: {
-    id: string
-    avatar: string
-    username: string
-  }[]
 }
 
 export default function ManageMembersPage() {
@@ -53,6 +46,7 @@ export default function ManageMembersPage() {
 
   const inviteRef = useRef<HTMLFormElement>(null)
   const inviteFetcher = useFetcher()
+
   useEffect(() => {
     if (inviteFetcher.type === 'done' && inviteFetcher.data.ok) {
       inviteRef.current?.reset()
@@ -231,7 +225,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     return json<ActionData>({ error: 'Email is required.' }, { status: 400 })
   }
 
-  const invitee = await findUser(email)
+  const invitee = await getUserByEmail(email)
 
   if (!invitee) return json<ActionData>({ error: 'No user found.' })
 
@@ -248,131 +242,4 @@ export const action: ActionFunction = async ({ request, params }) => {
   })
 }
 
-async function notifyNewInvite(
-  invite: Awaited<ReturnType<typeof createInvite>>,
-) {
-  const subscriptions = await prisma.subscription.findMany({
-    where: {
-      userId: invite.inviteeId,
-    },
-  })
-
-  const notification = createNotification({
-    title: `New Club Invite: ${invite.club.title}`,
-    body: `${invite.inviter.username} invited you to read ${invite.club.title} by ${invite.club.author}`,
-    icon: invite.inviter.avatar,
-    image: invite.club.image,
-    data: {
-      options: {
-        action: 'navigate',
-        url: `/invites`,
-      },
-    },
-  })
-
-  const notifications: Promise<any>[] = []
-  subscriptions.forEach(subscription => {
-    notifications.push(sendPush(subscription, notification))
-  })
-  return Promise.allSettled(notifications)
-}
-
-async function createInvite({
-  clubId,
-  inviteeId,
-  inviterId,
-}: {
-  clubId: string
-  inviterId: string
-  inviteeId: string
-}) {
-  return prisma.clubInvite.upsert({
-    where: {
-      inviterId_inviteeId_clubId: {
-        clubId,
-        inviteeId,
-        inviterId,
-      },
-    },
-    create: {
-      clubId,
-      inviteeId,
-      inviterId,
-    },
-    update: {},
-    select: {
-      club: {
-        select: {
-          id: true,
-          image: true,
-          title: true,
-          author: true,
-        },
-      },
-      inviter: {
-        select: {
-          avatar: true,
-          id: true,
-          username: true,
-        },
-      },
-      inviteeId: true,
-    },
-  })
-}
-
-async function findUser(email: string) {
-  const user = await prisma.user.findUnique({ where: { email } })
-  return user
-}
-
-async function getInvites(clubId: string) {
-  const invites = await prisma.clubInvite.findMany({
-    where: { clubId },
-    select: {
-      invitee: {
-        select: {
-          avatar: true,
-          id: true,
-          username: true,
-        },
-      },
-    },
-  })
-  return invites.map(inv => ({
-    ...inv.invitee,
-  }))
-}
-
-async function getClub(clubId: string, userId: string) {
-  const club = await prisma.club.findFirst({
-    where: {
-      id: clubId,
-      members: { some: { userId, removed: false } },
-    },
-    select: {
-      ownerId: true,
-      members: {
-        where: { removed: false },
-        select: {
-          user: {
-            select: {
-              id: true,
-              avatar: true,
-              username: true,
-            },
-          },
-        },
-      },
-    },
-  })
-
-  if (!club) return null
-
-  return {
-    ownerId: club.ownerId,
-    members: club.members.map(member => ({
-      ...member.user,
-    })),
-  }
-}
+export { default as CatchBoundary } from '~/components/CatchBoundary'

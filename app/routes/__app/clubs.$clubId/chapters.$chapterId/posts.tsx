@@ -1,41 +1,19 @@
 import invariant from 'tiny-invariant'
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 
 import Post from '~/components/Post'
-import { prisma } from '~/db.server'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
 import PostComposer from '~/components/PostComposer'
+import { getPostsByChapter } from '~/models/posts.server'
+import { getChapterDetails } from '~/models/chapters.server'
 
 interface LoaderData {
-  posts: {
-    user: {
-      id: string
-      avatar: string
-      username: string
-    }
-    chapter: {
-      id: string
-      title: string
-    }
-    post: {
-      id: string
-      content: string
-      image: string | null
-      context: string | null
-      replies: number
-      createdAt: Date
-    }
-  }[]
-  chapter: {
-    id: string
-    title: string
-    order: number
-    status: 'complete' | 'not_started' | 'incomplete'
-  }
+  posts: FuncType<typeof getPostsByChapter>
+  chapter: RequiredFuncType<typeof getChapterDetails>
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
@@ -45,8 +23,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const userId = await requireUserId(request)
 
   const [posts, chapter] = await Promise.all([
-    getPosts(params.clubId, params.chapterId, userId),
-    getChapter(params.chapterId, userId),
+    getPostsByChapter(params.clubId, params.chapterId, userId),
+    getChapterDetails(params.chapterId, userId),
   ])
 
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
@@ -105,113 +83,3 @@ export const handle = {
 }
 
 export { default as CatchBoundary } from '~/components/CatchBoundary'
-
-async function getPosts(clubId: string, chapterId: string, userId: string) {
-  const dbPosts = await prisma.post.findMany({
-    where: {
-      parentId: null,
-      chapterId,
-      chapter: {
-        clubId,
-        club: {
-          members: { some: { userId, removed: false } },
-        },
-      },
-    },
-    select: {
-      id: true,
-      content: true,
-      image: true,
-      context: true,
-      createdAt: true,
-      chapter: {
-        select: {
-          id: true,
-          title: true,
-        },
-      },
-      member: {
-        select: {
-          id: true,
-          user: {
-            select: {
-              id: true,
-              avatar: true,
-              username: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          replies: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
-
-  const posts = dbPosts.map(dbPost => ({
-    user: {
-      id: dbPost.member.user.id,
-      avatar: dbPost.member.user.avatar,
-      username: dbPost.member.user.username,
-    },
-    chapter: {
-      id: dbPost.chapter.id,
-      title: dbPost.chapter.title,
-    },
-    post: {
-      id: dbPost.id,
-      content: dbPost.content,
-      image: dbPost.image,
-      context: dbPost.context,
-      replies: dbPost._count.replies,
-      createdAt: dbPost.createdAt,
-    },
-  }))
-
-  return posts
-}
-
-async function getChapter(chapterId: string, userId: string) {
-  const dbChapter = await prisma.chapter.findFirst({
-    where: {
-      id: chapterId,
-      club: { members: { some: { userId, removed: false } } },
-    },
-    select: {
-      id: true,
-      order: true,
-      title: true,
-      progress: {
-        select: {
-          member: {
-            select: {
-              id: true,
-              userId: true,
-            },
-          },
-        },
-      },
-    },
-  })
-
-  if (!dbChapter) return null
-
-  const userComplete = dbChapter.progress.some(p => p.member.userId === userId)
-  const status: 'complete' | 'not_started' | 'incomplete' = userComplete
-    ? 'complete'
-    : dbChapter.progress.length === 0
-    ? 'not_started'
-    : 'incomplete'
-
-  return {
-    id: dbChapter.id,
-    title: dbChapter.title,
-    order: dbChapter.order,
-    status,
-  }
-}

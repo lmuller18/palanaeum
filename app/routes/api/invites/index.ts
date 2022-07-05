@@ -1,11 +1,12 @@
 import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
 import { forbidden, notFound } from 'remix-utils'
-import type { ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
+import { deleteInvite } from '~/models/invites.server'
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
@@ -30,17 +31,7 @@ export const action: ActionFunction = async ({ request }) => {
       if (club.ownerId !== userId)
         return forbidden({ message: 'not allowed to delete invite' })
 
-      await prisma.clubInvite
-        .delete({
-          where: {
-            inviterId_inviteeId_clubId: {
-              clubId,
-              inviteeId,
-              inviterId,
-            },
-          },
-        })
-        .catch(e => 'invite not found')
+      await deleteInvite({ clubId, inviteeId, inviterId })
 
       return json({
         ok: true,
@@ -50,3 +41,6 @@ export const action: ActionFunction = async ({ request }) => {
       return new Response('Invalid method', { status: 405 })
   }
 }
+
+export const loader: LoaderFunction = () =>
+  new Response('Invalid method', { status: 405 })

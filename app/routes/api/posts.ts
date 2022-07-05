@@ -1,12 +1,13 @@
 import invariant from 'tiny-invariant'
-import type { ActionFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
+import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
-import { prisma } from '~/db.server'
 import { requireUserId } from '~/session.server'
+import { createPost } from '~/models/posts.server'
 import { getErrorMessage, parseStringFormData } from '~/utils'
+import { getMemberIdFromUserByChapter } from '~/models/users.server'
 
-export const action: ActionFunction = async ({ params, request }) => {
+export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {
@@ -16,7 +17,7 @@ export const action: ActionFunction = async ({ params, request }) => {
           await parseStringFormData(request)
         invariant(content, 'content required')
         invariant(chapterId, 'chapterId required')
-        const memberId = await getMemberIdFromUser(userId, chapterId)
+        const memberId = await getMemberIdFromUserByChapter(userId, chapterId)
         const post = await createPost({
           chapterId,
           content,
@@ -50,55 +51,5 @@ export const action: ActionFunction = async ({ params, request }) => {
   }
 }
 
-async function getMemberIdFromUser(userId: string, chapterId: string) {
-  const member = await prisma.member.findFirst({
-    where: {
-      userId,
-      club: {
-        chapters: {
-          some: {
-            id: chapterId,
-          },
-        },
-      },
-    },
-    select: { id: true },
-  })
-  if (!member) {
-    throw new Response('Member not associated with Chapter', { status: 403 })
-  }
-
-  return member.id
-}
-
-async function createPost({
-  chapterId,
-  content,
-  image,
-  context,
-  parentId,
-  rootId,
-  memberId,
-}: {
-  chapterId: string
-  content: string
-  memberId: string
-  image?: string
-  context?: string
-  parentId?: string
-  rootId?: string
-}) {
-  const post = await prisma.post.create({
-    data: {
-      chapterId,
-      content,
-      image,
-      context,
-      parentId,
-      rootId,
-      memberId,
-    },
-  })
-
-  return post
-}
+export const loader: LoaderFunction = () =>
+  new Response('Invalid method', { status: 405 })

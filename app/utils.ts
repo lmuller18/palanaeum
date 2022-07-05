@@ -1,10 +1,11 @@
-import type { ToRelativeOptions } from 'luxon'
-import { DateTime } from 'luxon'
 import { useMemo } from 'react'
-import { useMatches } from '@remix-run/react'
+import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
+import { useMatches } from '@remix-run/react'
+import type { ToRelativeOptions } from 'luxon'
 
-import type { User } from '~/models/user.server'
+import type { User } from '~/models/users.server'
+import type { ThreadedComment } from './models/comments.server'
 
 /**
  * This base hook is used in other hooks to quickly search for specific data
@@ -80,4 +81,28 @@ export function removeEmpty(obj: object) {
 export function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message
   return String(error)
+}
+
+export function threadComments(
+  commentList: Omit<ThreadedComment, 'replies'>[],
+) {
+  // create an id --> comment map
+  const commentMap = commentList.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur.id]: cur,
+    }),
+    {} as { [key: string]: ThreadedComment },
+  )
+
+  commentList.forEach(comment => {
+    if (comment != null && comment.parentId != null) {
+      const parent = commentMap[comment.parentId]
+      parent.replies = [...(parent.replies ?? []), comment]
+    }
+  })
+
+  return commentList
+    .filter(comment => comment.parentId == null)
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
 }

@@ -65,3 +65,68 @@ export async function verifyLogin(email: string, password: string) {
 
   return userWithoutPassword
 }
+
+export async function getMemberIdFromUser(clubId: string, userId: string) {
+  const member = await prisma.member.findFirst({
+    where: {
+      userId,
+      clubId,
+    },
+    select: { id: true },
+  })
+  if (!member) return null
+
+  return member.id
+}
+
+export async function getMemberIdFromUserByChapter(
+  userId: string,
+  chapterId: string,
+) {
+  const member = await prisma.member.findFirst({
+    where: {
+      userId,
+      club: {
+        chapters: {
+          some: {
+            id: chapterId,
+          },
+        },
+      },
+    },
+    select: { id: true },
+  })
+  if (!member) {
+    throw new Response('Member not associated with Chapter', { status: 403 })
+  }
+
+  return member.id
+}
+
+export async function getMemberIdFromUserByDiscussion(
+  userId: string,
+  discussionId: string,
+) {
+  const member = await prisma.member.findFirst({
+    where: {
+      userId,
+      club: {
+        chapters: {
+          some: {
+            discussions: {
+              some: {
+                id: discussionId,
+              },
+            },
+          },
+        },
+      },
+    },
+    select: { id: true },
+  })
+  if (!member) {
+    throw new Response('Member not associated with Chapter', { status: 403 })
+  }
+
+  return member.id
+}

@@ -1,5 +1,7 @@
 import { prisma } from '~/db.server'
 
+// ! Deprecate Below
+
 const formatChapter = (
   chapter: {
     id: string
@@ -180,61 +182,6 @@ export async function getChapterDetails({
     },
     status,
   }
-}
-
-async function getMemberIdFromUser(chapterId: string, userId: string) {
-  const member = await prisma.member.findFirst({
-    where: {
-      userId,
-      club: {
-        chapters: {
-          some: {
-            id: chapterId,
-          },
-        },
-      },
-    },
-    select: { id: true },
-  })
-  if (!member) {
-    throw new Response('Member not associated with Chapter', { status: 403 })
-  }
-
-  return member.id
-}
-
-export async function markRead(chapterId: string, userId: string) {
-  const memberId = await getMemberIdFromUser(chapterId, userId)
-  return prisma.progress.upsert({
-    where: {
-      memberId_chapterId: {
-        memberId,
-        chapterId,
-      },
-    },
-    create: {
-      chapterId,
-      memberId,
-    },
-    update: {
-      completedAt: new Date(),
-    },
-  })
-}
-
-export async function markUnread(chapterId: string, userId: string) {
-  const memberId = await getMemberIdFromUser(chapterId, userId)
-
-  return prisma.progress
-    .delete({
-      where: {
-        memberId_chapterId: {
-          chapterId,
-          memberId,
-        },
-      },
-    })
-    .catch(() => {})
 }
 
 export interface ChapterListItem {
