@@ -5,8 +5,6 @@ import type { FetcherWithComponents } from '@remix-run/react'
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 
 import Text from '~/elements/Typography/Text'
-import { toLuxonDate } from '~/utils'
-import { DateTime } from 'luxon'
 
 const BOOKS = ['Leviathan Wakes', 'Warbreaker', 'Dune']
 
