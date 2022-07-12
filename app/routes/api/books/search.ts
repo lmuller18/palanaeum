@@ -26,7 +26,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
       ? `http://covers.openlibrary.org/b/id/${b.cover_i}-L.jpg`
       : '/images/no-cover.png',
     publishDate: b.first_publish_year,
-    author: b.author_name.join(', '),
+    author: b.author_name?.join(', '),
   }))
 
   return json({
