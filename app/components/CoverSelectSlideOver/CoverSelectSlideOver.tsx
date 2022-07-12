@@ -253,15 +253,21 @@ const SearchResults = ({
             alt={`${book.title} cover`}
           />
           <div>
-            <Text as="p" className="mb-2" variant="subtitle2">
-              {book.title}
-            </Text>
-            <Text as="p" variant="caption">
-              {toLuxonDate(book.publishDate).toLocaleString(DateTime.DATE_MED)}
-            </Text>
-            <Text as="p" variant="caption">
-              {book.author}
-            </Text>
+            {book.title && (
+              <Text as="p" className="mb-2" variant="subtitle2">
+                {book.title}
+              </Text>
+            )}
+            {book.publishDate && (
+              <Text as="p" variant="caption">
+                {book.publishDate}
+              </Text>
+            )}
+            {book.author && (
+              <Text as="p" variant="caption">
+                {book.author}
+              </Text>
+            )}
           </div>
         </div>
       ))}
