@@ -33,6 +33,7 @@ const NavSection = ({
   const hasSecondaryNav =
     !!secondaryNavSections && secondaryNavSections.length > 0
   const valueChanged = useValueChanged(hasSecondaryNav)
+
   return (
     <div className="fixed bottom-0 left-0 right-0 w-full transform-gpu">
       <AnimatePresence exitBeforeEnter>
@@ -61,7 +62,7 @@ const NavSection = ({
 const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
   <div
     className={clsx(
-      'flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
+      'relative z-[999] flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
       !hasSecondaryNav && 'border-t',
     )}
   >

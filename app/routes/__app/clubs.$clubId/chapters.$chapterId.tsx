@@ -108,10 +108,10 @@ const SpringLink = ({
         {isActive && (
           <motion.div
             transition={{
-              type: 'spring',
-              damping: 10,
-              mass: 0.75,
-              stiffness: 100,
+              layout: {
+                duration: 0.2,
+                ease: 'easeOut',
+              },
             }}
             layoutId="chapter-nav"
             className={clsx(

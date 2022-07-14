@@ -27,7 +27,7 @@ const PieChart = ({
   colors?: string[]
   disabled?: boolean
 }) => {
-  const chartData = disabled ? DEFAULT_DATA : DEFAULT_DATA
+  const chartData = disabled ? DEFAULT_DATA : data
 
   return (
     <div className="relative h-full w-full">
