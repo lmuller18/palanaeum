@@ -1,13 +1,15 @@
-import clsx from 'clsx'
+import React, { Fragment } from 'react'
 import { Link, useFetcher } from '@remix-run/react'
-import { Fragment, useState } from 'react'
-import useMeasure from 'react-use-measure'
 import { Menu, Transition } from '@headlessui/react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { DuplicateIcon as DuplicateActiveIcon } from '@heroicons/react/solid'
+import {
+  PencilAltIcon as PencilActiveIcon,
+  CheckCircleIcon as CheckActiveIcon,
+} from '@heroicons/react/solid'
 import {
   ChevronDownIcon,
-  DuplicateIcon as DuplicateInactiveIcon,
+  PencilAltIcon as PencilInactiveIcon,
+  CheckCircleIcon as CheckInactiveIcon,
 } from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
@@ -18,50 +20,28 @@ interface NextChapterSectionProps {
     id: string
     title: string
     membersCompleted: number
+    totalMembers: number
     status: 'incomplete' | 'not_started'
   } | null
-  club: {
-    id: string
-    title: string
-  }
-  recentDiscussion: {} | null
+  isOwner: boolean
 }
 
-const NextChapterSection = ({ chapter, club }: NextChapterSectionProps) => {
-  const [ref, { height }] = useMeasure()
-  const [animating, setAnimating] = useState(false)
-  const startAnim = () => setAnimating(true)
-  const endAnim = () => setAnimating(false)
-
+const NextChapterSection = ({ chapter, isOwner }: NextChapterSectionProps) => {
   return (
-    <motion.div
-      className="relative mx-auto mb-4 flex"
-      style={{
-        height: height || 'auto',
-        overflow: animating ? 'hidden' : 'visible',
-      }}
-    >
+    <motion.div className="mx-auto mb-4">
       <AnimatePresence initial={false}>
         <motion.div
-          initial={{ x: '100%' }}
-          animate={{ x: '0%' }}
-          exit={{ x: '-100%' }}
+          initial={{ x: '100%', position: 'absolute' }}
+          animate={{ x: '0%', position: 'static' }}
+          exit={{ x: '-100%', position: 'absolute' }}
           key={chapter?.id ?? 'complete'}
-          data-cy="next-chapter"
-          onAnimationStart={startAnim}
-          onAnimationComplete={endAnim}
-          className={clsx(
-            height ? 'absolute w-full' : 'relative',
-            'flex-grow rounded-lg bg-background-secondary text-gray-100 shadow-xl',
-          )}
+          className="flex-grow rounded-lg bg-background-secondary p-8 text-gray-100 shadow-xl"
         >
-          <div ref={ref} className="py-8 px-8">
-            {chapter ? (
-              <NextChapter chapter={chapter} club={club} />
-            ) : (
-              <NoChapter />
-            )}
-          </div>
+          {chapter ? (
+            <NextChapter chapter={chapter} isOwner={isOwner} />
+          ) : (
+            <NoChapter />
+          )}
         </motion.div>
       </AnimatePresence>
     </motion.div>
@@ -69,19 +49,11 @@ const NextChapterSection = ({ chapter, club }: NextChapterSectionProps) => {
 }
 
 interface NextChapterProps {
-  chapter: {
-    id: string
-    title: string
-    membersCompleted: number
-    status: 'incomplete' | 'not_started'
-  }
-  club: {
-    id: string
-    title: string
-  }
+  chapter: NonNullable<NextChapterSectionProps['chapter']>
+  isOwner: boolean
 }
 
-const NextChapter = ({ chapter, club }: NextChapterProps) => {
+const NextChapter = ({ chapter, isOwner }: NextChapterProps) => {
   const nextChapterFetcher = useFetcher()
 
   const state: 'idle' | 'success' | 'error' | 'submitting' =
@@ -120,7 +92,7 @@ const NextChapter = ({ chapter, club }: NextChapterProps) => {
             of
             <span className="text-3xl font-bold text-transparent">
               {' '}
-              {/* // TODO member count */}7{' '}
+              {chapter.totalMembers}{' '}
             </span>
             members.
           </p>
@@ -166,76 +138,7 @@ const NextChapter = ({ chapter, club }: NextChapterProps) => {
           </Button>
         </div>
 
-        <Menu as="div" className="relative inline-block basis-1/4">
-          <div>
-            <Menu.Button as={Button} variant="secondary">
-              Options
-              <ChevronDownIcon
-                className="ml-2 -mr-1 h-5 w-5 text-gray-200"
-                aria-hidden="true"
-              />
-            </Menu.Button>
-          </div>
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
-            <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              <div className="px-1 py-1 ">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      type="button"
-                      className={`${
-                        active ? 'bg-violet-500 text-white' : 'text-gray-900'
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                    >
-                      {active ? (
-                        <DuplicateActiveIcon
-                          className="mr-2 h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <DuplicateInactiveIcon
-                          className="mr-2 h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      )}
-                      Complete Multiple
-                    </button>
-                  )}
-                </Menu.Item>{' '}
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-violet-500 text-white' : 'text-gray-900'
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                    >
-                      {active ? (
-                        <DuplicateActiveIcon
-                          className="mr-2 h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <DuplicateInactiveIcon
-                          className="mr-2 h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      )}
-                      Edit
-                    </button>
-                  )}
-                </Menu.Item>
-              </div>
-            </Menu.Items>
-          </Transition>
-        </Menu>
+        <ChapterOptionsMenuButton isOwner={isOwner} />
 
         {/* <div className="relative flex w-full items-center justify-center overflow-hidden rounded-md border border-transparent text-sm font-medium text-white shadow-sm md:w-48">
           <button
@@ -281,5 +184,92 @@ const NoChapter = () => (
     </p>
   </>
 )
+
+interface MenuItemProps extends React.ComponentPropsWithoutRef<'button'> {
+  activeIcon: JSX.Element
+  inactiveIcon: JSX.Element
+  ownerOnly: boolean
+  label: string
+}
+
+const MenuItems: MenuItemProps[] = [
+  {
+    activeIcon: (
+      <PencilActiveIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+    ),
+    inactiveIcon: (
+      <PencilInactiveIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+    ),
+    label: 'Edit',
+    ownerOnly: true,
+    onClick: () => {},
+    type: 'button',
+  },
+  {
+    activeIcon: <CheckActiveIcon className="mr-2 h-5 w-5" aria-hidden="true" />,
+    inactiveIcon: (
+      <CheckInactiveIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+    ),
+    label: 'Complete All Previous',
+    ownerOnly: false,
+    type: 'submit',
+    value: 'MARK_PREVIOUS',
+    name: '_action',
+  },
+]
+
+const ChapterOptionsMenuButton = ({ isOwner }: { isOwner: boolean }) => {
+  const menuItems = MenuItems.filter(m => (m.ownerOnly ? isOwner : true))
+  return (
+    <Menu as="div" className="relative inline-block basis-1/4">
+      <div>
+        <Menu.Button as={Button} variant="secondary">
+          Options
+          <ChevronDownIcon
+            className="ml-2 -mr-1 h-5 w-5 text-gray-200"
+            aria-hidden="true"
+          />
+        </Menu.Button>
+      </div>
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Menu.Items className="absolute right-0 mt-1 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-zinc-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="px-1 py-1 ">
+            {menuItems.map(
+              ({
+                label,
+                activeIcon,
+                inactiveIcon,
+                ownerOnly,
+                ...buttonProps
+              }) => (
+                <Menu.Item key={label}>
+                  {({ active }) => (
+                    <button
+                      className={`${
+                        active ? 'bg-violet-500 text-white' : 'text-gray-100'
+                      } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                      {...buttonProps}
+                    >
+                      {active ? activeIcon : inactiveIcon}
+                      {label}
+                    </button>
+                  )}
+                </Menu.Item>
+              ),
+            )}
+          </div>
+        </Menu.Items>
+      </Transition>
+    </Menu>
+  )
+}
 
 export default NextChapterSection

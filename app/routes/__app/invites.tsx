@@ -244,9 +244,16 @@ const InviteCard = ({
   }[]
   children?: ReactNode
 }) => (
-  <div className="rounded-lg bg-background-secondary p-4">
+  <div className="rounded-lg bg-background-secondary p-4 pt-3">
+    <div className="flex items-start justify-between gap-2">
+      <Text variant="title3" as="p" className="mb-2 line-clamp-2" serif>
+        {invite.club.title}
+      </Text>
+      {menuItems && <InviteMenu menuItems={menuItems} />}
+    </div>
+
     <div className="grid grid-cols-[1fr,2fr] gap-6">
-      <div className="relative mx-auto aspect-[0.66/1] w-full overflow-hidden rounded-lg shadow-md">
+      <div className="mx-auto aspect-[0.66/1] w-full overflow-hidden rounded-lg shadow-md">
         <img
           className="h-full w-full object-cover"
           src={invite.club.image}
@@ -254,17 +261,9 @@ const InviteCard = ({
         />
       </div>
       <div className="flex flex-col justify-between">
-        <div className="flex items-start justify-between">
-          <div>
-            <Text variant="title3" as="p" className="line-clamp-1">
-              {invite.club.title}
-            </Text>
-            <Text variant="subtitle2" as="p" className="line-clamp-1">
-              By {invite.club.author}
-            </Text>
-          </div>
-          {menuItems && <InviteMenu menuItems={menuItems} />}
-        </div>
+        <Text variant="subtitle2" as="p" className="line-clamp-1">
+          By {invite.club.author}
+        </Text>
 
         <div className="grid grid-cols-[auto,1fr] items-center gap-x-4">
           <Text variant="body2">Chapters</Text>

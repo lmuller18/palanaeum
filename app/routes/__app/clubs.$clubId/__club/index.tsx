@@ -2,6 +2,8 @@ import clsx from 'clsx'
 import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
 import type { LoaderFunction } from '@remix-run/node'
+import { ChevronUpIcon } from '@heroicons/react/solid'
+import { Disclosure, Transition } from '@headlessui/react'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { InformationCircleIcon } from '@heroicons/react/solid'
 
@@ -22,10 +24,6 @@ import {
 } from '~/models/chapters.server'
 
 interface LoaderData {
-  club: {
-    id: string
-    title: string
-  }
   isOwner: boolean
   topPost: FuncType<typeof getTopPostByClub>
   readChapters: FuncType<typeof getReadChapters>
@@ -58,24 +56,13 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     readChapters,
     topDiscussion,
     isOwner: club.ownerId === userId,
-    club: {
-      id: club.id,
-      title: club.title,
-    },
   })
 }
 
 export default function ClubPage() {
   const { clubId } = useParams()
-  const {
-    club,
-    counts,
-    topPost,
-    isOwner,
-    nextChapter,
-    readChapters,
-    topDiscussion,
-  } = useLoaderData() as LoaderData
+  const { counts, topPost, isOwner, nextChapter, readChapters, topDiscussion } =
+    useLoaderData() as LoaderData
 
   if (!clubId) throw new Error('Club Id Not Found')
 
@@ -83,40 +70,56 @@ export default function ClubPage() {
     <>
       {/* Owner Actions */}
       {isOwner && (
-        <div className="mb-6 rounded-md bg-background-secondary p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <InformationCircleIcon
-                className="mt-[2px] h-5 w-5 text-blue-400"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="ml-3 flex-1">
-              <p className="font-medium text-blue-400">Admin Actions</p>
-              <p className="mt-3 flex items-center gap-4 text-sm">
-                <TextLink to="." color="default">
-                  Edit Club
-                </TextLink>
-                <TextLink to="members/manage" color="default">
-                  Manage Members
-                </TextLink>
-                <div className="flex flex-grow items-center justify-end">
-                  <TextLink to="." color="rose">
-                    Delete Club
-                  </TextLink>
+        <Disclosure>
+          {({ open }) => (
+            <div className="mb-6 w-full overflow-hidden rounded-lg bg-background-secondary">
+              <Disclosure.Button className="flex w-full justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <InformationCircleIcon
+                    className="mt-[2px] h-5 w-5 text-blue-400"
+                    aria-hidden="true"
+                  />
+                  <span className="font-medium text-blue-400">
+                    Admin Actions
+                  </span>
                 </div>
-              </p>
+                <ChevronUpIcon
+                  className={`${
+                    open ? 'rotate-180 transform' : ''
+                  } h-5 w-5 text-white`}
+                />
+              </Disclosure.Button>
+              <Transition
+                enter="transition duration-100 ease-out"
+                enterFrom="transform scale-95 opacity-0"
+                enterTo="transform scale-100 opacity-100"
+                leave="transition duration-75 ease-out"
+                leaveFrom="transform scale-100 opacity-100"
+                leaveTo="transform scale-95 opacity-0"
+              >
+                <Disclosure.Panel className="bg-background-secondary p-4 pt-2">
+                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                    <TextLink to="." color="default">
+                      Edit Club
+                    </TextLink>
+                    <TextLink to="members/manage" color="default">
+                      Manage Members
+                    </TextLink>
+                    <div className="flex flex-grow items-center justify-end">
+                      <TextLink to="." color="rose">
+                        Delete Club
+                      </TextLink>
+                    </div>
+                  </div>
+                </Disclosure.Panel>
+              </Transition>
             </div>
-          </div>
-        </div>
+          )}
+        </Disclosure>
       )}
 
       {/* Next Chapter Block */}
-      <NextChapterSection
-        chapter={nextChapter}
-        club={club}
-        recentDiscussion={null}
-      />
+      <NextChapterSection chapter={nextChapter} isOwner={isOwner} />
 
       {/* Chart Block */}
       <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">

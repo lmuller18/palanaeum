@@ -2,15 +2,16 @@ import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
 import type { LoaderFunction } from '@remix-run/node'
-import { Link, useFetcher, useLoaderData } from '@remix-run/react'
+import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
 
+import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import ChapterPagination from '~/components/ChapterPagination'
 import { getPaginatedChapterList } from '~/models/chapters.server'
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 10
 
 interface LoaderData {
   chapters: FuncType<typeof getPaginatedChapterList>['chapters']
@@ -47,6 +48,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 export default function ChaptersPage() {
   const { chapters, page, totalPages } = useLoaderData() as LoaderData
   const fetcher = useFetcher()
+  const navigate = useNavigate()
 
   return (
     <>
@@ -86,36 +88,37 @@ export default function ChaptersPage() {
                 </Text>
               </div>
 
-              <div className="mt-3 flex items-center justify-around">
-                <Link
-                  to={chapter.id}
-                  className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+              <fetcher.Form
+                action={`/api/chapters/${chapter.id}/read`}
+                method="post"
+                className="mt-2 grid gap-2"
+              >
+                {chapter.status === 'complete' ? (
+                  <Button
+                    variant="warning"
+                    name="_action"
+                    value="MARK_UNREAD"
+                    disabled={fetcher.state !== 'idle'}
+                  >
+                    Mark Unread
+                  </Button>
+                ) : (
+                  <Button
+                    name="_action"
+                    value="MARK_PREVIOUS"
+                    disabled={fetcher.state !== 'idle'}
+                  >
+                    Mark Read
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  onClick={() => navigate(chapter.id)}
+                  variant="secondary"
                 >
                   View Chapter
-                </Link>
-                <fetcher.Form
-                  action={`/api/chapters/${chapter.id}/read`}
-                  method="post"
-                >
-                  {chapter.status === 'complete' ? (
-                    <button
-                      name="_action"
-                      value="MARK_UNREAD"
-                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-                    >
-                      Mark Unread
-                    </button>
-                  ) : (
-                    <button
-                      name="_action"
-                      value="MARK_READ"
-                      className="inline-flex items-center justify-center rounded-md border border-transparent bg-background-tertiary px-4 py-2 text-sm font-medium shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
-                    >
-                      Mark Read
-                    </button>
-                  )}
-                </fetcher.Form>
-              </div>
+                </Button>
+              </fetcher.Form>
             </div>
           </div>
         ))}

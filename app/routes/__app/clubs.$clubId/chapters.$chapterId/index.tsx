@@ -85,8 +85,6 @@ export default function ChapterHome() {
         </div>
       </div>
 
-      {/* TODO: Spoilers for top post and hottest discussion */}
-
       {/* Top Post Block */}
       <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
         <Text variant="title2" className="mb-4" as="h3">

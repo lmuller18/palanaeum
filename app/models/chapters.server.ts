@@ -6,6 +6,7 @@ import {
   startOfToday,
   eachDayOfInterval,
 } from 'date-fns'
+import { notFound } from 'remix-utils'
 import { prisma } from '~/db.server'
 import { getMemberIdFromUser } from './users.server'
 
@@ -190,6 +191,7 @@ export async function getNextChapterDetails(userId: string, clubId: string) {
     id: dbChapter.id,
     title: dbChapter.title,
     membersCompleted: dbChapter._count.progress,
+    totalMembers: dbChapter.club._count.members,
     status,
   }
 }
@@ -347,6 +349,61 @@ export async function markRead(chapterId: string, memberId: string) {
     },
     update: {
       completedAt: new Date(),
+    },
+  })
+}
+
+export async function markPreviousRead(chapterId: string, memberId: string) {
+  const chapter = await prisma.chapter.findUnique({
+    where: {
+      id: chapterId,
+    },
+  })
+
+  if (!chapter) throw notFound({ error: 'Chapter not found' })
+
+  const chapters = await prisma.chapter.findMany({
+    where: {
+      clubId: chapter.clubId,
+      order: {
+        lte: chapter.order,
+      },
+    },
+    orderBy: {
+      order: 'asc',
+    },
+  })
+
+  if (!chapters?.length) return
+
+  if (chapters.length === 1) {
+    return prisma.progress.upsert({
+      where: { memberId_chapterId: { chapterId, memberId } },
+      create: {
+        chapterId,
+        memberId,
+      },
+      update: {},
+    })
+  }
+
+  // create all previous first so most recent chapter is "most recent"
+  const toCreate = chapters.slice(0, -1).map(c => ({
+    chapterId: c.id,
+    memberId,
+  }))
+
+  await prisma.progress.createMany({
+    data: toCreate,
+    skipDuplicates: true,
+  })
+
+  return prisma.progress.upsert({
+    where: { memberId_chapterId: { chapterId, memberId } },
+    update: {},
+    create: {
+      chapterId: chapters[chapters.length - 1].id,
+      memberId,
     },
   })
 }

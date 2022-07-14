@@ -94,9 +94,9 @@ export async function getMemberIdFromUserByChapter(
         },
       },
     },
-    select: { id: true },
+    select: { id: true, removed: true },
   })
-  if (!member) {
+  if (!member || member.removed) {
     throw new Response('Member not associated with Chapter', { status: 403 })
   }
 
