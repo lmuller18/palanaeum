@@ -19,9 +19,8 @@ export default function ClubNavigationLayout() {
       <Outlet />
 
       {/* Nav section */}
-      <div className="h-14">
-        <NavSection secondaryNavSections={secondaryNavSections} />
-      </div>
+      <div className="h-14" />
+      <NavSection secondaryNavSections={secondaryNavSections} />
     </>
   )
 }
@@ -35,7 +34,7 @@ const NavSection = ({
     !!secondaryNavSections && secondaryNavSections.length > 0
   const valueChanged = useValueChanged(hasSecondaryNav)
   return (
-    <div className="fixed bottom-0 left-0 isolate z-50 w-full">
+    <div className="fixed bottom-0 left-0 right-0 w-full transform-gpu">
       <AnimatePresence exitBeforeEnter>
         {hasSecondaryNav && (
           <motion.div
@@ -62,7 +61,7 @@ const NavSection = ({
 const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
   <div
     className={clsx(
-      'relative z-[999] flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
+      'flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
       !hasSecondaryNav && 'border-t',
     )}
   >

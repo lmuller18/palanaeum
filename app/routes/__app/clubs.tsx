@@ -113,16 +113,21 @@ const ClubCard = ({
   const navigate = useNavigate()
   return (
     <div
-      className="rounded-lg bg-background-secondary p-4 active:bg-background-secondary/70"
+      className="rounded-lg bg-background-secondary p-4 pt-3 active:bg-background-secondary/70"
       onClick={() => {
         navigate(club.id)
       }}
     >
+      <Link to={club.id} onClick={e => e.stopPropagation()} className="w-fit">
+        <Text variant="title3" as="p" className="mb-2 line-clamp-2" serif>
+          {club.title}
+        </Text>
+      </Link>
       <div className="grid grid-cols-[1fr,2fr] gap-6">
         <Link
           onClick={e => e.stopPropagation()}
           to={club.id}
-          className="relative mx-auto aspect-[0.66/1] w-full overflow-hidden rounded-lg shadow-md"
+          className="mx-auto aspect-[0.66/1] w-full overflow-hidden rounded-lg shadow-md"
         >
           <img
             className="h-full w-full object-cover"
@@ -131,20 +136,9 @@ const ClubCard = ({
           />
         </Link>
         <div className="flex flex-col justify-between">
-          <div>
-            <Link
-              to={club.id}
-              onClick={e => e.stopPropagation()}
-              className="w-fit"
-            >
-              <Text variant="title3" as="p" className="line-clamp-1">
-                {club.title}
-              </Text>
-            </Link>
-            <Text variant="subtitle2" as="p" className="line-clamp-1">
-              By {club.author}
-            </Text>
-          </div>
+          <Text variant="subtitle2" as="p" className="line-clamp-1">
+            By {club.author}
+          </Text>
 
           <div className="grid grid-cols-[auto,1fr] items-center gap-x-4">
             <Text variant="body2">Chapters</Text>
@@ -165,7 +159,7 @@ const ClubCard = ({
             >
               <img
                 src={club.owner.avatar}
-                className="h-10 w-10 flex-shrink-0 rounded-full"
+                className="h-8 w-8 flex-shrink-0 rounded-full"
                 alt={`${club.owner.username} avatar`}
               />
               <div>

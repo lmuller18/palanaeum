@@ -4,7 +4,11 @@ import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { getErrorMessage } from '~/utils'
 import { requireUserId } from '~/session.server'
-import { markRead, markUnread } from '~/models/chapters.server'
+import {
+  markPreviousRead,
+  markRead,
+  markUnread,
+} from '~/models/chapters.server'
 import { getMemberIdFromUserByChapter } from '~/models/users.server'
 
 export const action: ActionFunction = async ({ params, request }) => {
@@ -28,12 +32,19 @@ export const action: ActionFunction = async ({ params, request }) => {
             const progress = await markRead(chapterId, memberId)
             return json({ ok: true, progress })
           } catch (error) {
-            return json(
-              { error: getErrorMessage(error) },
-              {
-                status: 500,
-              },
+            return json({ error: getErrorMessage(error) }, { status: 500 })
+          }
+        }
+        case 'MARK_PREVIOUS': {
+          try {
+            const memberId = await getMemberIdFromUserByChapter(
+              userId,
+              chapterId,
             )
+            const progress = await markPreviousRead(chapterId, memberId)
+            return json({ ok: true, progress })
+          } catch (error) {
+            return json({ error: getErrorMessage(error) }, { status: 500 })
           }
         }
         case 'MARK_UNREAD': {
@@ -45,12 +56,7 @@ export const action: ActionFunction = async ({ params, request }) => {
             const progress = await markUnread(chapterId, memberId)
             return json({ ok: true, progress })
           } catch (error) {
-            return json(
-              { error: getErrorMessage(error) },
-              {
-                status: 500,
-              },
-            )
+            return json({ error: getErrorMessage(error) }, { status: 500 })
           }
         }
         default:

@@ -1,4 +1,5 @@
-import { createCookieSessionStorage, redirect } from '@remix-run/node'
+import { createCookieSessionStorage, json, redirect } from '@remix-run/node'
+import { unauthorized } from 'remix-utils'
 import invariant from 'tiny-invariant'
 
 import type { User } from '~/models/users.server'
@@ -18,7 +19,7 @@ export const sessionStorage = createCookieSessionStorage({
   },
 })
 
-const USER_SESSION_KEY = 'userId'
+export const USER_SESSION_KEY = 'userId'
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get('Cookie')
@@ -41,6 +42,11 @@ export async function getUser(request: Request): Promise<null | User> {
   throw await logout(request)
 }
 
+function getIsNativeApp(request: Request) {
+  const header = request.headers.get('X-Palanaeum-Client')
+  return header === 'native'
+}
+
 export async function requireUserId(
   request: Request,
   redirectTo: string = new URL(request.url).pathname,
@@ -48,6 +54,9 @@ export async function requireUserId(
   const userId = await getUserId(request)
   if (!userId) {
     const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
+    if (getIsNativeApp(request)) {
+      throw unauthorized({ message: 'not authorized' })
+    }
     throw redirect(`/login?${searchParams}`)
   }
   return userId
@@ -73,11 +82,11 @@ export async function createUserSession({
 }) {
   const session = await getSession(request)
   session.set(USER_SESSION_KEY, userId)
-  return redirect(redirectTo, {
-    headers: {
-      'Set-Cookie': await sessionStorage.commitSession(session),
-    },
-  })
+  const headers = {
+    'Set-Cookie': await sessionStorage.commitSession(session),
+  }
+  if (getIsNativeApp(request)) return json({ success: true }, { headers })
+  return redirect(redirectTo, { headers })
 }
 
 export async function prepareUserSession({
@@ -96,9 +105,9 @@ export async function prepareUserSession({
 
 export async function logout(request: Request) {
   const session = await getSession(request)
-  return redirect('/', {
-    headers: {
-      'Set-Cookie': await sessionStorage.destroySession(session),
-    },
-  })
+  const headers = {
+    'Set-Cookie': await sessionStorage.destroySession(session),
+  }
+  if (getIsNativeApp(request)) return json({ success: true }, { headers })
+  return redirect('/', { headers })
 }

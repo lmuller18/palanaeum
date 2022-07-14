@@ -56,7 +56,7 @@ export default function ClubNavigationLayout() {
           />
         </Link>
       </div>
-      <div className="relative mx-auto max-w-lg px-4">
+      <div className="relative mx-auto max-w-lg overflow-hidden px-4">
         <div className="mb-4">
           <Text as="h3" variant="title1" serif>
             {data.club.title}

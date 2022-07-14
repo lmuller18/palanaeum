@@ -51,7 +51,7 @@ const BottomNavSection = ({
         {
           method: 'delete',
           replace: true,
-          action: '/api/subscription',
+          action: '/api/subscriptions',
         },
       )
     }
@@ -67,7 +67,7 @@ const BottomNavSection = ({
         {
           method: 'post',
           replace: true,
-          action: '/api/subscription',
+          action: '/api/subscriptions',
         },
       )
     }
