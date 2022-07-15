@@ -177,7 +177,7 @@ export default function ClubPage() {
               />
             </div>
             {!readChapters.includes(topPost.chapter.id) && (
-              <div className="absolute inset-0 flex h-full w-full items-center justify-center">
+              <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
                 <Text variant="title2" serif>
                   Spoilers! Catch up to your friends to view this post.
                 </Text>
