@@ -147,7 +147,7 @@ const PostComposer = ({
   const remaining = maximumCharacters - characters
 
   return (
-    <div className="border-x border-t border-background-tertiary p-4">
+    <div className="border border-background-tertiary p-4">
       <div className="grid grid-cols-[48px,1fr] gap-4">
         <Link to={`/user/${user.id}`} className="flex-shrink-0">
           <img

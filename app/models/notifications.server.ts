@@ -1,4 +1,5 @@
 import { prisma } from '~/db.server'
+import type { createPost } from './posts.server'
 import type { createInvite } from './invites.server'
 import { sendPush } from '~/utils/notifications.server'
 import type { createDiscussion } from './discussions.server'
@@ -64,6 +65,81 @@ export async function notifyNewDiscussion(
       options: {
         action: 'navigate',
         url: discussionUrl,
+      },
+    },
+  })
+
+  const notifications: Promise<any>[] = []
+  subscriptions.forEach(subscription => {
+    notifications.push(sendPush(subscription, notification))
+  })
+  return Promise.allSettled(notifications)
+}
+
+export async function notifyNewPost(
+  post: FuncType<typeof createPost>,
+  postUrl: string,
+) {
+  const subscriptions = await prisma.subscription.findMany({
+    where: {
+      User: {
+        members: {
+          some: {
+            removed: false,
+            id: {
+              not: post.member.id,
+            },
+            progress: {
+              some: {
+                chapterId: post.chapter.id,
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+
+  const notification = createNotification({
+    title: 'New Post',
+    body: `${post.member.user.username} posted in ${post.chapter.title}`,
+    icon: post.member.user.avatar,
+    image: post.chapter.club.image,
+    data: {
+      options: {
+        action: 'navigate',
+        url: postUrl,
+      },
+    },
+  })
+
+  const notifications: Promise<any>[] = []
+  subscriptions.forEach(subscription => {
+    notifications.push(sendPush(subscription, notification))
+  })
+  return Promise.allSettled(notifications)
+}
+
+export async function notifyPostReply(
+  post: FuncType<typeof createPost>,
+  parentUserId: string,
+  postUrl: string,
+) {
+  const subscriptions = await prisma.subscription.findMany({
+    where: {
+      userId: parentUserId,
+    },
+  })
+
+  const notification = createNotification({
+    title: 'You received new replies',
+    body: `${post.member.user.username} responded to your ${post.chapter.title} post`,
+    icon: post.member.user.avatar,
+    image: post.chapter.club.image,
+    data: {
+      options: {
+        action: 'navigate',
+        url: postUrl,
       },
     },
   })

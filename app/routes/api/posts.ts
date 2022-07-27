@@ -6,6 +6,7 @@ import { requireUserId } from '~/session.server'
 import { createPost } from '~/models/posts.server'
 import { getErrorMessage, parseStringFormData } from '~/utils'
 import { getMemberIdFromUserByChapter } from '~/models/users.server'
+import { notifyNewPost, notifyPostReply } from '~/models/notifications.server'
 
 export const action: ActionFunction = async ({ request }) => {
   const userId = await requireUserId(request)
@@ -27,14 +28,15 @@ export const action: ActionFunction = async ({ request }) => {
           rootId,
           memberId,
         })
-
-        // localFetch(request, '/api/notifications/post')
-        // TODO notifications
-        // if(post.rootId == null) {
-        // alert people who have read
-        // } else {
-        // alert people who are in comment chain
-        // }
+        if (post.parent && post.parent.member.user.id !== userId) {
+          await notifyPostReply(
+            post,
+            post.parent.member.user.id,
+            `/posts/${post.id}`,
+          )
+        } else {
+          await notifyNewPost(post, `/posts/${post.id}`)
+        }
 
         return json({ ok: true, post })
       } catch (error) {

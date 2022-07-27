@@ -220,7 +220,9 @@ export async function getPosts(
   clubId: string,
   userId: string,
   chapterId: string | null,
+  sortOrder?: 'chapter' | 'time',
 ) {
+  const sort = sortOrder ?? 'time'
   let where = {}
 
   if (chapterId) {
@@ -294,9 +296,21 @@ export async function getPosts(
         },
       },
     },
-    orderBy: {
-      createdAt: 'desc',
-    },
+    orderBy:
+      sort === 'chapter'
+        ? [
+            {
+              chapter: {
+                order: 'desc',
+              },
+            },
+            {
+              createdAt: 'desc',
+            },
+          ]
+        : {
+            createdAt: 'desc',
+          },
   })
 
   const posts = dbPosts.map(dbPost => ({
@@ -348,6 +362,48 @@ export async function createPost({
       parentId,
       rootId,
       memberId,
+    },
+    select: {
+      id: true,
+      member: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              avatar: true,
+              username: true,
+            },
+          },
+        },
+      },
+      chapter: {
+        select: {
+          id: true,
+          title: true,
+          club: {
+            select: {
+              id: true,
+              title: true,
+              image: true,
+            },
+          },
+        },
+      },
+      parent: {
+        select: {
+          id: true,
+          member: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   })
 }
