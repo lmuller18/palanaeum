@@ -220,7 +220,9 @@ export async function getPosts(
   clubId: string,
   userId: string,
   chapterId: string | null,
+  sortOrder?: 'chapter' | 'time',
 ) {
+  const sort = sortOrder ?? 'time'
   let where = {}
 
   if (chapterId) {
@@ -294,9 +296,21 @@ export async function getPosts(
         },
       },
     },
-    orderBy: {
-      createdAt: 'desc',
-    },
+    orderBy:
+      sort === 'chapter'
+        ? [
+            {
+              chapter: {
+                order: 'desc',
+              },
+            },
+            {
+              createdAt: 'desc',
+            },
+          ]
+        : {
+            createdAt: 'desc',
+          },
   })
 
   const posts = dbPosts.map(dbPost => ({
