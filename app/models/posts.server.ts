@@ -363,5 +363,47 @@ export async function createPost({
       rootId,
       memberId,
     },
+    select: {
+      id: true,
+      member: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              id: true,
+              avatar: true,
+              username: true,
+            },
+          },
+        },
+      },
+      chapter: {
+        select: {
+          id: true,
+          title: true,
+          club: {
+            select: {
+              id: true,
+              title: true,
+              image: true,
+            },
+          },
+        },
+      },
+      parent: {
+        select: {
+          id: true,
+          member: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   })
 }

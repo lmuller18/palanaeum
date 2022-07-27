@@ -52,7 +52,7 @@ export default function PostsPage() {
         chapters={chapters}
       />
 
-      {posts.length && <PostSort />}
+      {posts.length !== 0 && <PostSort />}
 
       <div className="grid gap-2 border border-background-tertiary">
         {!posts.length && (
