@@ -40,7 +40,7 @@ export default function ClubNavigationLayout() {
     <>
       <div className="relative py-6">
         <div
-          className="absolute top-0 left-0 right-0 -bottom-6"
+          className="absolute top-0 left-0 right-0 -bottom-6 bg-fixed"
           style={{
             backgroundImage: `url("data:image/svg+xml,<svg id='patternId' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='20' height='20' patternTransform='scale(1) rotate(0)'><rect x='0' y='0' width='100%' height='100%' fill='transparent'/><path d='M3.25 10h13.5M10 3.25v13.5'  stroke-linecap='square' stroke-width='1' stroke='hsla(220, 17%, 14%, 1)' fill='none'/></pattern></defs><rect width='800%' height='800%' transform='translate(0,0)' fill='url(%23a)'/></svg>")`,
           }}

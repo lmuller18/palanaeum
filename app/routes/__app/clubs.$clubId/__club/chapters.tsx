@@ -1,11 +1,12 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
+import { CheckCircle, XCircle } from 'react-feather'
 import type { LoaderFunction } from '@remix-run/node'
-import { useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
+import { Link, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
 
+import { pluralize } from '~/utils'
 import Button from '~/elements/Button'
-import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import ChapterPagination from '~/components/ChapterPagination'
@@ -26,8 +27,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const searchParams = new URL(request.url).searchParams
   const pageStr = searchParams.get('page')
   const pageNum = pageStr ? Number(pageStr) : 1
-
-  // const page = paginate(CHAPTERS, PAGE_SIZE, pageNum)
 
   const page = await getPaginatedChapterList(
     params.clubId,
@@ -50,6 +49,76 @@ export default function ChaptersPage() {
   const fetcher = useFetcher()
   const navigate = useNavigate()
 
+  // no one completed                           ALL_INCOMPLETE
+  // user completed with some others            USER_COMPLETE_SOME_OTHERS
+  // some others completed, user incomplete     USER_INCOMPLETE_SOME_OTHERS
+  // all complete                               ALL_COMPLETE
+  const getStatus = (
+    chapter: typeof chapters[number],
+  ):
+    | 'all-incomplete'
+    | 'user-complete-some-others'
+    | 'user-incomplete-some-others'
+    | 'all-complete' => {
+    if (chapter.clubStatus === 'complete') return 'all-complete'
+    if (chapter.clubStatus === 'not_started') return 'all-incomplete'
+
+    if (chapter.userStatus === 'complete') return 'user-complete-some-others'
+    if (chapter.userStatus === 'incomplete')
+      return 'user-incomplete-some-others'
+
+    return 'user-incomplete-some-others'
+  }
+
+  const getSpoilerStatusMessaging = (
+    status: ReturnType<typeof getStatus>,
+    count: typeof chapters[number]['completedCount'],
+  ) => {
+    switch (status) {
+      case 'all-complete':
+        return (
+          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
+            All members have{' '}
+            <span className="bg-gradient-to-l from-teal-300 to-green-400 bg-clip-text font-bold text-transparent">
+              completed this chapter
+            </span>
+            .
+          </Text>
+        )
+      case 'all-incomplete':
+        return (
+          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
+            You{' '}
+            <span className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text font-bold text-transparent">
+              could be first
+            </span>{' '}
+            to read this chapter.
+          </Text>
+        )
+      case 'user-complete-some-others':
+        return (
+          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
+            <span className="bg-gradient-to-l from-red-300 to-pink-500 bg-clip-text font-bold text-transparent">
+              Spoiler Warning:{' '}
+            </span>
+            Not all members have read this chapter yet.
+          </Text>
+        )
+      case 'user-incomplete-some-others':
+      default:
+        return (
+          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
+            <span className="bg-gradient-to-l from-red-300 to-pink-500 bg-clip-text font-bold text-transparent">
+              Spoiler Warning:{' '}
+            </span>
+            {count.others} other{' '}
+            {pluralize('member has', 'members have', count.others)} already read
+            this chapter.
+          </Text>
+        )
+    }
+  }
+
   return (
     <>
       <div className="grid gap-4 p-2">
@@ -59,41 +128,63 @@ export default function ChaptersPage() {
             className="overflow-hidden rounded-md bg-background-secondary p-4 shadow-md"
           >
             <div>
-              <TextLink
-                to={chapter.id}
-                variant="title3"
-                className={clsx(
-                  'mb-2 block w-fit border-b-2',
-                  chapter.status === 'complete' && 'border-emerald-400',
-                  chapter.status === 'incomplete' && 'border-amber-400',
-                  chapter.status === 'not_started' && 'border-red-400',
-                )}
-              >
-                {chapter.title}
-              </TextLink>
-              <span className="block text-xs text-red-500">
-                Not Final Appearance
-              </span>
+              <div className="relative mb-2 flex items-baseline gap-2">
+                <div className="relative h-5 w-5">
+                  {chapter.userStatus === 'complete' ? (
+                    <CheckCircle className="absolute top-[2px] h-5 w-5 text-emerald-400" />
+                  ) : (
+                    <XCircle className="absolute top-[2px] h-5 w-5 text-red-400" />
+                  )}{' '}
+                </div>
 
-              <Text variant="body2">Completed by 3 other members.</Text>
-              {/* <Text variant="body2">Completed by all other members.</Text> */}
-              {/* <Text variant="body2">Not completed by any other members.</Text> */}
+                <Link
+                  to={chapter.id}
+                  className={clsx(
+                    'block w-fit text-2xl font-bold line-clamp-2',
+                  )}
+                >
+                  {chapter.title}
+                </Link>
+              </div>
 
-              <div className="mt-3 flex items-center gap-4">
-                <Text variant="caption">
-                  <Text variant="subtitle2">3</Text> Discussions
-                </Text>
-                <Text variant="caption">
-                  <Text variant="subtitle2">12</Text> Posts
-                </Text>
+              {getSpoilerStatusMessaging(
+                getStatus(chapter),
+                chapter.completedCount,
+              )}
+
+              <div className="flex items-center gap-2 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 bg-clip-text text-transparent">
+                <span className="text-lg font-bold">
+                  {chapter.postCount}{' '}
+                  <span className="text-base font-medium text-white">
+                    {pluralize('Post', 'Posts', chapter.postCount)}
+                  </span>
+                </span>
+
+                <span className="text-lg font-bold">
+                  {chapter.discussionCount}{' '}
+                  <span className="text-base font-medium text-white">
+                    {pluralize(
+                      'Discussion',
+                      'Discussions',
+                      chapter.discussionCount,
+                    )}
+                  </span>
+                </span>
               </div>
 
               <fetcher.Form
                 action={`/api/chapters/${chapter.id}/read`}
                 method="post"
-                className="mt-2 grid gap-2"
+                className="mt-4 grid grid-cols-2 gap-2"
               >
-                {chapter.status === 'complete' ? (
+                <Button
+                  type="button"
+                  onClick={() => navigate(chapter.id)}
+                  variant="secondary"
+                >
+                  View Chapter
+                </Button>
+                {chapter.userStatus === 'complete' ? (
                   <Button
                     variant="warning"
                     name="_action"
@@ -111,13 +202,6 @@ export default function ChaptersPage() {
                     Mark Read
                   </Button>
                 )}
-                <Button
-                  type="button"
-                  onClick={() => navigate(chapter.id)}
-                  variant="secondary"
-                >
-                  View Chapter
-                </Button>
               </fetcher.Form>
             </div>
           </div>
