@@ -12,6 +12,7 @@ import {
   CheckCircleIcon as CheckInactiveIcon,
 } from '@heroicons/react/outline'
 
+import { pluralize } from '~/utils'
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
 
@@ -22,6 +23,8 @@ interface NextChapterSectionProps {
     membersCompleted: number
     totalMembers: number
     status: 'incomplete' | 'not_started'
+    postCount: number
+    discussionCount: number
   } | null
   isOwner: boolean
 }
@@ -120,6 +123,33 @@ const NextChapter = ({ chapter, isOwner }: NextChapterProps) => {
         </p>
       )}
 
+      {(chapter.postCount !== 0 || chapter.discussionCount !== 0) && (
+        <>
+          <p className="mt-3 text-xl font-medium">
+            Conversations waiting for you:
+          </p>
+          <div className="flex items-center gap-2 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 bg-clip-text ">
+            <span className="text-xl font-medium">
+              {chapter.postCount}{' '}
+              <span className="font-bold text-transparent">
+                {pluralize('Post', 'Posts', chapter.postCount)}
+              </span>
+            </span>
+
+            <span className="text-xl font-medium">
+              {chapter.discussionCount}{' '}
+              <span className="font-bold text-transparent">
+                {pluralize(
+                  'Discussion',
+                  'Discussions',
+                  chapter.discussionCount,
+                )}
+              </span>
+            </span>
+          </div>
+        </>
+      )}
+
       <nextChapterFetcher.Form
         method="post"
         action={`/api/chapters/${chapter.id}/read`}
@@ -139,28 +169,6 @@ const NextChapter = ({ chapter, isOwner }: NextChapterProps) => {
         </div>
 
         <ChapterOptionsMenuButton isOwner={isOwner} />
-
-        {/* <div className="relative flex w-full items-center justify-center overflow-hidden rounded-md border border-transparent text-sm font-medium text-white shadow-sm md:w-48">
-          <button
-            name="_action"
-            value="MARK_READ"
-            disabled={state === 'submitting' || state === 'success'}
-            className="peer mr-[50px] h-full w-full bg-indigo-600 px-4 py-2 pr-[25px] hover:bg-indigo-700 focus:ring-indigo-500 disabled:bg-indigo-600/70 disabled:text-white/70 disabled:focus:ring-indigo-500/70"
-          >
-            <span className="mr-[20px] block translate-x-[25px] transform pl-[20px]">
-              {state === 'success' && 'Completed'}
-              {state === 'idle' && 'Complete'}
-              {state === 'submitting' && 'Completing'}
-            </span>
-          </button>
-          <button
-            type="button"
-            // onClick={onScrollToNextChapter}
-            className="absolute right-0 top-0 h-full border-l-2 border-l-indigo-500 bg-indigo-600 px-4 py-2 hover:bg-indigo-700 focus:ring-indigo-500 peer-hover:bg-indigo-700 peer-disabled:bg-indigo-600/70 peer-disabled:text-white/70 peer-disabled:focus:ring-indigo-500/70"
-          >
-            <DotsVerticalIcon className="h-4 w-4" />
-          </button>
-        </div> */}
       </nextChapterFetcher.Form>
     </>
   )

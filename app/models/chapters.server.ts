@@ -37,14 +37,14 @@ export async function getPaginatedChapterList(
         id: true,
         title: true,
         order: true,
-        club: {
-          include: {
-            _count: {
-              select: {
-                members: true,
-                chapters: true,
-              },
-            },
+        _count: {
+          select: {
+            discussions: true,
+          },
+        },
+        posts: {
+          where: {
+            rootId: null,
           },
         },
         progress: {
@@ -65,10 +65,13 @@ export async function getPaginatedChapterList(
     prisma.club.findFirst({
       where: { id: clubId, members: { some: { userId, removed: false } } },
       select: {
+        members: {
+          where: { removed: false },
+          select: { id: true },
+        },
         _count: {
           select: {
             chapters: true,
-            members: true,
           },
         },
       },
@@ -79,20 +82,42 @@ export async function getPaginatedChapterList(
 
   const chapters = dbChapters.map(c => {
     const userComplete = c.progress.some(p => p.member.userId === userId)
-    const status = userComplete
+    const otherMemberCount = c.progress.filter(
+      p => p.member.userId !== userId,
+    ).length
+
+    const userStatus: 'incomplete' | 'complete' = userComplete
       ? 'complete'
-      : c.progress.length === 0
-      ? 'not_started'
       : 'incomplete'
+    const clubStatus: 'not_started' | 'incomplete' | 'complete' =
+      c.progress.length === 0
+        ? 'not_started'
+        : c.progress.length === dbClub.members.length
+        ? 'complete'
+        : 'incomplete'
 
     const chapter: {
       id: string
       title: string
-      status: 'complete' | 'incomplete' | 'not_started'
+      userStatus: typeof userStatus
+      clubStatus: typeof clubStatus
+      postCount: number
+      discussionCount: number
+      completedCount: {
+        others: number
+        total: number
+      }
     } = {
       id: c.id,
       title: c.title,
-      status,
+      userStatus,
+      clubStatus,
+      discussionCount: c._count.discussions,
+      postCount: c.posts.length,
+      completedCount: {
+        others: otherMemberCount,
+        total: c.progress.length,
+      },
     }
 
     return chapter
@@ -161,11 +186,24 @@ export async function getNextChapterDetails(userId: string, clubId: string) {
       id: true,
       title: true,
       order: true,
+      posts: {
+        where: {
+          rootId: null,
+          member: {
+            userId: {
+              not: userId,
+            },
+          },
+        },
+      },
       club: {
-        include: {
+        select: {
+          members: {
+            where: { removed: false },
+            select: { id: true },
+          },
           _count: {
             select: {
-              members: true,
               chapters: true,
             },
           },
@@ -174,6 +212,7 @@ export async function getNextChapterDetails(userId: string, clubId: string) {
       _count: {
         select: {
           progress: true,
+          discussions: true,
         },
       },
     },
@@ -191,7 +230,9 @@ export async function getNextChapterDetails(userId: string, clubId: string) {
     id: dbChapter.id,
     title: dbChapter.title,
     membersCompleted: dbChapter._count.progress,
-    totalMembers: dbChapter.club._count.members,
+    totalMembers: dbChapter.club.members.length,
+    discussionCount: dbChapter._count.discussions,
+    postCount: dbChapter.posts.length,
     status,
   }
 }

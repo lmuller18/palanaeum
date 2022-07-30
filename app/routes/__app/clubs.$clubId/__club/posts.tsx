@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const userId = await requireUserId(request)
   const searchParams = new URL(request.url).searchParams
   const chapterId = searchParams.get('chapterId')
-  const sortOrder = searchParams.get('sort') === 'chapter' ? 'chapter' : 'time'
+  const sortOrder = searchParams.get('sort') === 'time' ? 'time' : 'chapter'
 
   const [posts, nextChapter, chapters] = await Promise.all([
     getPosts(params.clubId, userId, chapterId, sortOrder),
@@ -86,7 +86,7 @@ export default function PostsPage() {
 const PostSort = () => {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const sort = searchParams.get('sort') === 'chapter' ? 'chapter' : 'time'
+  const sort = searchParams.get('sort') === 'time' ? 'time' : 'chapter'
 
   const changeSort = () => {
     searchParams.set('sort', sort === 'time' ? 'chapter' : 'time')

@@ -1,6 +1,5 @@
-import { LayoutGroup } from 'framer-motion'
-
-import TabLink from '../TabLink'
+import clsx from 'clsx'
+import { Link } from '@remix-run/react'
 
 const ChapterPagination = ({
   currentPage,
@@ -11,21 +10,26 @@ const ChapterPagination = ({
 }) => {
   return (
     <nav
-      className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] border-l border-t border-r border-background-tertiary shadow-md hover:shadow-lg focus:shadow-lg"
+      className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] border-t border-background-tertiary"
       role="group"
     >
-      <LayoutGroup id="chapter-pagination">
-        {pagination(currentPage, lastPage).map((page, i) => (
-          <TabLink
-            key={page.to + '-' + i}
-            color="sky"
-            to={page.to}
-            active={page.active}
-          >
-            {page.label}
-          </TabLink>
-        ))}
-      </LayoutGroup>
+      {pagination(currentPage, lastPage).map((page, i) => (
+        <div key={page.to + '-' + i} className="flex text-center">
+          {page.to ? (
+            <Link
+              to={page.to}
+              className={clsx(
+                page.active && 'border-t-2 border-indigo-500 text-indigo-300',
+                'flex-grow py-2',
+              )}
+            >
+              {page.label}
+            </Link>
+          ) : (
+            <div className="flex-grow py-2">{page.label}</div>
+          )}
+        </div>
+      ))}
     </nav>
   )
 }
