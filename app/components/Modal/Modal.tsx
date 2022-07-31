@@ -11,7 +11,7 @@ const Modal = ({
 }) => {
   return (
     <Dialog className="fixed inset-0 z-50" onClose={onClose} open={true}>
-      <div className="flex h-full flex-col justify-center px-1 pt-4 sm:block sm:p-0">
+      <div className="flex h-full flex-col justify-center px-3 pt-4 sm:block sm:p-0">
         <Dialog.Overlay
           as={motion.div}
           initial={{ opacity: 0 }}
