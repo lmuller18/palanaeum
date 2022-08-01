@@ -461,3 +461,50 @@ export async function markUnread(chapterId: string, memberId: string) {
     })
     .catch(() => {})
 }
+
+export async function createChapter(clubId: string, title: string) {
+  const club = await prisma.club.findUnique({
+    where: { id: clubId },
+    select: { _count: { select: { chapters: true } } },
+  })
+  if (!club) return null
+  const order = club._count.chapters + 1
+  return prisma.chapter.create({
+    data: {
+      title,
+      order,
+      clubId,
+    },
+  })
+}
+
+export async function deleteChapter(chapterId: string) {
+  // delete comments
+  // delete discussions
+  // delete posts
+  // delete chapter
+
+  return prisma.$transaction([
+    prisma.comment.deleteMany({ where: { discussion: { chapterId } } }),
+    prisma.discussion.deleteMany({ where: { chapterId } }),
+    prisma.post.deleteMany({ where: { chapterId } }),
+    prisma.chapter.delete({ where: { id: chapterId } }),
+  ])
+}
+
+export async function renameChapter(chapterId: string, title: string) {
+  return prisma.chapter.update({
+    where: { id: chapterId },
+    data: { title },
+  })
+}
+
+export async function reorderChapters(
+  chapters: { id: string; order: number }[],
+) {
+  return prisma.$transaction(
+    chapters.map(({ id, order }) =>
+      prisma.chapter.update({ where: { id }, data: { order } }),
+    ),
+  )
+}
