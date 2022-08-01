@@ -227,3 +227,26 @@ export async function addUserToClub(clubId: string, userId: string) {
     },
   })
 }
+
+export async function deleteClub(clubId: string) {
+  // delete comments
+  // delete discussions
+  // delete posts
+  // delete chapters
+  // delete progress
+  // delete members
+  // delete club
+
+  return prisma.$transaction([
+    prisma.comment.deleteMany({
+      where: { discussion: { chapter: { clubId } } },
+    }),
+    prisma.discussion.deleteMany({ where: { chapter: { clubId } } }),
+    prisma.post.deleteMany({ where: { chapter: { clubId } } }),
+    prisma.chapter.deleteMany({ where: { clubId } }),
+    prisma.progress.deleteMany({ where: { chapter: { clubId } } }),
+    prisma.member.deleteMany({ where: { clubId } }),
+    prisma.clubInvite.deleteMany({ where: { clubId } }),
+    prisma.club.delete({ where: { id: clubId } }),
+  ])
+}
