@@ -99,7 +99,7 @@ export default function ClubPage() {
               >
                 <Disclosure.Panel className="bg-background-secondary p-4 pt-2">
                   <div className="flex flex-wrap items-center gap-4 text-sm">
-                    <TextLink to="." color="default">
+                    <TextLink to="manage" color="default">
                       Edit Club
                     </TextLink>
                     <TextLink to="members/manage" color="default">
