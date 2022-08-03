@@ -1,4 +1,5 @@
 import bcrypt from '@node-rs/bcrypt'
+import { differenceInDays } from 'date-fns'
 import { prisma } from '~/db.server'
 
 export type { User } from '@prisma/client'
@@ -129,4 +130,80 @@ export async function getMemberIdFromUserByDiscussion(
   }
 
   return member.id
+}
+
+export async function getUserStats(userId: string) {
+  // books read 30 days
+  // books read total
+  // chapters read 30 days
+  // chapters read total
+
+  const [clubs, discussions, posts] = await Promise.all([
+    prisma.club.findMany({
+      where: { members: { some: { userId, removed: false } } },
+      select: {
+        members: {
+          select: { progress: { select: { completedAt: true } } },
+          where: { userId },
+        },
+        _count: { select: { chapters: true } },
+      },
+    }),
+    prisma.discussion.findMany({
+      where: { member: { userId } },
+      select: { createdAt: true },
+    }),
+    prisma.post.findMany({
+      where: { member: { userId }, parentId: { equals: null } },
+      select: { createdAt: true },
+    }),
+  ])
+
+  const discussionTotal = discussions.length
+  const discussions30Days = discussions.filter(
+    d => Math.abs(differenceInDays(d.createdAt, new Date())) <= 30,
+  ).length
+
+  const postTotal = posts.length
+  const posts30Days = posts.filter(
+    p => Math.abs(differenceInDays(p.createdAt, new Date())) <= 30,
+  ).length
+
+  const clubStats = clubs.reduce(
+    (acc, cur) => {
+      const complete = cur.members[0].progress.length === cur._count.chapters
+      const recentComplete =
+        complete &&
+        cur.members[0].progress.some(prog => {
+          const dif = differenceInDays(prog.completedAt, new Date())
+          return Math.abs(dif) <= 30
+        })
+
+      const chapterCount = cur.members[0].progress.length
+      const chapters30DayCount = cur.members[0].progress.filter(
+        prog => Math.abs(differenceInDays(prog.completedAt, new Date())) <= 30,
+      ).length
+
+      return {
+        bookTotal: complete ? acc.bookTotal + 1 : acc.bookTotal,
+        book30Days: recentComplete ? acc.book30Days + 1 : acc.book30Days,
+        chapterTotal: acc.chapterTotal + chapterCount,
+        chapter30Days: acc.chapter30Days + chapters30DayCount,
+      }
+    },
+    { bookTotal: 0, book30Days: 0, chapterTotal: 0, chapter30Days: 0 } as {
+      bookTotal: number
+      book30Days: number
+      chapterTotal: number
+      chapter30Days: number
+    },
+  )
+
+  return {
+    ...clubStats,
+    discussionTotal,
+    discussions30Days,
+    postTotal,
+    posts30Days,
+  }
 }

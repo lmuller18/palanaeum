@@ -10,7 +10,6 @@ import {
   Reorder,
   useMotionValue,
   useDragControls,
-  AnimatePresence,
 } from 'framer-motion'
 
 import Modal from '~/components/Modal'
@@ -166,73 +165,63 @@ const EditChapterModal = ({
   }, [title])
 
   return (
-    <AnimatePresence>
-      {open && (
-        <Modal onClose={onClose}>
-          <div className="flex flex-col pt-3">
-            <div className="px-3 pb-4 shadow-sm">
-              <div className="relative mt-2 text-center">
-                <span className="font-medium">Edit Chapter</span>
-                <div className="absolute inset-y-0 right-0">
-                  <button
-                    className="mr-1 text-blue-500 focus:outline-none"
-                    onClick={onClose}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1">
-              <Form
-                method="post"
-                noValidate
-                className="flex flex-col gap-6 p-2"
+    <Modal open={open} onClose={onClose}>
+      <div className="flex flex-col pt-3">
+        <div className="px-3 pb-4 shadow-sm">
+          <div className="relative mt-2 text-center">
+            <span className="font-medium">Edit Chapter</span>
+            <div className="absolute inset-y-0 right-0">
+              <button
+                className="mr-1 text-blue-500 focus:outline-none"
+                onClick={onClose}
               >
-                <input type="hidden" name="chapterId" value={id} />
-                <div>
-                  <OutlinedInput
-                    ref={titleRef}
-                    variant="tertiary"
-                    labelProps={{
-                      htmlFor: 'title',
-                      children: 'Title',
-                    }}
-                    inputProps={{
-                      type: 'text',
-                      name: 'title',
-                      id: 'title',
-                      onChange: e => setNewTitle(e.target.value),
-                      value: newTitle,
-                      placeholder: 'Chapter Title',
-                      autoFocus: true,
-                      required: true,
-                      'aria-invalid': actionData?.errors?.edit
-                        ? true
-                        : undefined,
-                      'aria-describedby': 'edit-error',
-                    }}
-                  />
-                  {actionData?.errors?.edit && (
-                    <div className="pt-1 text-red-500" id="edit-error">
-                      {actionData.errors.edit}
-                    </div>
-                  )}
-                </div>
-
-                <Button
-                  name="_action"
-                  value="RENAME_CHAPTER"
-                  disabled={title === newTitle}
-                >
-                  Save Changes
-                </Button>
-              </Form>
+                Cancel
+              </button>
             </div>
           </div>
-        </Modal>
-      )}
-    </AnimatePresence>
+        </div>
+        <div className="flex-1">
+          <Form method="post" noValidate className="flex flex-col gap-6 p-2">
+            <input type="hidden" name="chapterId" value={id} />
+            <div>
+              <OutlinedInput
+                ref={titleRef}
+                variant="tertiary"
+                labelProps={{
+                  htmlFor: 'title',
+                  children: 'Title',
+                }}
+                inputProps={{
+                  type: 'text',
+                  name: 'title',
+                  id: 'title',
+                  onChange: e => setNewTitle(e.target.value),
+                  value: newTitle,
+                  placeholder: 'Chapter Title',
+                  autoFocus: true,
+                  required: true,
+                  'aria-invalid': actionData?.errors?.edit ? true : undefined,
+                  'aria-describedby': 'edit-error',
+                }}
+              />
+              {actionData?.errors?.edit && (
+                <div className="pt-1 text-red-500" id="edit-error">
+                  {actionData.errors.edit}
+                </div>
+              )}
+            </div>
+
+            <Button
+              name="_action"
+              value="RENAME_CHAPTER"
+              disabled={title === newTitle}
+            >
+              Save Changes
+            </Button>
+          </Form>
+        </div>
+      </div>
+    </Modal>
   )
 }
 
@@ -252,61 +241,62 @@ const DeleteChapterModal = ({
   const onClose = () => setOpen(false)
 
   return (
-    <AnimatePresence>
-      {open && (
-        <Modal onClose={onClose}>
-          <div className="flex flex-col pt-3">
-            <div className="px-3 pb-4 shadow-sm">
-              <div className="relative mt-2 text-center">
-                <span className="font-medium">Delete Chapter</span>
-                <div className="absolute inset-y-0 right-0">
-                  <button
-                    type="button"
-                    className="mr-1 text-blue-500 focus:outline-none"
-                    onClick={onClose}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1">
-              <Form
-                method="post"
-                noValidate
-                className="flex flex-col gap-6 p-2 text-center"
+    <Modal
+      open={open}
+      onClose={onClose}
+      scaleBackground
+      backdropColor="rgba(244,63,94,.7)"
+    >
+      <div className="flex flex-col pt-3">
+        <div className="px-3 pb-4 shadow-sm">
+          <div className="relative mt-2 text-center">
+            <span className="font-medium">Delete Chapter</span>
+            <div className="absolute inset-y-0 right-0">
+              <button
+                type="button"
+                className="mr-1 text-blue-500 focus:outline-none"
+                onClick={onClose}
               >
-                <input type="hidden" name="chapterId" value={id} />
-                <div className="px-4">
-                  <Text as="p">
-                    Are you sure you want to delete{' '}
-                    <Text as="span" variant="title3">
-                      {title}
-                    </Text>{' '}
-                    and all related discussions and posts?
-                  </Text>
-                </div>
-                <div>
-                  <Button
-                    name="_action"
-                    value="DELETE_CHAPTER"
-                    variant="warning"
-                    fullWidth
-                  >
-                    Delete Chapter
-                  </Button>
-                  {actionData?.errors?.delete && (
-                    <div className="pt-1 text-red-500" id="delete-error">
-                      {actionData.errors.delete}
-                    </div>
-                  )}
-                </div>
-              </Form>
+                Cancel
+              </button>
             </div>
           </div>
-        </Modal>
-      )}
-    </AnimatePresence>
+        </div>
+        <div className="flex-1">
+          <Form
+            method="post"
+            noValidate
+            className="flex flex-col gap-6 p-2 text-center"
+          >
+            <input type="hidden" name="chapterId" value={id} />
+            <div className="px-4">
+              <Text as="p">
+                Are you sure you want to delete{' '}
+                <Text as="span" variant="title3">
+                  {title}
+                </Text>{' '}
+                and all related discussions and posts?
+              </Text>
+            </div>
+            <div>
+              <Button
+                name="_action"
+                value="DELETE_CHAPTER"
+                variant="warning"
+                fullWidth
+              >
+                Delete Chapter
+              </Button>
+              {actionData?.errors?.delete && (
+                <div className="pt-1 text-red-500" id="delete-error">
+                  {actionData.errors.delete}
+                </div>
+              )}
+            </div>
+          </Form>
+        </div>
+      </div>
+    </Modal>
   )
 }
 
@@ -329,67 +319,62 @@ const NewChapterModal = ({
   }, [actionData, setOpen])
 
   return (
-    <AnimatePresence>
-      {open && (
-        <Modal onClose={() => setOpen(false)}>
-          <div className="flex flex-col pt-3">
-            <div className="px-3 pb-4 shadow-sm">
-              <div className="relative mt-2 text-center">
-                <span className="font-medium">Add Chapter</span>
-                <div className="absolute inset-y-0 right-0">
-                  <button
-                    type="button"
-                    className="mr-1 text-blue-500 focus:outline-none"
-                    onClick={() => setOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1">
-              <Form
-                method="post"
-                noValidate
-                className="flex flex-col gap-6 p-2"
+    <Modal
+      open={open}
+      onClose={() => setOpen(false)}
+      scaleBackground
+      backdropColor="rgba(79,70,229,.7)"
+    >
+      <div className="flex flex-col pt-3">
+        <div className="px-3 pb-4 shadow-sm">
+          <div className="relative mt-2 text-center">
+            <span className="font-medium">Add Chapter</span>
+            <div className="absolute inset-y-0 right-0">
+              <button
+                type="button"
+                className="mr-1 text-blue-500 focus:outline-none"
+                onClick={() => setOpen(false)}
               >
-                <div>
-                  <OutlinedInput
-                    ref={titleRef}
-                    variant="tertiary"
-                    labelProps={{
-                      htmlFor: 'title',
-                      children: 'Title',
-                    }}
-                    inputProps={{
-                      type: 'text',
-                      name: 'title',
-                      id: 'title',
-                      placeholder: 'Chapter Title',
-                      autoFocus: true,
-                      required: true,
-                      'aria-invalid': actionData?.errors?.create
-                        ? true
-                        : undefined,
-                      'aria-describedby': 'create-error',
-                    }}
-                  />
-                  {actionData?.errors?.create && (
-                    <div className="pt-1 text-red-500" id="create-error">
-                      {actionData.errors.create}
-                    </div>
-                  )}
-                </div>
-
-                <Button name="_action" value="CREATE_CHAPTER">
-                  Create Chapter
-                </Button>
-              </Form>
+                Cancel
+              </button>
             </div>
           </div>
-        </Modal>
-      )}
-    </AnimatePresence>
+        </div>
+        <div className="flex-1">
+          <Form method="post" noValidate className="flex flex-col gap-6 p-2">
+            <div>
+              <OutlinedInput
+                ref={titleRef}
+                variant="tertiary"
+                labelProps={{
+                  htmlFor: 'title',
+                  children: 'Title',
+                }}
+                inputProps={{
+                  type: 'text',
+                  name: 'title',
+                  id: 'title',
+                  placeholder: 'Chapter Title',
+                  autoFocus: true,
+                  required: true,
+                  'aria-invalid': actionData?.errors?.create ? true : undefined,
+                  'aria-describedby': 'create-error',
+                }}
+              />
+              {actionData?.errors?.create && (
+                <div className="pt-1 text-red-500" id="create-error">
+                  {actionData.errors.create}
+                </div>
+              )}
+            </div>
+
+            <Button name="_action" value="CREATE_CHAPTER">
+              Create Chapter
+            </Button>
+          </Form>
+        </div>
+      </div>
+    </Modal>
   )
 }
 

@@ -2,7 +2,6 @@ import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
 import { useMemo, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 
@@ -39,7 +38,7 @@ export default function DiscussionPage() {
     <>
       <div className="mb-4 flex items-center gap-3">
         <Link
-          to={`/user/${data.discussion.user.id}`}
+          to={`/users/${data.discussion.user.id}`}
           onClick={e => e.stopPropagation()}
         >
           <img
@@ -50,7 +49,7 @@ export default function DiscussionPage() {
         </Link>
 
         <div className="flex flex-col">
-          <TextLink to={`/user/${data.discussion.user.id}`} variant="body2">
+          <TextLink to={`/users/${data.discussion.user.id}`} variant="body2">
             {data.discussion.user.username}
           </TextLink>
 
@@ -169,37 +168,33 @@ const ThreadedCommentItem = ({ comment }: { comment: ThreadedComment }) => {
           </div>
         )}
       </div>
-      <AnimatePresence>
-        {open && (
-          <Modal onClose={() => setOpen(false)}>
-            <div className="flex flex-col pt-3">
-              <div className="px-3 pb-4 shadow-sm">
-                <div className="relative mt-2 text-center">
-                  <span className="font-medium">Reply</span>
-                  <div className="absolute inset-y-0 right-0">
-                    <button
-                      className="mr-1 text-blue-500 focus:outline-none"
-                      onClick={() => setOpen(false)}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-scroll">
-                <div className="p-2">
-                  <CommentReplyComposer
-                    discussionId={comment.discussionId}
-                    parentId={comment.id}
-                    rootId={comment.rootId ?? comment.id}
-                    onSubmit={() => setOpen(false)}
-                  />
-                </div>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <div className="flex flex-col pt-3">
+          <div className="px-3 pb-4 shadow-sm">
+            <div className="relative mt-2 text-center">
+              <span className="font-medium">Reply</span>
+              <div className="absolute inset-y-0 right-0">
+                <button
+                  className="mr-1 text-blue-500 focus:outline-none"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancel
+                </button>
               </div>
             </div>
-          </Modal>
-        )}
-      </AnimatePresence>
+          </div>
+          <div className="flex-1 overflow-y-scroll">
+            <div className="p-2">
+              <CommentReplyComposer
+                discussionId={comment.discussionId}
+                parentId={comment.id}
+                rootId={comment.rootId ?? comment.id}
+                onSubmit={() => setOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      </Modal>
     </>
   )
 }

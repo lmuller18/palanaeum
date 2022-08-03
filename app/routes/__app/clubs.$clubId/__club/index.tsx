@@ -1,19 +1,23 @@
 import clsx from 'clsx'
-import { json } from '@remix-run/node'
+import { useState } from 'react'
 import invariant from 'tiny-invariant'
-import type { LoaderFunction } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import { ChevronUpIcon } from '@heroicons/react/solid'
 import { Disclosure, Transition } from '@headlessui/react'
-import { useLoaderData, useParams } from '@remix-run/react'
 import { InformationCircleIcon } from '@heroicons/react/solid'
+import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import { Form, useActionData, useLoaderData, useParams } from '@remix-run/react'
 
 import Post from '~/components/Post'
+import Modal from '~/components/Modal'
+import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
-import { getClub } from '~/models/clubs.server'
+import TextButton from '~/elements/TextButton'
 import { requireUserId } from '~/session.server'
-import { getTopPostByClub } from '~/models/posts.server'
 import AreaChart from '~/components/Chart/AreaChart'
+import { getTopPostByClub } from '~/models/posts.server'
+import { deleteClub, getClub } from '~/models/clubs.server'
 import DiscussionSummary from '~/components/DiscussionSummary'
 import { getTopDiscussionByClub } from '~/models/discussions.server'
 import NextChapterSection from '~/components/NextChapterSection_Old'
@@ -64,6 +68,9 @@ export default function ClubPage() {
   const { counts, topPost, isOwner, nextChapter, readChapters, topDiscussion } =
     useLoaderData() as LoaderData
 
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const openDeleteModal = () => setDeleteOpen(true)
+
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
@@ -106,9 +113,9 @@ export default function ClubPage() {
                       Manage Members
                     </TextLink>
                     <div className="flex flex-grow items-center justify-end">
-                      <TextLink to="." color="rose">
+                      <TextButton onClick={openDeleteModal} color="rose">
                         Delete Club
-                      </TextLink>
+                      </TextButton>
                     </div>
                   </div>
                 </Disclosure.Panel>
@@ -227,8 +234,120 @@ export default function ClubPage() {
           </div>
         )}
       </div>
+
+      <DeleteClubModal open={deleteOpen} setOpen={setDeleteOpen} />
     </>
   )
+}
+
+const DeleteClubModal = ({
+  open,
+  setOpen,
+}: {
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
+  const actionData = useActionData() as ActionData
+
+  const onClose = () => setOpen(false)
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      scaleBackground
+      backdropColor="rgba(244,63,94,0.7)"
+    >
+      <div className="flex flex-col pt-3">
+        <div className="px-3 pb-4 shadow-sm">
+          <div className="relative mt-2 text-center">
+            <span className="font-medium">Delete Club</span>
+            <div className="absolute inset-y-0 right-0">
+              <button
+                type="button"
+                className="mr-1 text-blue-500 focus:outline-none"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1">
+          <Form
+            method="delete"
+            noValidate
+            className="flex flex-col gap-6 p-2 text-center"
+          >
+            <div className="px-4">
+              <Text as="p">
+                Are you sure you want to delete this club and all related
+                discussions and posts?
+              </Text>
+            </div>
+            <div>
+              <Button name="_action" variant="warning" fullWidth>
+                Delete Club
+              </Button>
+              {actionData?.errors?.delete && (
+                <div className="pt-1 text-red-500" id="delete-error">
+                  {actionData.errors.delete}
+                </div>
+              )}
+            </div>
+          </Form>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+type ActionData =
+  | {
+      errors: {
+        delete?: string
+      }
+      success?: never
+    }
+  | { errors?: never; success: true }
+
+export const action: ActionFunction = async ({ params, request }) => {
+  const userId = await requireUserId(request)
+  const { clubId } = params
+
+  invariant(clubId, 'expected clubId')
+
+  const method = request.method.toLowerCase()
+
+  switch (method) {
+    case 'delete': {
+      const club = await getClub(clubId, userId)
+
+      if (!club)
+        return json<ActionData>(
+          { errors: { delete: 'Error deleting club' } },
+          { status: 404 },
+        )
+      if (club.ownerId !== userId)
+        return json<ActionData>(
+          { errors: { delete: 'Not allowed to delete club' } },
+          { status: 400 },
+        )
+
+      try {
+        await deleteClub(clubId)
+        return redirect('/clubs')
+      } catch {
+        return json<ActionData>(
+          { errors: { delete: 'Error deleting club' } },
+          { status: 500 },
+        )
+      }
+    }
+
+    default:
+      throw new Response('Invalid method', { status: 405 })
+  }
 }
 
 export { default as CatchBoundary } from '~/components/CatchBoundary'

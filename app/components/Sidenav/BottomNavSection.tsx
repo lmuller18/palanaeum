@@ -1,7 +1,7 @@
 import { Switch } from '@headlessui/react'
-import { Form, Link, useFetcher } from '@remix-run/react'
 import { LogoutIcon } from '@heroicons/react/outline'
 import { useCallback, useEffect, useState } from 'react'
+import { Form, Link, useFetcher } from '@remix-run/react'
 
 import { useUser } from '~/utils'
 import useWebPushSubscription from '~/hooks/use-web-push-subscription'
