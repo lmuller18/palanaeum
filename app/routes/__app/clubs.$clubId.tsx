@@ -35,7 +35,10 @@ const NavSection = ({
   const valueChanged = useValueChanged(hasSecondaryNav)
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full transform-gpu">
+    <div
+      id="club-nav"
+      className="fixed bottom-0 left-0 right-0 w-full transform-gpu"
+    >
       <AnimatePresence exitBeforeEnter>
         {hasSecondaryNav && (
           <motion.div

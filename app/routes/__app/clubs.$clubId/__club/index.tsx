@@ -1,7 +1,6 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 import invariant from 'tiny-invariant'
-import { AnimatePresence } from 'framer-motion'
 import { json, redirect } from '@remix-run/node'
 import { ChevronUpIcon } from '@heroicons/react/solid'
 import { Disclosure, Transition } from '@headlessui/react'
@@ -253,52 +252,53 @@ const DeleteClubModal = ({
   const onClose = () => setOpen(false)
 
   return (
-    <AnimatePresence>
-      {open && (
-        <Modal onClose={onClose}>
-          <div className="flex flex-col pt-3">
-            <div className="px-3 pb-4 shadow-sm">
-              <div className="relative mt-2 text-center">
-                <span className="font-medium">Delete Club</span>
-                <div className="absolute inset-y-0 right-0">
-                  <button
-                    type="button"
-                    className="mr-1 text-blue-500 focus:outline-none"
-                    onClick={onClose}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1">
-              <Form
-                method="delete"
-                noValidate
-                className="flex flex-col gap-6 p-2 text-center"
+    <Modal
+      open={open}
+      onClose={onClose}
+      scaleBackground
+      backdropColor="rgba(244,63,94,0.7)"
+    >
+      <div className="flex flex-col pt-3">
+        <div className="px-3 pb-4 shadow-sm">
+          <div className="relative mt-2 text-center">
+            <span className="font-medium">Delete Club</span>
+            <div className="absolute inset-y-0 right-0">
+              <button
+                type="button"
+                className="mr-1 text-blue-500 focus:outline-none"
+                onClick={onClose}
               >
-                <div className="px-4">
-                  <Text as="p">
-                    Are you sure you want to delete this club and all related
-                    discussions and posts?
-                  </Text>
-                </div>
-                <div>
-                  <Button name="_action" variant="warning" fullWidth>
-                    Delete Club
-                  </Button>
-                  {actionData?.errors?.delete && (
-                    <div className="pt-1 text-red-500" id="delete-error">
-                      {actionData.errors.delete}
-                    </div>
-                  )}
-                </div>
-              </Form>
+                Cancel
+              </button>
             </div>
           </div>
-        </Modal>
-      )}
-    </AnimatePresence>
+        </div>
+        <div className="flex-1">
+          <Form
+            method="delete"
+            noValidate
+            className="flex flex-col gap-6 p-2 text-center"
+          >
+            <div className="px-4">
+              <Text as="p">
+                Are you sure you want to delete this club and all related
+                discussions and posts?
+              </Text>
+            </div>
+            <div>
+              <Button name="_action" variant="warning" fullWidth>
+                Delete Club
+              </Button>
+              {actionData?.errors?.delete && (
+                <div className="pt-1 text-red-500" id="delete-error">
+                  {actionData.errors.delete}
+                </div>
+              )}
+            </div>
+          </Form>
+        </div>
+      </div>
+    </Modal>
   )
 }
 

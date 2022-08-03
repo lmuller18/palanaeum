@@ -508,3 +508,7 @@ export async function reorderChapters(
     ),
   )
 }
+
+export async function getChaptersReadByUserId(userId: string) {
+  return prisma.progress.count({ where: { member: { userId } } })
+}

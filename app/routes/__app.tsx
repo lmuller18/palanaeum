@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Outlet } from '@remix-run/react'
+import { Link, Outlet } from '@remix-run/react'
 import { MenuAlt2Icon } from '@heroicons/react/outline'
 
 import { useUser } from '~/utils'
 import Sidenav from '~/components/Sidenav'
+import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 
 export default function AppLayout() {
@@ -21,13 +22,15 @@ export default function AppLayout() {
           <div className="flex items-center gap-2">
             <div className="flex flex-col justify-start text-right">
               <Text variant="caption">Welcome</Text>
-              <Text>{user.username}</Text>
+              <TextLink to={`/users/${user.id}`}>{user.username}</TextLink>
             </div>
-            <img
-              src={user.avatar}
-              className="h-10 w-10 rounded-md"
-              alt="user avatar"
-            />
+            <Link to={`/users/${user.id}`}>
+              <img
+                src={user.avatar}
+                className="h-10 w-10 rounded-md"
+                alt="user avatar"
+              />
+            </Link>
           </div>
         </div>
       </header>

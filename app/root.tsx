@@ -73,23 +73,25 @@ export default function App() {
   const data = useLoaderData() as LoaderData
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark h-full">
       <head>
         <Meta />
         <Links />
         <PwaMeta />
       </head>
       <QueryClientProvider client={queryClient}>
-        <body>
-          <Outlet />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
-            }}
-          />
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
+        <body className="h-full">
+          <div id="app" className="h-full bg-background-primary">
+            <Outlet />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+              }}
+            />
+            <ScrollRestoration />
+            <Scripts />
+            <LiveReload />
+          </div>
         </body>
       </QueryClientProvider>
     </html>
