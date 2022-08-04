@@ -19,7 +19,12 @@ export default function ClubNavigationLayout() {
       <Outlet />
 
       {/* Nav section */}
-      <div className="h-14" />
+      <div
+        className="h-14"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      />
       <NavSection secondaryNavSections={secondaryNavSections} />
     </>
   )
@@ -43,9 +48,9 @@ const NavSection = ({
         {hasSecondaryNav && (
           <motion.div
             className="z-40 -mb-1 border-t border-background-tertiary bg-background-secondary"
-            initial={valueChanged ? { opacity: 0, y: 100 } : false}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100, animationDelay: '.5s' }}
+            initial={valueChanged ? { y: 50 } : false}
+            animate={{ y: 0 }}
+            exit={{ y: 50, animationDelay: '.5s' }}
           >
             {secondaryNavSections.map((match, index) =>
               match.handle?.nav ? (
@@ -57,7 +62,14 @@ const NavSection = ({
           </motion.div>
         )}
       </AnimatePresence>
-      <NavBar hasSecondaryNav={hasSecondaryNav} />
+      <div
+        className="relative z-[999] bg-black"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        <NavBar hasSecondaryNav={hasSecondaryNav} />
+      </div>
     </div>
   )
 }
@@ -65,7 +77,7 @@ const NavSection = ({
 const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
   <div
     className={clsx(
-      'relative z-[999] flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
+      'flex h-14 items-end justify-around border-background-tertiary bg-background-secondary',
       !hasSecondaryNav && 'border-t',
     )}
   >

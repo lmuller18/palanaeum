@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { XIcon } from '@heroicons/react/outline'
 import { forbidden, notFound } from 'remix-utils'
 import type { LoaderFunction, ActionFunction } from '@remix-run/node'
-import { useFetcher, useLoaderData, useParams } from '@remix-run/react'
+import { Link, useFetcher, useLoaderData, useParams } from '@remix-run/react'
 
 import { useUser } from '~/utils'
 import Button from '~/elements/Button'
@@ -54,7 +54,7 @@ export default function ManageMembersPage() {
   }, [inviteFetcher])
 
   return (
-    <div className="px-4">
+    <div className="mb-4 px-4">
       <div>
         <div className="text-center">
           <svg
@@ -172,13 +172,16 @@ const MemberRow = ({
       className="flex items-center justify-between space-x-3 py-4"
     >
       <div className="flex min-w-0 flex-1 items-center space-x-3">
-        <div className="flex-shrink-0">
+        <Link to={`/users/${user.id}`} className="flex-shrink-0">
           <img className="h-10 w-10 rounded-full" src={user.avatar} alt="" />
-        </div>
+        </Link>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-gray-100">
+          <Link
+            to={`/users/${user.id}`}
+            className="truncate text-sm font-medium text-gray-100"
+          >
             {user.username}
-          </p>
+          </Link>
           <p className="truncate text-sm font-medium text-gray-400">
             {user.id === id ? 'Owner' : invite ? 'Invited' : 'Member'}
           </p>

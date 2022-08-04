@@ -25,6 +25,7 @@ const BottomNavSection = ({
 
   const loading =
     isLoading || subFetcher.state !== 'idle' || unsubFetcher.state !== 'idle'
+  const supportsPush = window && 'PushManager' in window
 
   useEffect(() => {
     if (subFetcher.type === 'done' && subFetcher.data.ok) {
@@ -75,29 +76,31 @@ const BottomNavSection = ({
 
   return (
     <div className="flex flex-shrink-0 flex-col gap-4 bg-background-primary p-4">
-      <Switch.Group>
-        <div className="flex items-center justify-between">
-          <Switch.Label className="mr-4">Enable notifications</Switch.Label>
-          <Switch
-            disabled={loading}
-            checked={!!checked}
-            onChange={val => {
-              setChecked(val)
-              if (!val) unsubscribe()
-              else subscribe()
-            }}
-            className={`${
-              checked ? 'bg-blue-600' : 'bg-gray-200'
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-          >
-            <span
+      {supportsPush && (
+        <Switch.Group>
+          <div className="flex items-center justify-between">
+            <Switch.Label className="mr-4">Enable notifications</Switch.Label>
+            <Switch
+              disabled={loading}
+              checked={!!checked}
+              onChange={val => {
+                setChecked(val)
+                if (!val) unsubscribe()
+                else subscribe()
+              }}
               className={`${
-                checked ? 'translate-x-6' : 'translate-x-1'
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-            />
-          </Switch>
-        </div>
-      </Switch.Group>
+                checked ? 'bg-blue-600' : 'bg-gray-200'
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+            >
+              <span
+                className={`${
+                  checked ? 'translate-x-6' : 'translate-x-1'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+          </div>
+        </Switch.Group>
+      )}
 
       <div className="mx-auto h-px w-11/12 bg-background-tertiary" />
 

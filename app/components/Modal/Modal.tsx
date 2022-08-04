@@ -40,12 +40,10 @@ const Modal = ({
                 if (variant === 'open') {
                   set(document.documentElement, {
                     background: backdropColor,
-                    // background: '#3730a3',
                     height: '100vh',
                   })
                   set(document.body, {
                     position: 'fixed',
-                    zIndex: '0',
                     inset: '0',
                   })
                   set(document.querySelector('#app'), {

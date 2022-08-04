@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-// import { useState } from 'react'
+import { useState } from 'react'
 import { json } from '@remix-run/node'
 import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
@@ -17,22 +17,22 @@ import {
   PencilAltIcon,
 } from '@heroicons/react/outline'
 
-// import Button from '~/elements/Button'
-// import Text from '~/elements/Typography/Text'
-// import SheetModal from '~/components/SheetModal'
+import Button from '~/elements/Button'
+import Text from '~/elements/Typography/Text'
+import SheetModal from '~/components/SheetModal'
 import { requireUserId } from '~/session.server'
-import Header from '~/elements/Typography/Header'
 import { getUserById, getUserStats } from '~/models/users.server'
 
 interface LoaderData {
   user: RequiredFuncType<typeof getUserById>
   userStats: RequiredFuncType<typeof getUserStats>
+  isProfile: boolean
 }
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   invariant(params.userId, 'expected userId')
 
-  await requireUserId(request)
+  const userId = await requireUserId(request)
 
   const user = await getUserById(params.userId)
 
@@ -43,14 +43,15 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   return json<LoaderData>({
     user,
     userStats,
+    isProfile: userId === params.userId,
   })
 }
 
 export default function ProfilePage() {
-  const { user, userStats } = useLoaderData() as LoaderData
-  // const [open, setOpen] = useState(false)
-  // const openModal = () => setOpen(true)
-  // const closeModal = () => setOpen(false)
+  const { user, userStats, isProfile } = useLoaderData() as LoaderData
+  const [open, setOpen] = useState(false)
+  const openModal = () => setOpen(true)
+  const closeModal = () => setOpen(false)
 
   const stats = [
     {
@@ -92,10 +93,10 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div>
-      <div className="aspect-video max-h-64 w-full">
+    <div className="mx-auto max-w-lg">
+      <div className="h-36 w-full overflow-hidden xs:max-h-64 sm:mt-4 sm:rounded-lg">
         <div
-          className={clsx('h-full w-full bg-cover bg-no-repeat')}
+          className={clsx('h-full w-full bg-cover bg-center bg-no-repeat')}
           style={{
             backgroundImage: user.background
               ? `url("${user.background}")`
@@ -104,30 +105,31 @@ export default function ProfilePage() {
           }}
         />
       </div>
-      <div className="-mt-16 flex items-center gap-4 px-4">
+      <div className="-mt-14 flex items-center justify-between gap-4 px-4 xs:-mt-16">
         <img
           src={user.avatar}
-          className="mb-2 h-32 w-32 rounded-full border-[4px] border-background-primary"
+          className="mb-2 h-28 w-28 rounded-full border-[4px] border-background-primary xs:h-32 xs:w-32"
           alt="user avatar"
         />
-        <Header size="h4" className="mt-8">
-          {user.username}
-        </Header>
+        {isProfile && (
+          <div className="mt-8 pt-4">
+            <Button onClick={openModal} type="button" variant="secondary">
+              Edit Profile
+            </Button>
+            <SheetModal open={open} onClose={closeModal}>
+              <Button onClick={closeModal}>Close</Button>
+            </SheetModal>
+          </div>
+        )}
       </div>
-      <div className="mx-auto max-w-lg px-4 pb-4 sm:max-w-none">
+      <div className="px-4 pb-4">
         <div className="flex items-center justify-between">
-          {/* <Text variant="title3">{user.username}</Text> */}
-          {/* <Button onClick={openModal} type="button" variant="secondary">
-            Edit Profile
-          </Button>
-          <SheetModal open={open} onClose={closeModal}>
-            <Button onClick={closeModal}>Close</Button>
-          </SheetModal> */}
+          <Text variant="title2">{user.username}</Text>
         </div>
 
         <div>
           <div>
-            <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <dl className="mt-5 grid grid-cols-1 gap-5">
               {stats.map(item => (
                 <div
                   key={item.id}
