@@ -14,7 +14,12 @@ export default function AppLayout() {
   return (
     <>
       <header>
-        <div className="flex items-center justify-between bg-background-secondary px-4 py-2 shadow-lg">
+        <div
+          className="flex items-center justify-between bg-background-secondary px-4 py-2 shadow-lg"
+          style={{
+            paddingTop: 'calc(env(safe-area-inset-top) + 8px)',
+          }}
+        >
           <button type="button" onClick={() => setSidebarOpen(o => !o)}>
             <MenuAlt2Icon className="h-8 w-8" />
           </button>

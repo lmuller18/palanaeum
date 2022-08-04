@@ -52,7 +52,10 @@ const SheetModal = ({
                   background: 'black',
                   height: '100vh',
                 })
-                set(document.body, { position: 'fixed', inset: '0' })
+                set(document.body, {
+                  position: 'fixed',
+                  inset: '0',
+                })
                 set(document.querySelector('#app'), {
                   borderRadius: '8px',
                   overflow: 'hidden',
@@ -79,7 +82,12 @@ const SheetModal = ({
             className="fixed inset-0 bg-black/40"
           />
 
-          <div className="pointer-events-none fixed inset-x-0 top-1 bottom-0">
+          <div
+            className="pointer-events-none fixed inset-x-0 bottom-0"
+            style={{
+              top: 'calc(env(safe-area-inset-top) + 16px)',
+            }}
+          >
             <motion.div
               initial={{ y: '100%' }}
               animate={{

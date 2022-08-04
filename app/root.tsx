@@ -73,7 +73,7 @@ export default function App() {
   const data = useLoaderData() as LoaderData
 
   return (
-    <html lang="en" className="dark h-full">
+    <html lang="en" className="dark h-screen">
       <head>
         <Meta />
         <Links />
