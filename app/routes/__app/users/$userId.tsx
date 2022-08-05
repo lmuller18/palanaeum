@@ -12,11 +12,11 @@ import {
 } from '@heroicons/react/solid'
 import {
   FireIcon,
+  UsersIcon,
   BookOpenIcon,
   BookmarkIcon,
   PencilAltIcon,
   InformationCircleIcon,
-  UsersIcon,
 } from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
@@ -119,7 +119,7 @@ const ClubsSection = ({ clubs }: { clubs: LoaderData['clubs'] }) => {
   return (
     <div>
       <div className="relative mb-4 flex w-full snap-x gap-6 overflow-x-auto rounded-lg bg-background-secondary p-4">
-        {[...clubs, ...clubs, ...clubs, ...clubs].map((c, i) => (
+        {clubs.map((c, i) => (
           <CoverCard key={c.id + '-' + i} club={c} />
         ))}
       </div>
@@ -161,11 +161,12 @@ const CoverCard = ({ club }: { club: LoaderData['clubs'][number] }) => {
   ]
 
   return (
-    <div className="relative aspect-book h-[260px] w-full max-w-[180px] snap-center">
+    <div className="relative aspect-book w-full max-w-[180px] flex-shrink-0 snap-center overflow-hidden rounded-lg">
       <img
         src={club.image}
         alt={`${club.title} cover`}
-        className="h-full w-full rounded-lg bg-background-primary object-cover shadow-lg"
+        onClick={openModal}
+        className="h-full w-full bg-background-primary object-cover shadow-lg"
       />
       <button
         type="button"
@@ -193,9 +194,9 @@ const CoverCard = ({ club }: { club: LoaderData['clubs'][number] }) => {
 
           <div className="relative py-6">
             <div
-              className="absolute top-0 left-0 right-0 -bottom-6 bg-fixed"
+              className="absolute top-0 left-0 right-0 -bottom-6 bg-background-primary"
               style={{
-                backgroundImage: `url("data:image/svg+xml,<svg id='patternId' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='20' height='20' patternTransform='scale(1) rotate(0)'><rect x='0' y='0' width='100%' height='100%' fill='transparent'/><path d='M3.25 10h13.5M10 3.25v13.5'  stroke-linecap='square' stroke-width='1' stroke='hsla(233, 18%, 9%, 1)' fill='none'/></pattern></defs><rect width='800%' height='800%' transform='translate(0,0)' fill='url(%23a)'/></svg>")`,
+                backgroundImage: `url("data:image/svg+xml,<svg id='patternId' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='20' height='20' patternTransform='scale(1) rotate(0)'><rect x='0' y='0' width='100%' height='100%' fill='transparent'/><path d='M3.25 10h13.5M10 3.25v13.5'  stroke-linecap='square' stroke-width='1' stroke='hsla(220, 17%, 14%, 1)' fill='none'/></pattern></defs><rect width='800%' height='800%' transform='translate(0,0)' fill='url(%23a)'/></svg>")`,
               }}
             />
             <div className="relative mx-auto block aspect-book w-full max-w-[200px] overflow-hidden rounded-lg shadow-md ">
