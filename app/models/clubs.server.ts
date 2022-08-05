@@ -124,6 +124,12 @@ export interface ClubListDetails {
   memberCount: number
 }
 
+export async function getClubsByUserId(userId: string) {
+  return prisma.club.findMany({
+    where: { members: { some: { userId, removed: false } } },
+  })
+}
+
 export async function getClubListDetails(userId: string) {
   const dbClubs = await prisma.club.findMany({
     where: { members: { some: { userId, removed: false } } },

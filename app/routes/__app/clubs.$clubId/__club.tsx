@@ -47,7 +47,7 @@ export default function ClubNavigationLayout() {
         />
         <Link
           to="."
-          className="relative mx-auto block aspect-[0.66/1] w-full max-w-[200px] overflow-hidden rounded-lg shadow-md "
+          className="relative mx-auto block aspect-book w-full max-w-[200px] overflow-hidden rounded-lg shadow-md "
         >
           <img
             className="h-full w-full object-cover"

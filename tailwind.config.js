@@ -15,6 +15,9 @@ module.exports = {
           tertiary: '#1e222a',
         },
       },
+      aspectRatio: {
+        book: '0.66 / 1',
+      },
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
         serif: ['Roboto Slab', ...defaultTheme.fontFamily.serif],

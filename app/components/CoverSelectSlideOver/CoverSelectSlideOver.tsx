@@ -209,7 +209,7 @@ const CoverSelect = ({
           <div className="absolute inset-0 h-full w-full backdrop-blur-sm" />
           <img
             src={c}
-            className="relative aspect-[0.66/1] w-full max-w-[180px] rounded-lg object-cover"
+            className="relative aspect-book w-full max-w-[180px] rounded-lg object-cover"
             alt={`${book.title} alternate cover`}
           />
         </div>
@@ -247,7 +247,7 @@ const SearchResults = ({
         >
           <img
             src={book.image}
-            className="aspect-[0.66/1] w-full object-cover"
+            className="aspect-book w-full object-cover"
             alt={`${book.title} cover`}
           />
           <div>
