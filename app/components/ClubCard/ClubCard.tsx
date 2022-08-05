@@ -29,7 +29,7 @@ const ClubCard = ({
     <div className="relative grid grid-cols-2 gap-6">
       <Link to={`/clubs/${club.id}`}>
         <img
-          className="aspect-[0.66/1] w-full rounded-lg object-cover shadow-md"
+          className="aspect-book w-full rounded-lg object-cover shadow-md"
           src={club.image}
           alt={`${club.title} cover`}
         />

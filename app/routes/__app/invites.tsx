@@ -253,7 +253,7 @@ const InviteCard = ({
     </div>
 
     <div className="grid grid-cols-[1fr,2fr] gap-6">
-      <div className="mx-auto aspect-[0.66/1] w-full overflow-hidden rounded-lg shadow-md">
+      <div className="mx-auto aspect-book w-full overflow-hidden rounded-lg shadow-md">
         <img
           className="h-full w-full object-cover"
           src={invite.club.image}

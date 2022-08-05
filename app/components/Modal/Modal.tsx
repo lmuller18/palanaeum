@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Dialog } from '@headlessui/react'
 import type { CSSProperties, ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -15,6 +16,17 @@ const Modal = ({
   backdropColor?: string
   scaleBackground?: boolean
 }) => {
+  useEffect(
+    () => () => {
+      if (!open) {
+        reset(document.documentElement)
+        reset(document.body)
+        reset(document.querySelector('#app'))
+      }
+    },
+    [open],
+  )
+
   return (
     <AnimatePresence>
       {open && (

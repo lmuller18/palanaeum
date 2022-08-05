@@ -127,7 +127,7 @@ const ClubCard = ({
         <Link
           onClick={e => e.stopPropagation()}
           to={club.id}
-          className="mx-auto aspect-[0.66/1] w-full overflow-hidden rounded-lg shadow-md"
+          className="mx-auto aspect-book w-full overflow-hidden rounded-lg shadow-md"
         >
           <img
             className="h-full w-full object-cover"

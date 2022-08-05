@@ -23,6 +23,7 @@ export const loader: LoaderFunction = async ({ params }) => {
     return new Response(data.Body, {
       headers: {
         type: data.ContentType ?? 'image/jpeg',
+        'Cache-Control': 'private, max-age=604800',
       },
     })
   } catch (e) {

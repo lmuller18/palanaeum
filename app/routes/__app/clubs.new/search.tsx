@@ -111,7 +111,7 @@ export default function Page() {
               key={book.key}
               className="grid content-start gap-2"
             >
-              <div className="mx-auto aspect-[0.66/1] w-full max-w-[200px] overflow-hidden rounded-lg shadow-md">
+              <div className="mx-auto aspect-book w-full max-w-[200px] overflow-hidden rounded-lg shadow-md">
                 <img
                   className="h-full w-full object-cover"
                   src={book.image}
