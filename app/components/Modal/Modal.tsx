@@ -18,13 +18,11 @@ const Modal = ({
 }) => {
   useEffect(
     () => () => {
-      if (!open) {
-        reset(document.documentElement)
-        reset(document.body)
-        reset(document.querySelector('#app'))
-      }
+      reset(document.documentElement)
+      reset(document.body)
+      reset(document.querySelector('#app'))
     },
-    [open],
+    [],
   )
 
   return (
