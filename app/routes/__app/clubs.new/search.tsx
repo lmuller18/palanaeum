@@ -108,7 +108,7 @@ export default function Page() {
           {data?.results.map(book => (
             <Link
               to={`/clubs/new/${book.id}`}
-              key={book.key}
+              key={book.id}
               className="grid content-start gap-2"
             >
               <div className="mx-auto aspect-book w-full max-w-[200px] overflow-hidden rounded-lg shadow-md">
