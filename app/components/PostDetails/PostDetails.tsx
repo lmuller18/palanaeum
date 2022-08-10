@@ -71,7 +71,7 @@ const PostDetails = ({
           />
         </Link>
 
-        <div className="mt-1 flex flex-grow flex-col">
+        <div className="mt-[2px] flex flex-grow flex-col">
           <div className="flex items-center gap-2">
             <TextLink
               to={`/users/${user.id}`}

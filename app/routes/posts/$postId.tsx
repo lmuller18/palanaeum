@@ -108,6 +108,9 @@ export default function PostPage() {
                   ? 'primary-post'
                   : 'secondary-post'
               }
+              style={{
+                scrollMargin: 'calc(env(safe-area-inset-top) + 64px)',
+              }}
               className={clsx(
                 'scroll-m-16',
                 post.post.parentId === data.primaryPost.post.id
