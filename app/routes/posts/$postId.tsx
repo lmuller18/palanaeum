@@ -87,7 +87,12 @@ export default function PostPage() {
 
   return (
     <div>
-      <div className="sticky top-0 z-50 flex w-full items-center gap-2 border-b border-background-tertiary bg-background-primary px-4 py-2">
+      <div
+        className="sticky top-0 z-50 flex w-full items-center gap-2 border-b border-background-tertiary bg-background-primary px-4 py-2"
+        style={{
+          paddingTop: 'calc(env(safe-area-inset-top) + 8px)',
+        }}
+      >
         <button type="button" onClick={goBack}>
           <ChevronLeft className="h-6 w-6" />
         </button>

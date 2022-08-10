@@ -54,7 +54,11 @@ const Post = ({
   return (
     <article className="flex flex-col gap-2" onClick={toPost}>
       <div className="flex items-center gap-3">
-        <Link to={`/users/${user.id}`} onClick={e => e.stopPropagation()}>
+        <Link
+          to={`/users/${user.id}`}
+          onClick={e => e.stopPropagation()}
+          className="flex-shrink-0"
+        >
           <img
             className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full object-cover"
             src={user.avatar}
@@ -81,10 +85,10 @@ const Post = ({
               variant="body2"
               color="blue"
               to={`/clubs/${clubId}/chapters/${chapter.id}`}
-              className="flex items-center gap-1"
+              className="flex items-start gap-1"
               onClick={e => e.stopPropagation()}
             >
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="mt-[2px] h-4 w-4 flex-shrink-0" />
               {chapter.title}
             </TextLink>
 
