@@ -56,9 +56,13 @@ const SecondaryPost = ({
   return (
     <article className="flex flex-col gap-2" onClick={toPost}>
       <div className="flex items-center gap-3">
-        <Link to={`/user/${user.id}`} onClick={e => e.stopPropagation()}>
+        <Link
+          to={`/users/${user.id}`}
+          className="flex-shrink-0"
+          onClick={e => e.stopPropagation()}
+        >
           <img
-            className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full object-cover"
+            className="h-12 w-12 overflow-hidden rounded-full object-cover"
             src={user.avatar}
             alt="user avatar"
           />
@@ -67,7 +71,7 @@ const SecondaryPost = ({
         <div className="flex flex-grow flex-col">
           <div className="flex items-center gap-2">
             <TextLink
-              to={`/user/${user.id}`}
+              to={`/users/${user.id}`}
               variant="subtitle2"
               onClick={e => e.stopPropagation()}
             >
@@ -83,10 +87,10 @@ const SecondaryPost = ({
               variant="body2"
               color="blue"
               to={`/clubs/${chapter.clubId}/chapters/${chapter.id}`}
-              className="flex items-center gap-1"
+              className="flex items-start gap-1"
               onClick={e => e.stopPropagation()}
             >
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="mt-[2px] h-4 w-4 flex-shrink-0" />
               {chapter.title}
             </TextLink>
 

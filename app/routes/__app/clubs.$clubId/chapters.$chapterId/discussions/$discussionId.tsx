@@ -118,7 +118,7 @@ const ThreadedCommentItem = ({ comment }: { comment: ThreadedComment }) => {
         )}
       >
         <div className="mt-[5px] flex flex-col">
-          <Link to={`/user/${comment.user.id}`} className="flex-shrink-0">
+          <Link to={`/users/${comment.user.id}`} className="flex-shrink-0">
             <img
               src={comment.user.avatar}
               className={clsx(
@@ -135,7 +135,11 @@ const ThreadedCommentItem = ({ comment }: { comment: ThreadedComment }) => {
         </div>
 
         <div className="ml-2">
-          <TextLink underline variant="caption" to={`/user/${comment.user.id}`}>
+          <TextLink
+            underline
+            variant="caption"
+            to={`/users/${comment.user.id}`}
+          >
             {comment.user.username}
           </TextLink>
 

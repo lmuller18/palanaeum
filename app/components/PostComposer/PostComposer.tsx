@@ -149,7 +149,7 @@ const PostComposer = ({
   return (
     <div className="border border-background-tertiary p-4">
       <div className="grid grid-cols-[48px,1fr] gap-4">
-        <Link to={`/user/${user.id}`} className="flex-shrink-0">
+        <Link to={`/users/${user.id}`} className="flex-shrink-0">
           <img
             className="h-12 w-12 overflow-hidden rounded-full object-cover"
             src={user.avatar}
