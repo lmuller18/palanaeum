@@ -170,6 +170,7 @@ const PostComposer = ({
   }
 
   const clearPhoto = () => {
+    if (uploadRef.current?.value) uploadRef.current.value = ''
     if (preview) URL.revokeObjectURL(preview)
     setPreview(null)
   }
