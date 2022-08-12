@@ -106,7 +106,7 @@ const SecondaryPost = ({
 
       <ShowContextSection showContext={showContext} context={post.context} />
 
-      <div className="grid grid-cols-[48px,1fr] gap-3">
+      <div className="grid grid-cols-[48px,1fr] gap-x-3">
         <div className="flex justify-center">
           <div className="h-full w-1 bg-background-tertiary" />
         </div>
@@ -116,6 +116,16 @@ const SecondaryPost = ({
             __html: post.content,
           }}
         />
+        {post.image && (
+          <>
+            <div className="flex justify-center">
+              <div className="h-full w-1 bg-background-tertiary" />
+            </div>
+            <div className="w-full overflow-hidden rounded-lg">
+              <img src={post.image} alt="post attachment" className="w-full" />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-[48px,1fr] gap-3">

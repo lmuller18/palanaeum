@@ -1,10 +1,15 @@
 import invariant from 'tiny-invariant'
-import { json } from '@remix-run/node'
+import {
+  json,
+  unstable_composeUploadHandlers as composeUploadHandlers,
+  unstable_parseMultipartFormData as parseMultipartFormData,
+  unstable_createMemoryUploadHandler as createMemoryUploadHandler,
+} from '@remix-run/node'
 import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
+import { getErrorMessage } from '~/utils'
 import { requireUserId } from '~/session.server'
 import { createPost } from '~/models/posts.server'
-import { getErrorMessage, parseStringFormData } from '~/utils'
 import { getMemberIdFromUserByChapter } from '~/models/users.server'
 import { notifyNewPost, notifyPostReply } from '~/models/notifications.server'
 
@@ -14,10 +19,47 @@ export const action: ActionFunction = async ({ request }) => {
   switch (request.method.toLowerCase()) {
     case 'post':
       try {
-        const { chapterId, content, image, context, parentId, rootId } =
-          await parseStringFormData(request)
-        invariant(content, 'content required')
-        invariant(chapterId, 'chapterId required')
+        const formData = await parseMultipartFormData(
+          request,
+          composeUploadHandlers(createMemoryUploadHandler()),
+        )
+
+        const content = formData.get('content')
+        const chapterId = formData.get('chapterId')
+        const context = formData.get('context')
+        const parentId = formData.get('parentId')
+        const rootId = formData.get('rootId')
+        const image = formData.get('image')
+
+        // required fields
+        invariant(
+          content != null && typeof content === 'string',
+          'content required',
+        )
+        invariant(
+          chapterId != null && typeof chapterId === 'string',
+          'chapterId required',
+        )
+
+        // optional fields
+        invariant(
+          context == null || (context != null && typeof context === 'string'),
+          'incorrect context type',
+        )
+        invariant(
+          parentId == null ||
+            (parentId != null && typeof parentId === 'string'),
+          'incorrect parentId type',
+        )
+        invariant(
+          rootId == null || (rootId != null && typeof rootId === 'string'),
+          'incorrect rootId type',
+        )
+        invariant(
+          image == null || (image != null && image instanceof File),
+          'incorrect rootId type',
+        )
+
         const memberId = await getMemberIdFromUserByChapter(userId, chapterId)
         const post = await createPost({
           chapterId,
@@ -40,6 +82,7 @@ export const action: ActionFunction = async ({ request }) => {
 
         return json({ ok: true, post })
       } catch (error) {
+        console.error(error)
         return json(
           { error: getErrorMessage(error) },
           {

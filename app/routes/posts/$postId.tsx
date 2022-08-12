@@ -131,9 +131,14 @@ export default function PostPage() {
             </div>
           ))}
         </div>
-        {data.posts.length > 1 && (
-          <div style={{ height: `calc(100vh - ${lastPostHeight + 49}px)` }} />
-        )}
+        <div
+          style={{
+            height:
+              data.posts.length > 1
+                ? `calc(100vh - ${lastPostHeight + 49}px)`
+                : 76,
+          }}
+        />
       </div>
 
       <ReplyComposer
