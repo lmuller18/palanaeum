@@ -113,6 +113,12 @@ const PostDetails = ({
         }}
       />
 
+      {post.image && (
+        <div className="w-full overflow-hidden rounded-lg">
+          <img src={post.image} alt="post attachment" className="w-full" />
+        </div>
+      )}
+
       <div>
         <Text variant="body2" className="text-gray-400">
           {date.toLocaleString(DateTime.TIME_SIMPLE)} &#183;{' '}

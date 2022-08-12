@@ -28,6 +28,7 @@ const Post = ({
   post: {
     id: string
     content: string
+    image: string | null
     replies: number
     createdAt: Date
     context: string | null
@@ -110,6 +111,12 @@ const Post = ({
           __html: post.content,
         }}
       />
+
+      {post.image && (
+        <div className="w-full overflow-hidden rounded-lg">
+          <img src={post.image} alt="post attachment" className="w-full" />
+        </div>
+      )}
 
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 text-slate-400">

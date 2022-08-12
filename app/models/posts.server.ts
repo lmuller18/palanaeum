@@ -1,4 +1,6 @@
+import cuid from 'cuid'
 import { prisma } from '~/db.server'
+import { putObject } from '~/s3.server'
 
 export async function getTopPostByClub(clubId: string) {
   const dbPost = await prisma.post.findFirst({
@@ -348,16 +350,29 @@ export async function createPost({
   chapterId: string
   content: string
   memberId: string
-  image?: string
-  context?: string
-  parentId?: string
-  rootId?: string
+  image: File | null
+  context: string | null
+  parentId: string | null
+  rootId: string | null
 }) {
+  const id = cuid()
+  const imgId = cuid()
+  const imgKey = image ? `posts/${id}/${imgId}` : null
+
+  if (image && imgKey) {
+    await putObject({
+      contentType: image.type,
+      data: image,
+      filename: imgId,
+      key: imgKey,
+    })
+  }
+
   return prisma.post.create({
     data: {
       chapterId,
       content,
-      image,
+      image: image ? `/reserve/${imgKey}` : null,
       context,
       parentId,
       rootId,

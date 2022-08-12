@@ -1,19 +1,20 @@
 import clsx from 'clsx'
-import { Link, useFetcher } from '@remix-run/react'
 import useMeasure from 'react-use-measure'
 import { CheckIcon } from '@heroicons/react/solid'
+import { Link, useFetcher } from '@remix-run/react'
 import { BookOpen, Image, Info } from 'react-feather'
+import { XCircleIcon } from '@heroicons/react/outline'
 import { Listbox, Transition } from '@headlessui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Fragment, useEffect, useRef, useState } from 'react'
 
 import Text from '@tiptap/extension-text'
+import type { Editor } from '@tiptap/react'
 import History from '@tiptap/extension-history'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import Placeholder from '@tiptap/extension-placeholder'
 import CharacterCount from '@tiptap/extension-character-count'
-import type { Editor } from '@tiptap/react'
 import { useEditor, EditorContent, Extension } from '@tiptap/react'
 
 import Button from '~/elements/Button'
@@ -37,8 +38,16 @@ const PostComposer = ({
 }) => {
   const user = useUser()
   const fetcher = useFetcher()
+  const uploadRef = useRef<HTMLInputElement>(null)
   const submitRef = useRef<HTMLButtonElement>(null)
+  const [preview, setPreview] = useState<string | null>(null)
   const [showContextInput, setShowContextInput] = useState(false)
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview)
+    }
+  }, [preview])
 
   const [chapter, setChapter] = useState<{
     id: string
@@ -103,6 +112,11 @@ const PostComposer = ({
         editor?.commands.clearContent()
         contextEditor?.commands.clearContent()
         submitRef?.current?.blur()
+        if (uploadRef.current?.value) {
+          if (preview) URL.revokeObjectURL(preview)
+          setPreview(null)
+          uploadRef.current.value = ''
+        }
         setShowContextInput(false)
       } else {
         console.log(fetcher.data.error)
@@ -116,19 +130,20 @@ const PostComposer = ({
 
     const content = editor?.getHTML()
     const context = contextEditor?.getText()
-    // const image = undefined
+    const image = uploadRef.current?.files?.[0]
 
     const newPost = {
       chapterId: chapter.id,
       content,
       context,
-      // image,
+      image,
     }
 
     fetcher.submit(removeEmpty(newPost), {
       action: '/api/posts',
       method: 'post',
       replace: true,
+      encType: 'multipart/form-data',
     })
   }
 
@@ -140,6 +155,24 @@ const PostComposer = ({
       setShowContextInput(true)
       contextEditor?.commands.focus()
     }
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e?.target?.files?.[0]) return
+    const image = e.target.files[0]
+    if (preview) URL.revokeObjectURL(preview)
+    const objectUrl = URL.createObjectURL(image)
+    setPreview(objectUrl)
+  }
+
+  const changePhoto = () => {
+    uploadRef.current?.click()
+  }
+
+  const clearPhoto = () => {
+    if (uploadRef.current?.value) uploadRef.current.value = ''
+    if (preview) URL.revokeObjectURL(preview)
+    setPreview(null)
   }
 
   const characters = editor ? editor.storage.characterCount.characters() : 0
@@ -168,7 +201,17 @@ const PostComposer = ({
               chapter={chapter}
               chapters={chapters}
             />
-            <Image className="h-5 w-5" />
+            <button type="button" onClick={changePhoto}>
+              <Image className="h-5 w-5" />
+            </button>
+            <input
+              ref={uploadRef}
+              onChange={handleImageChange}
+              id="image"
+              name="image"
+              type="file"
+              className="sr-only"
+            />
             <button
               type="button"
               className="mt-px"
@@ -207,6 +250,25 @@ const PostComposer = ({
           showContextInput={showContextInput}
         />
       </div>
+      {preview && (
+        <div className="flex snap-x flex-row gap-2 overflow-y-auto border-t border-t-background-tertiary pt-2">
+          <div className="relative h-28 w-28 flex-shrink-0 snap-start overflow-hidden rounded-lg shadow-lg">
+            <img
+              src={preview}
+              alt="Upload"
+              className="h-full w-full object-cover"
+            />
+
+            <button
+              type="button"
+              onClick={clearPhoto}
+              className="absolute top-0 right-0 mt-1 mr-1 overflow-hidden rounded-full bg-black/40 p-[2px]"
+            >
+              <XCircleIcon className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
