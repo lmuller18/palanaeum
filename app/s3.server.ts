@@ -53,7 +53,7 @@ export async function putObject({
 }: {
   filename: string
   key: string
-  data: AsyncIterable<Uint8Array>
+  data: AsyncIterable<Uint8Array> | File
   contentType: string
 }) {
   const upload = new Upload({
@@ -61,7 +61,7 @@ export async function putObject({
     params: {
       Bucket: process.env.S3_BUCKET,
       Key: key,
-      Body: Readable.from(data),
+      Body: data instanceof File ? data : Readable.from(data),
       ContentType: contentType,
       Metadata: {
         filename: filename,

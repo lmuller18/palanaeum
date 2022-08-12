@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { useFetcher } from '@remix-run/react'
 import useMeasure from 'react-use-measure'
 import { Image, Info } from 'react-feather'
+import { XCircleIcon } from '@heroicons/react/outline'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -27,8 +28,11 @@ const ReplyComposer = ({
   rootId: string
   parentId: string
 }) => {
-  const [focused, setFocused] = useState(false)
+  const uploadRef = useRef<HTMLInputElement>(null)
   const submitRef = useRef<HTMLButtonElement>(null)
+
+  const [focused, setFocused] = useState(false)
+  const [preview, setPreview] = useState<string | null>(null)
   const [clickedOutside, setClickedOutside] = useState(false)
   const [showContextInput, setShowContextInput] = useState(false)
 
@@ -88,6 +92,11 @@ const ReplyComposer = ({
         setShowContextInput(false)
         setFocused(false)
         setClickedOutside(false)
+        if (uploadRef.current?.value) {
+          if (preview) URL.revokeObjectURL(preview)
+          setPreview(null)
+          uploadRef.current.value = ''
+        }
       } else {
         console.log(fetcher.data.error)
       }
@@ -118,10 +127,28 @@ const ReplyComposer = ({
     }
   }
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e?.target?.files?.[0]) return
+    const image = e.target.files[0]
+    if (preview) URL.revokeObjectURL(preview)
+    const objectUrl = URL.createObjectURL(image)
+    setPreview(objectUrl)
+  }
+
+  const changePhoto = () => {
+    uploadRef.current?.click()
+  }
+
+  const clearPhoto = () => {
+    if (uploadRef.current?.value) uploadRef.current.value = ''
+    if (preview) URL.revokeObjectURL(preview)
+    setPreview(null)
+  }
+
   const createReply = () => {
     const content = editor?.getHTML()
     const context = contextEditor?.getText()
-    // const image = undefined
+    const image = uploadRef.current?.files?.[0]
 
     const newPost = {
       rootId,
@@ -129,13 +156,14 @@ const ReplyComposer = ({
       chapterId,
       content,
       context,
-      // image,
+      image,
     }
 
     fetcher.submit(removeEmpty(newPost), {
       action: '/api/posts',
       method: 'post',
       replace: true,
+      encType: 'multipart/form-data',
     })
   }
 
@@ -149,6 +177,9 @@ const ReplyComposer = ({
     <div
       ref={clickawayRef}
       className="fixed bottom-0 left-0 right-0 min-h-[62px] w-full border-t border-background-tertiary bg-background-secondary"
+      style={{
+        paddingBottom: 'calc(env(safe-area-inset-bottom)',
+      }}
     >
       <div className="min-w-0 flex-grow border-x border-t border-background-tertiary p-4">
         <EditorContent editor={editor} />
@@ -182,7 +213,17 @@ const ReplyComposer = ({
               >
                 <div className="mt-6 flex items-center justify-between">
                   <div className="flex items-center gap-3 text-blue-500">
-                    <Image className="h-5 w-5" />
+                    <button type="button" onClick={changePhoto}>
+                      <Image className="h-5 w-5" />
+                    </button>
+                    <input
+                      ref={uploadRef}
+                      onChange={handleImageChange}
+                      id="image"
+                      name="image"
+                      type="file"
+                      className="sr-only"
+                    />
                     <button type="button" onClick={handleContextButton}>
                       <Info className="mt-px h-5 w-5" />
                     </button>
@@ -235,6 +276,25 @@ const ReplyComposer = ({
                     </motion.div>
                   )}
                 </AnimatePresence>
+                {preview && (
+                  <div className="flex snap-x flex-row gap-2 overflow-y-auto border-t border-t-background-tertiary pt-2">
+                    <div className="relative h-28 w-28 flex-shrink-0 snap-start overflow-hidden rounded-lg shadow-lg">
+                      <img
+                        src={preview}
+                        alt="Upload"
+                        className="h-full w-full object-cover"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={clearPhoto}
+                        className="absolute top-0 right-0 mt-1 mr-1 overflow-hidden rounded-full bg-black/40 p-[2px]"
+                      >
+                        <XCircleIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

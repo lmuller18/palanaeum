@@ -28,6 +28,7 @@ const Post = ({
   post: {
     id: string
     content: string
+    image: string | null
     replies: number
     createdAt: Date
     context: string | null
@@ -53,16 +54,20 @@ const Post = ({
 
   return (
     <article className="flex flex-col gap-2" onClick={toPost}>
-      <div className="flex items-center gap-3">
-        <Link to={`/users/${user.id}`} onClick={e => e.stopPropagation()}>
+      <div className="flex items-start gap-3">
+        <Link
+          to={`/users/${user.id}`}
+          onClick={e => e.stopPropagation()}
+          className="flex-shrink-0"
+        >
           <img
-            className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full object-cover"
+            className="h-12 w-12 overflow-hidden rounded-full object-cover"
             src={user.avatar}
             alt="user avatar"
           />
         </Link>
 
-        <div className="flex flex-grow flex-col">
+        <div className="mt-[2px] flex flex-grow flex-col">
           <div className="flex items-center gap-2">
             <TextLink
               to={`/users/${user.id}`}
@@ -81,10 +86,10 @@ const Post = ({
               variant="body2"
               color="blue"
               to={`/clubs/${clubId}/chapters/${chapter.id}`}
-              className="flex items-center gap-1"
+              className="flex items-start gap-1"
               onClick={e => e.stopPropagation()}
             >
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="mt-[2px] h-4 w-4 flex-shrink-0" />
               {chapter.title}
             </TextLink>
 
@@ -106,6 +111,12 @@ const Post = ({
           __html: post.content,
         }}
       />
+
+      {post.image && (
+        <div className="w-full overflow-hidden rounded-lg">
+          <img src={post.image} alt="post attachment" className="w-full" />
+        </div>
+      )}
 
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 text-slate-400">

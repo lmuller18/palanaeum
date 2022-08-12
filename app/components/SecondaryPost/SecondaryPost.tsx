@@ -56,9 +56,13 @@ const SecondaryPost = ({
   return (
     <article className="flex flex-col gap-2" onClick={toPost}>
       <div className="flex items-center gap-3">
-        <Link to={`/users/${user.id}`} onClick={e => e.stopPropagation()}>
+        <Link
+          to={`/users/${user.id}`}
+          className="flex-shrink-0"
+          onClick={e => e.stopPropagation()}
+        >
           <img
-            className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full object-cover"
+            className="h-12 w-12 overflow-hidden rounded-full object-cover"
             src={user.avatar}
             alt="user avatar"
           />
@@ -83,10 +87,10 @@ const SecondaryPost = ({
               variant="body2"
               color="blue"
               to={`/clubs/${chapter.clubId}/chapters/${chapter.id}`}
-              className="flex items-center gap-1"
+              className="flex items-start gap-1"
               onClick={e => e.stopPropagation()}
             >
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="mt-[2px] h-4 w-4 flex-shrink-0" />
               {chapter.title}
             </TextLink>
 
@@ -102,7 +106,7 @@ const SecondaryPost = ({
 
       <ShowContextSection showContext={showContext} context={post.context} />
 
-      <div className="grid grid-cols-[48px,1fr] gap-3">
+      <div className="grid grid-cols-[48px,1fr] gap-x-3">
         <div className="flex justify-center">
           <div className="h-full w-1 bg-background-tertiary" />
         </div>
@@ -112,6 +116,16 @@ const SecondaryPost = ({
             __html: post.content,
           }}
         />
+        {post.image && (
+          <>
+            <div className="flex justify-center">
+              <div className="h-full w-1 bg-background-tertiary" />
+            </div>
+            <div className="w-full overflow-hidden rounded-lg">
+              <img src={post.image} alt="post attachment" className="w-full" />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-[48px,1fr] gap-3">
