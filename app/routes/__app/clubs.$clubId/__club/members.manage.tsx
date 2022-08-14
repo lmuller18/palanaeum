@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import { useEffect, useRef } from 'react'
 import { XIcon } from '@heroicons/react/outline'
 import { forbidden, notFound } from 'remix-utils'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 import { Link, useFetcher, useLoaderData, useParams } from '@remix-run/react'
 
 import { useUser } from '~/utils'
@@ -15,12 +15,7 @@ import { getClubWithUserMembers } from '~/models/clubs.server'
 import { notifyNewInvite } from '~/models/notifications.server'
 import { createInvite, getInvitesWithInvitee } from '~/models/invites.server'
 
-interface LoaderData {
-  members: RequiredFuncType<typeof getClubWithUserMembers>['members']
-  invites: FuncType<typeof getInvitesWithInvitee>
-}
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const userId = await requireUserId(request)
 
   invariant(params.clubId, 'expected clubId')
@@ -35,14 +30,14 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (club.ownerId !== userId)
     throw forbidden({ message: 'Not authorized to manage members' })
 
-  return json<LoaderData>({
+  return json({
     members: club.members,
     invites,
   })
 }
 
 export default function ManageMembersPage() {
-  const data = useLoaderData() as LoaderData
+  const data = useLoaderData<typeof loader>()
 
   const inviteRef = useRef<HTMLFormElement>(null)
   const inviteFetcher = useFetcher()
@@ -130,7 +125,7 @@ const MemberRow = ({
   user,
   invite = false,
 }: {
-  user: LoaderData['members'][number]
+  user: RequiredFuncType<typeof getClubWithUserMembers>['members'][number]
   invite?: boolean
 }) => {
   const { id } = useUser()

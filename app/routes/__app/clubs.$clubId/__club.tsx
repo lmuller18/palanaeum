@@ -1,29 +1,20 @@
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { Link, Outlet, useLoaderData } from '@remix-run/react'
 
 import Text from '~/elements/Typography/Text'
 import { getClub } from '~/models/clubs.server'
 import { requireUserId } from '~/session.server'
 
-interface LoaderData {
-  club: {
-    id: string
-    title: string
-    author: string
-    image: string
-  }
-}
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
   const club = await getClub(params.clubId, userId)
 
   if (!club) throw new Response('Club not found', { status: 404 })
 
-  return json<LoaderData>({
+  return json({
     club: {
       id: club.id,
       title: club.title,
@@ -34,7 +25,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export default function ClubNavigationLayout() {
-  const data = useLoaderData() as LoaderData
+  const data = useLoaderData<typeof loader>()
 
   return (
     <>

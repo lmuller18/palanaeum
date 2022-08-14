@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 
 import Post from '~/components/Post'
@@ -11,12 +11,7 @@ import PostComposer from '~/components/PostComposer'
 import { getPostsByChapter } from '~/models/posts.server'
 import { getChapterDetails } from '~/models/chapters.server'
 
-interface LoaderData {
-  posts: FuncType<typeof getPostsByChapter>
-  chapter: RequiredFuncType<typeof getChapterDetails>
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
 
@@ -30,7 +25,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
   if (!posts) throw new Response('Problem finding posts', { status: 500 })
 
-  return json<LoaderData>({
+  return json({
     posts,
     chapter,
   })
@@ -38,7 +33,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
 export default function PostsPage() {
   const { clubId, chapterId } = useParams()
-  const { posts, chapter } = useLoaderData() as LoaderData
+  const { posts, chapter } = useLoaderData<typeof loader>()
 
   if (!clubId) throw new Error('Club Id Not Found')
   if (!chapterId) throw new Error('Chapter Id Not Found')

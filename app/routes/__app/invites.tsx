@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import type { ReactNode } from 'react'
 import { json } from '@remix-run/node'
 import Text from '~/elements/Typography/Text'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { Menu, Tab, Transition } from '@headlessui/react'
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { TrashIcon as ActiveTrashIcon } from '@heroicons/react/outline'
@@ -18,12 +18,12 @@ import { toLuxonDate, useUser } from '~/utils'
 import { requireUserId } from '~/session.server'
 import { getReceivedInvites, getSentInvites } from '~/models/invites.server'
 
-interface LoaderData {
-  sentInvites: Awaited<ReturnType<typeof getSentInvites>>
-  receivedInvites: Awaited<ReturnType<typeof getReceivedInvites>>
-}
+// interface LoaderData {
+//   sentInvites: Awaited<ReturnType<typeof getSentInvites>>
+//   receivedInvites: Awaited<ReturnType<typeof getReceivedInvites>>
+// }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request)
 
   const [sentInvites, receivedInvites] = await Promise.all([
@@ -38,7 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 }
 
 export default function InvitesPage() {
-  const data = useLoaderData() as LoaderData
+  const data = useLoaderData<typeof loader>()
   return (
     <div className="mx-auto max-w-lg p-4">
       <Tab.Group>
@@ -130,7 +130,7 @@ export default function InvitesPage() {
 const SentInviteCard = ({
   invite,
 }: {
-  invite: LoaderData['receivedInvites'][number]
+  invite: Serialized<RequiredFuncType<typeof getReceivedInvites>[number]>
 }) => {
   const user = useUser()
   const removeFetcher = useFetcher()
@@ -173,7 +173,7 @@ const SentInviteCard = ({
 const InviteActions = ({
   invite,
 }: {
-  invite: LoaderData['receivedInvites'][number]
+  invite: Serialized<RequiredFuncType<typeof getReceivedInvites>[number]>
 }) => {
   const acceptFetcher = useFetcher()
   const declineFetcher = useFetcher()
@@ -235,7 +235,7 @@ const InviteCard = ({
   menuItems,
   children,
 }: {
-  invite: LoaderData['sentInvites'][number]
+  invite: Serialized<RequiredFuncType<typeof getSentInvites>[number]>
   menuItems?: {
     activeIcon: JSX.Element
     inactiveIcon: JSX.Element

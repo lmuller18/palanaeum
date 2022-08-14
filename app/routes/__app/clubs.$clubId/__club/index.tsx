@@ -5,7 +5,7 @@ import { json, redirect } from '@remix-run/node'
 import { ChevronUpIcon } from '@heroicons/react/solid'
 import { Disclosure, Transition } from '@headlessui/react'
 import { InformationCircleIcon } from '@heroicons/react/solid'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 import { Form, useActionData, useLoaderData, useParams } from '@remix-run/react'
 
 import Post from '~/components/Post'
@@ -27,16 +27,7 @@ import {
   getNextChapterDetails,
 } from '~/models/chapters.server'
 
-interface LoaderData {
-  isOwner: boolean
-  topPost: FuncType<typeof getTopPostByClub>
-  readChapters: FuncType<typeof getReadChapters>
-  nextChapter: FuncType<typeof getNextChapterDetails>
-  counts: RequiredFuncType<typeof getChaptersReadByDay>
-  topDiscussion: FuncType<typeof getTopDiscussionByClub>
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
 
@@ -53,7 +44,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (!club) throw new Response('Club not found', { status: 404 })
   if (!counts) throw new Response('Club not found', { status: 404 })
 
-  return json<LoaderData>({
+  return json({
     counts,
     topPost,
     nextChapter,
@@ -66,7 +57,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 export default function ClubPage() {
   const { clubId } = useParams()
   const { counts, topPost, isOwner, nextChapter, readChapters, topDiscussion } =
-    useLoaderData() as LoaderData
+    useLoaderData<typeof loader>()
 
   const [deleteOpen, setDeleteOpen] = useState(false)
   const openDeleteModal = () => setDeleteOpen(true)

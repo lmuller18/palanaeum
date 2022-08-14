@@ -34,7 +34,7 @@ const PostDetails = ({
     image: string | null
     context: string | null
     replies: number
-    createdAt: Date
+    createdAt: string
   }
 }) => {
   const navigate = useNavigate()

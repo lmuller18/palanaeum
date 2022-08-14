@@ -4,7 +4,7 @@ import { intervalToDuration } from 'date-fns'
 import { json, redirect } from '@remix-run/node'
 import { Form, useLoaderData } from '@remix-run/react'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
@@ -42,7 +42,7 @@ const getDetails = async (asin: string) =>
     `https://api.audible.com/1.0/catalog/products/${asin}?response_groups=contributors,media&image_sizes=720`,
   ).then(res => res.json())
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   await requireUserId(request)
 
   invariant(params.bookId, 'expected book id')
@@ -55,7 +55,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const defaultCover =
     details.product.product_images?.[720] ?? '/images/no-cover.png'
 
-  return json({
+  return json<LoaderData>({
     book: {
       chapters: chapters?.content_metadata?.chapter_info.chapters ?? [],
       id: details.product.asin,
@@ -70,7 +70,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export default function BookPage() {
-  const { book } = useLoaderData() as LoaderData
+  const { book } = useLoaderData<typeof loader>()
 
   const [cover, setCover] = useState(book.image)
   const [open, setOpen] = useState(false)

@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
 import { useLoaderData, useParams, useSearchParams } from '@remix-run/react'
 
@@ -10,13 +10,8 @@ import { requireUserId } from '~/session.server'
 import { getPosts } from '~/models/posts.server'
 import PostComposer from '~/components/PostComposer'
 import { getChapterList, getNextChapter } from '~/models/chapters.server'
-interface LoaderData {
-  posts: RequiredFuncType<typeof getPosts>
-  nextChapter: FuncType<typeof getNextChapter>
-  chapters: FuncType<typeof getChapterList>
-}
 
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
   const searchParams = new URL(request.url).searchParams
@@ -32,7 +27,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (!chapters) throw new Response('Problem finding chapters', { status: 500 })
   if (!posts) throw new Response('Problem finding posts', { status: 500 })
 
-  return json<LoaderData>({
+  return json({
     posts,
     nextChapter,
     chapters,
@@ -41,7 +36,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
 export default function PostsPage() {
   const { clubId } = useParams()
-  const { posts, nextChapter, chapters } = useLoaderData() as LoaderData
+  const { posts, nextChapter, chapters } = useLoaderData<typeof loader>()
 
   if (!clubId) throw new Error('Club Id Not Found')
 

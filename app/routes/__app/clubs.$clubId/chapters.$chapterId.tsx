@@ -4,8 +4,8 @@ import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
 import { json } from '@remix-run/node'
 import type { ReactNode } from 'react'
+import type { LoaderArgs } from '@remix-run/node'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
-import type { LoaderFunction } from '@remix-run/node'
 import {
   Outlet,
   NavLink,
@@ -19,14 +19,7 @@ import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import { getChapter } from '~/models/chapters.server'
 
-interface LoaderData {
-  chapter: {
-    id: string
-    title: string
-  }
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
 
@@ -34,7 +27,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
 
-  return json<LoaderData>({
+  return json({
     chapter: {
       id: chapter.id,
       title: chapter.title,
@@ -44,7 +37,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
 export default function ChapterPage() {
   const { clubId } = useParams()
-  const { chapter } = useLoaderData() as LoaderData
+  const { chapter } = useLoaderData<typeof loader>()
 
   const matches = useMatches()
 

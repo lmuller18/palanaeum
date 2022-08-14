@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 
 import Post from '~/components/Post'
@@ -15,14 +15,7 @@ import DiscussionSummary from '~/components/DiscussionSummary'
 import { getCompletedMembersCount } from '~/models/members.server'
 import { getTopDiscussionByChapter } from '~/models/discussions.server'
 
-interface LoaderData {
-  topPost: FuncType<typeof getTopPostByChapter>
-  chapter: RequiredFuncType<typeof getChapterDetails>
-  counts: RequiredFuncType<typeof getCompletedMembersCount>
-  topDiscussion: FuncType<typeof getTopDiscussionByChapter>
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
 
@@ -36,13 +29,13 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (!counts) throw new Response('Club not found', { status: 404 })
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
 
-  return json<LoaderData>({ counts, chapter, topPost, topDiscussion })
+  return json({ counts, chapter, topPost, topDiscussion })
 }
 
 export default function ChapterHome() {
   const { clubId } = useParams()
   const { counts, chapter, topPost, topDiscussion } =
-    useLoaderData() as LoaderData
+    useLoaderData<typeof loader>()
 
   if (!clubId) throw new Error('Club Id Not Found')
 

@@ -4,7 +4,7 @@ export type ThreadedComment = {
   id: string
   content: string
   replyCount: number
-  createdAt: Date
+  createdAt: string
   discussionId: string
   parentId: string | null
   rootId: string | null

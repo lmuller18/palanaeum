@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { CheckCircle, XCircle } from 'react-feather'
-import type { LoaderFunction } from '@remix-run/node'
 import { Link, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
 
 import { pluralize } from '~/utils'
@@ -14,13 +14,7 @@ import { getPaginatedChapterList } from '~/models/chapters.server'
 
 const PAGE_SIZE = 10
 
-interface LoaderData {
-  chapters: FuncType<typeof getPaginatedChapterList>['chapters']
-  page: number
-  totalPages: number
-}
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
 
@@ -37,7 +31,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!page) throw new Response('Problem finding chapters', { status: 500 })
 
-  return json<LoaderData>({
+  return json({
     chapters: page.chapters,
     page: pageNum,
     totalPages: page.totalPages,
@@ -45,7 +39,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 }
 
 export default function ChaptersPage() {
-  const { chapters, page, totalPages } = useLoaderData() as LoaderData
+  const { chapters, page, totalPages } = useLoaderData<typeof loader>()
   const fetcher = useFetcher()
   const navigate = useNavigate()
 

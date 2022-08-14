@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
 import { useMemo, useState } from 'react'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 
 import { toRelative } from '~/utils'
@@ -16,11 +16,7 @@ import { getThreadedDiscussion } from '~/models/discussions.server'
 import CommentReplyComposer from '~/components/CommentReplyComposer'
 import DiscussionReplyComposer from '~/components/DiscussionReplyComposer'
 
-interface LoaderData {
-  discussion: RequiredFuncType<typeof getThreadedDiscussion>
-}
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   const userId = await requireUserId(request)
   invariant(params.discussionId, userId)
 
@@ -28,11 +24,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
   if (!discussion) throw new Response('Discussion Not Found', { status: 404 })
 
-  return json<LoaderData>({ discussion })
+  return json({ discussion })
 }
 
 export default function DiscussionPage() {
-  const data = useLoaderData<LoaderData>()
+  const data = useLoaderData<typeof loader>()
 
   return (
     <>

@@ -30,7 +30,7 @@ const Post = ({
     content: string
     image: string | null
     replies: number
-    createdAt: Date
+    createdAt: string
     context: string | null
   }
   clubId: string
