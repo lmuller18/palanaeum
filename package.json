@@ -20,7 +20,7 @@
     "setup:db": "prisma migrate dev",
     "start": "cross-env NODE_ENV=production node ./build/server.js",
     "start:mocks": "cross-env NODE_ENV=production node --require ./mocks --require dotenv/config ./build/server.js",
-    "typecheck": "tsc -b && tsc -b cypress"
+    "typecheck": "tsc -b"
   },
   "eslintIgnore": [
     "/node_modules",
