@@ -1,11 +1,11 @@
 import invariant from 'tiny-invariant'
+import type { ActionArgs } from '@remix-run/node'
 import {
   json,
   unstable_composeUploadHandlers as composeUploadHandlers,
   unstable_parseMultipartFormData as parseMultipartFormData,
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
 } from '@remix-run/node'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 
 import { getErrorMessage } from '~/utils'
 import { requireUserId } from '~/session.server'
@@ -13,7 +13,7 @@ import { createPost } from '~/models/posts.server'
 import { getMemberIdFromUserByChapter } from '~/models/users.server'
 import { notifyNewPost, notifyPostReply } from '~/models/notifications.server'
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {
@@ -96,5 +96,4 @@ export const action: ActionFunction = async ({ request }) => {
   }
 }
 
-export const loader: LoaderFunction = () =>
-  new Response('Invalid method', { status: 405 })
+export const loader = () => new Response('Invalid method', { status: 405 })

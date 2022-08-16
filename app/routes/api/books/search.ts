@@ -1,9 +1,9 @@
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
+import type { LoaderArgs } from '@remix-run/node'
 import { requireUserId } from '~/session.server'
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   await requireUserId(request)
 
   const search = new URL(request.url).searchParams.get('q')

@@ -18,11 +18,6 @@ import { toLuxonDate, useUser } from '~/utils'
 import { requireUserId } from '~/session.server'
 import { getReceivedInvites, getSentInvites } from '~/models/invites.server'
 
-// interface LoaderData {
-//   sentInvites: Awaited<ReturnType<typeof getSentInvites>>
-//   receivedInvites: Awaited<ReturnType<typeof getReceivedInvites>>
-// }
-
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request)
 
