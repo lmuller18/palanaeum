@@ -20,10 +20,6 @@
     "setup:db": "prisma migrate dev",
     "start": "cross-env NODE_ENV=production node ./build/server.js",
     "start:mocks": "cross-env NODE_ENV=production node --require ./mocks --require dotenv/config ./build/server.js",
-    "test": "vitest",
-    "test:e2e:dev": "start-server-and-test dev http://localhost:3000 'cypress open'",
-    "pretest:e2e:run": "npm run build",
-    "test:e2e:run": "cross-env PORT=8811 start-server-and-test start:mocks http://localhost:8811 'cypress run'",
     "typecheck": "tsc -b && tsc -b cypress"
   },
   "eslintIgnore": [
@@ -87,7 +83,6 @@
     "@types/react": "^17.0.40",
     "@types/react-dom": "^17.0.13",
     "@types/web-push": "^3.3.2",
-    "@vitejs/plugin-react": "^1.2.0",
     "c8": "^7.11.0",
     "dotenv": "^16.0.0",
     "esbuild": "^0.14.27",
@@ -104,9 +99,7 @@
     "shelljs": "^0.8.5",
     "start-server-and-test": "^1.14.0",
     "tailwindcss": "^3.0.23",
-    "typescript": "^4.6.2",
-    "vite-tsconfig-paths": "^3.4.1",
-    "vitest": "^0.7.0"
+    "typescript": "^4.6.2"
   },
   "engines": {
     "node": ">=14"
