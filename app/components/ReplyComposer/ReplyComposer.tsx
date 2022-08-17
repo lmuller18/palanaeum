@@ -178,7 +178,7 @@ const ReplyComposer = ({
       ref={clickawayRef}
       className="fixed bottom-0 left-0 right-0 min-h-[62px] w-full border-t border-background-tertiary bg-background-secondary"
       style={{
-        paddingBottom: 'calc(env(safe-area-inset-bottom)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
       <div className="min-w-0 flex-grow border-x border-t border-background-tertiary p-4">

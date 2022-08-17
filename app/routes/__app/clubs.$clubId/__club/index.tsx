@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import { useState } from 'react'
 import invariant from 'tiny-invariant'
 import { json, redirect } from '@remix-run/node'
@@ -8,19 +7,18 @@ import { InformationCircleIcon } from '@heroicons/react/solid'
 import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 import { Form, useActionData, useLoaderData, useParams } from '@remix-run/react'
 
-import Post from '~/components/Post'
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import TextButton from '~/elements/TextButton'
 import { requireUserId } from '~/session.server'
+import NextChapter from '~/components/NextChapter'
 import AreaChart from '~/components/Chart/AreaChart'
 import { getTopPostByClub } from '~/models/posts.server'
 import { deleteClub, getClub } from '~/models/clubs.server'
-import DiscussionSummary from '~/components/DiscussionSummary'
+import TopConversations from '~/components/TopConversations'
 import { getTopDiscussionByClub } from '~/models/discussions.server'
-import NextChapterSection from '~/components/NextChapterSection_Old'
 import {
   getReadChapters,
   getChaptersReadByDay,
@@ -117,7 +115,17 @@ export default function ClubPage() {
       )}
 
       {/* Next Chapter Block */}
-      <NextChapterSection chapter={nextChapter} isOwner={isOwner} />
+      <div className="mb-6 border-b border-t-2 border-emerald-500 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 p-4">
+        <div className="mb-1 flex items-baseline justify-between">
+          <Text variant="title2" as="h3">
+            Next Chapter
+          </Text>
+          <TextLink to="chapters" variant="caption">
+            More Chapters
+          </TextLink>
+        </div>
+        <NextChapter chapter={nextChapter} />
+      </div>
 
       {/* Chart Block */}
       <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
@@ -154,76 +162,13 @@ export default function ClubPage() {
         </div>
       </div>
 
-      {/* Top Post Block */}
-      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
-        <Text variant="title2" className="mb-4" as="h3">
-          Top Post
-        </Text>
-
-        {topPost ? (
-          <div className="relative">
-            <div
-              className={clsx(
-                !readChapters.includes(topPost.chapter.id) && 'blur-sm',
-              )}
-            >
-              <Post
-                clubId={clubId}
-                user={topPost.user}
-                chapter={topPost.chapter}
-                post={topPost.post}
-              />
-            </div>
-            {!readChapters.includes(topPost.chapter.id) && (
-              <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
-                <Text variant="title2" serif>
-                  Spoilers! Catch up to your friends to view this post.
-                </Text>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex h-32 flex-col items-center justify-center text-center">
-            <Text variant="title2" as="p" className="-mt-6" serif>
-              No Posts Yet.
-            </Text>
-          </div>
-        )}
-      </div>
-
-      {/* Top Discussion Block */}
-      <div className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
-        <Text variant="title2" className="mb-4" as="h3">
-          Hottest Discussion
-        </Text>
-        {topDiscussion ? (
-          <div className="relative">
-            <div
-              className={clsx(
-                !readChapters.includes(topDiscussion.chapter.id) && 'blur-sm',
-              )}
-            >
-              <DiscussionSummary
-                user={topDiscussion?.user}
-                chapter={topDiscussion?.chapter}
-                discussion={topDiscussion?.discussion}
-              />
-            </div>
-            {!readChapters.includes(topDiscussion.chapter.id) && (
-              <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
-                <Text variant="title2" serif>
-                  Spoilers! Catch up to your friends to view this post.
-                </Text>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex h-32 flex-col items-center justify-center text-center">
-            <Text variant="title2" as="p" className="-mt-6" serif>
-              No Discussions Yet.
-            </Text>
-          </div>
-        )}
+      {/* Top Conversatinos Block */}
+      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 p-4">
+        <TopConversations
+          readChapters={readChapters}
+          topDiscussion={topDiscussion}
+          topPost={topPost}
+        />
       </div>
 
       <DeleteClubModal open={deleteOpen} setOpen={setDeleteOpen} />
