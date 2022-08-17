@@ -74,7 +74,7 @@ export const action = async ({ request }: ActionArgs) => {
           await notifyPostReply(
             post,
             post.parent.member.user.id,
-            `/posts/${post.id}`,
+            `/posts/${post.parent.id}`,
           )
         } else {
           await notifyNewPost(post, `/posts/${post.id}`)
