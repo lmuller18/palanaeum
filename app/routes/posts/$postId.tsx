@@ -6,14 +6,16 @@ import type { LoaderArgs } from '@remix-run/node'
 import { useEffect, useRef, useState } from 'react'
 import { useLoaderData, useLocation, useNavigate } from '@remix-run/react'
 
-import Post from '~/components/Post'
+import { useUser } from '~/utils'
+import ReplyPost from '~/components/Post'
 import { prisma } from '~/db.server'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
-import PostDetails from '~/components/PostDetails'
+import PrimaryPost from '~/components/PostDetails'
+import ParentPost from '~/components/SecondaryPost'
 import ReplyComposer from '~/components/ReplyComposer'
-import SecondaryPost from '~/components/SecondaryPost'
 import usePostReferrer from '~/hooks/use-post-referrer'
+import { ExclamationIcon } from '@heroicons/react/outline'
 
 interface PostDetailsType {
   user: {
@@ -25,6 +27,7 @@ interface PostDetailsType {
     id: string
     title: string
     clubId: string
+    userComplete: boolean
   }
   post: {
     id: string
@@ -48,6 +51,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   return json({
     posts: postDetails.posts,
     primaryPost: postDetails.primaryPost,
+    hiddenReplies: postDetails.hiddenReplies,
   })
 }
 
@@ -96,34 +100,12 @@ export default function PostPage() {
       <div>
         <div className="grid gap-2" ref={listRef}>
           {data.posts.map(post => (
-            <div
+            <FeedPost
               key={`${post.post.id}-${key}`}
-              id={
-                post.post.id === data.primaryPost.post.id
-                  ? 'primary-post'
-                  : 'secondary-post'
-              }
-              style={{
-                scrollMargin: 'calc(env(safe-area-inset-top) + 64px)',
-              }}
-              className={clsx(
-                'scroll-m-16',
-                post.post.parentId === data.primaryPost.post.id
-                  ? 'px-4 py-2'
-                  : 'p-4 pb-2',
-                (post.post.id === data.primaryPost.post.id ||
-                  post.post.parentId === data.primaryPost.post.id) &&
-                  'border-b border-background-tertiary',
-              )}
-            >
-              {post.post.id === data.primaryPost.post.id ? (
-                <PostDetails {...post} />
-              ) : post.post.parentId === data.primaryPost.post.id ? (
-                <Post {...post} clubId={post.chapter.clubId} />
-              ) : (
-                <SecondaryPost {...post} />
-              )}
-            </div>
+              primaryPost={data.primaryPost}
+              post={post}
+              hiddenReplies={data.hiddenReplies}
+            />
           ))}
         </div>
         <div
@@ -141,6 +123,63 @@ export default function PostPage() {
         parentId={data.primaryPost.post.id}
         rootId={data.primaryPost.post.rootId ?? data.primaryPost.post.id}
       />
+    </div>
+  )
+}
+
+const FeedPost = ({
+  primaryPost,
+  post,
+  hiddenReplies,
+}: {
+  primaryPost: Serialized<PostDetailsType>
+  post: Serialized<PostDetailsType>
+  hiddenReplies: boolean
+}) => {
+  const user = useUser()
+  const isPrimaryPost = primaryPost.post.id === post.post.id
+  const isReplyPost = primaryPost.post.id === post.post.parentId
+  // main poster hasn't read chapter and you are not the main poster
+  const showSpoilerWarning =
+    !primaryPost.chapter.userComplete && user.id !== post.user.id
+
+  return (
+    <div
+      id={isPrimaryPost ? 'primary-post' : 'secondary-post'}
+      style={{
+        scrollMargin: 'calc(env(safe-area-inset-top) + 64px)',
+      }}
+      className={clsx(
+        'scroll-m-16',
+        isReplyPost ? 'px-4 py-2' : 'p-4 pb-2',
+        (isPrimaryPost || isReplyPost) && 'border-b border-background-tertiary',
+      )}
+    >
+      {isPrimaryPost ? (
+        <>
+          <PrimaryPost {...post} />
+          {showSpoilerWarning && (
+            <div className="-mx-4 mt-2 border-y border-amber-400/40 bg-amber-400/10 px-4 py-1">
+              <ExclamationIcon className="inline h-4 w-4 text-amber-400" />
+              <Text as="span" variant="caption" className="ml-2">
+                Poster has not completed this chapter yet.
+              </Text>
+            </div>
+          )}
+          {hiddenReplies && (
+            <div className="-mx-4 mt-2 border-y border-amber-400/40 bg-amber-400/10 px-4 py-1">
+              <ExclamationIcon className="inline h-4 w-4 text-amber-400" />
+              <Text as="span" variant="caption" className="ml-2">
+                Some replies have been hidden until the chapter is complete.
+              </Text>
+            </div>
+          )}
+        </>
+      ) : isReplyPost ? (
+        <ReplyPost {...post} clubId={post.chapter.clubId} />
+      ) : (
+        <ParentPost {...post} />
+      )}
     </div>
   )
 }
@@ -207,9 +246,7 @@ async function getPosts(postId: string, userId: string) {
     where: {
       ...(dbPost.rootId
         ? { OR: [{ id: dbPost.rootId }, { rootId: dbPost.rootId }] }
-        : {
-            OR: [{ id: dbPost.id }, { rootId: dbPost.id }],
-          }),
+        : { OR: [{ id: dbPost.id }, { rootId: dbPost.id }] }),
     },
     select: {
       id: true,
@@ -229,6 +266,7 @@ async function getPosts(postId: string, userId: string) {
       member: {
         select: {
           id: true,
+          progress: true,
           user: {
             select: {
               id: true,
@@ -259,6 +297,9 @@ async function getPosts(postId: string, userId: string) {
       id: p.chapter.id,
       title: p.chapter.title,
       clubId: p.chapter.clubId,
+      userComplete: p.member.progress.some(
+        prog => prog.chapterId === p.chapter.id,
+      ),
     },
     post: {
       id: p.id,
@@ -273,11 +314,27 @@ async function getPosts(postId: string, userId: string) {
   }))
 
   const prunedPosts = getPostArray(posts, dbPost.id)
-  // const prunedPosts = getPostThread(posts, dbPost.id)
 
   const primaryPost = posts.find(p => p.post.id === dbPost.id)
 
   if (!primaryPost) return null
 
-  return { posts: prunedPosts, primaryPost }
+  const filteredPosts = prunedPosts.filter(p => {
+    // main poster hasn't read chapter and you are the main poster
+    const isReplyPost = primaryPost.post.id === p.post.parentId
+
+    const hideSpoilers =
+      isReplyPost &&
+      primaryPost.user.id === userId &&
+      !primaryPost.chapter.userComplete &&
+      p.user.id !== userId
+
+    return !hideSpoilers
+  })
+
+  return {
+    posts: filteredPosts,
+    primaryPost,
+    hiddenReplies: filteredPosts.length !== prunedPosts.length,
+  }
 }
