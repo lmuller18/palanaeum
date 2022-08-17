@@ -22,6 +22,7 @@ const DiscussionSummary = ({
   chapter: {
     id: string
     title: string
+    clubId: string
   }
 }) => {
   return (
@@ -47,7 +48,7 @@ const DiscussionSummary = ({
         <TextLink
           variant="body2"
           color="blue"
-          to={`/chapter/${chapter.id}`}
+          to={`/clubs/${chapter.clubId}/chapters/${chapter.id}`}
           className="flex items-center gap-1"
         >
           <BookOpen className="h-4 w-4" />

@@ -1,9 +1,9 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import { ChevronLeft } from 'react-feather'
-import { useEffect, useRef, useState } from 'react'
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
+import { ChevronLeft } from 'react-feather'
+import type { LoaderArgs } from '@remix-run/node'
+import { useEffect, useRef, useState } from 'react'
 import { useLoaderData, useLocation, useNavigate } from '@remix-run/react'
 
 import Post from '~/components/Post'
@@ -38,19 +38,14 @@ interface PostDetailsType {
   }
 }
 
-interface LoaderData {
-  posts: PostDetailsType[]
-  primaryPost: PostDetailsType
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.postId, 'expected postId')
   const userId = await requireUserId(request)
   const postDetails = await getPosts(params.postId, userId)
 
   if (!postDetails) throw new Response('Post not found', { status: 404 })
 
-  return json<LoaderData>({
+  return json({
     posts: postDetails.posts,
     primaryPost: postDetails.primaryPost,
   })
@@ -59,7 +54,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 export default function PostPage() {
   const key = useLocation().key
   const navigate = useNavigate()
-  const data = useLoaderData() as LoaderData
+  const data = useLoaderData<typeof loader>()
   const { currentPostReferrer } = usePostReferrer()
 
   const listRef = useRef<HTMLDivElement>(null)

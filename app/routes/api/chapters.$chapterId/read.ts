@@ -1,17 +1,17 @@
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type { ActionArgs } from '@remix-run/node'
 
 import { getErrorMessage } from '~/utils'
 import { requireUserId } from '~/session.server'
+import { getMemberIdFromUserByChapter } from '~/models/users.server'
 import {
-  markPreviousRead,
   markRead,
   markUnread,
+  markPreviousRead,
 } from '~/models/chapters.server'
-import { getMemberIdFromUserByChapter } from '~/models/users.server'
 
-export const action: ActionFunction = async ({ params, request }) => {
+export const action = async ({ params, request }: ActionArgs) => {
   const userId = await requireUserId(request)
   invariant(params.chapterId, 'chapterId required')
   const chapterId = params.chapterId
@@ -67,5 +67,4 @@ export const action: ActionFunction = async ({ params, request }) => {
   }
 }
 
-export const loader: LoaderFunction = () =>
-  new Response('Invalid method', { status: 405 })
+export const loader = () => new Response('Invalid method', { status: 405 })

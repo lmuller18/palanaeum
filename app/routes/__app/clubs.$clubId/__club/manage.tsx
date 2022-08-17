@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { badRequest, forbidden, notFound } from 'remix-utils'
 import type { DragControls, MotionValue } from 'framer-motion'
 import { Form, useActionData, useLoaderData } from '@remix-run/react'
-import type { LoaderFunction, ActionFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 import {
   animate,
   Reorder,
@@ -28,11 +28,7 @@ import {
   reorderChapters,
 } from '~/models/chapters.server'
 
-interface LoaderData {
-  chapters: RequiredFuncType<typeof getChapterList>
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request)
 
   invariant(params.clubId, 'expected clubId')
@@ -47,13 +43,13 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (club.ownerId !== userId)
     throw forbidden({ message: 'Not authorized to manage club' })
 
-  return json<LoaderData>({
+  return json({
     chapters,
   })
 }
 
 export default function ManageClubPage() {
-  const { chapters } = useLoaderData() as LoaderData
+  const { chapters } = useLoaderData<typeof loader>()
   const [orderedChapters, setOrderedChapters] = useState(chapters)
   const [open, setOpen] = useState(false)
 
@@ -407,7 +403,7 @@ const Chapter = ({
   chapter,
   order,
 }: {
-  chapter: LoaderData['chapters'][number]
+  chapter: RequiredFuncType<typeof getChapterList>[number]
   order: number
 }) => {
   const y = useMotionValue(0)

@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { DateTime } from 'luxon'
 import { json } from '@remix-run/node'
 import { Tab } from '@headlessui/react'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { Link, useLoaderData, useNavigate } from '@remix-run/react'
 
 import { toLuxonDate } from '~/utils'
@@ -10,21 +10,16 @@ import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import { getClubListDetails } from '~/models/clubs.server'
 
-interface LoaderData {
-  currentlyReading: FuncType<typeof getClubListDetails>['currentlyReading']
-  previouslyRead: FuncType<typeof getClubListDetails>['previouslyRead']
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request)
 
   const { currentlyReading, previouslyRead } = await getClubListDetails(userId)
 
-  return json<LoaderData>({ currentlyReading, previouslyRead })
+  return json({ currentlyReading, previouslyRead })
 }
 
 export default function ClubsPage() {
-  const data = useLoaderData() as LoaderData
+  const data = useLoaderData<typeof loader>()
 
   return (
     <div className="mx-auto max-w-lg p-4">
@@ -108,7 +103,9 @@ export default function ClubsPage() {
 const ClubCard = ({
   club,
 }: {
-  club: LoaderData['currentlyReading'][number]
+  club: Serialized<
+    FuncType<typeof getClubListDetails>['currentlyReading'][number]
+  >
 }) => {
   const navigate = useNavigate()
   return (

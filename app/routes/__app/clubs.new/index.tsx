@@ -2,8 +2,8 @@ import clsx from 'clsx'
 import cuid from 'cuid'
 import { useEffect, useRef, useState } from 'react'
 import { Disclosure, Transition } from '@headlessui/react'
+import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 import { Form, useActionData, useNavigate } from '@remix-run/react'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
 import {
   BookOpenIcon,
   ChevronUpIcon,
@@ -23,7 +23,7 @@ import { requireUserId } from '~/session.server'
 import OutlinedInput from '~/elements/OutlinedInput'
 import { createManualClub } from '~/models/clubs.server'
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   await requireUserId(request)
   return null
 }

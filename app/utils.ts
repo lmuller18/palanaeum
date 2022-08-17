@@ -104,5 +104,8 @@ export function threadComments(
 
   return commentList
     .filter(comment => comment.parentId == null)
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    )
 }

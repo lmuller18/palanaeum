@@ -1,13 +1,13 @@
-import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
+import { json } from '@remix-run/node'
 import { forbidden, notFound } from 'remix-utils'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type { ActionArgs } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionArgs) => {
   const authedId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {
@@ -52,5 +52,4 @@ export const action: ActionFunction = async ({ request }) => {
   }
 }
 
-export const loader: LoaderFunction = () =>
-  new Response('Invalid method', { status: 405 })
+export const loader = () => new Response('Invalid method', { status: 405 })

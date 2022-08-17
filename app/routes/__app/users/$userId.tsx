@@ -4,7 +4,7 @@ import { json } from '@remix-run/node'
 import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
 import { useLoaderData } from '@remix-run/react'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import {
   MinusSmIcon,
   ArrowSmUpIcon,
@@ -26,14 +26,14 @@ import { requireUserId } from '~/session.server'
 import { getClubsByUserId } from '~/models/clubs.server'
 import { getUserById, getUserStats } from '~/models/users.server'
 
-interface LoaderData {
-  user: RequiredFuncType<typeof getUserById>
-  userStats: RequiredFuncType<typeof getUserStats>
-  clubs: FuncType<typeof getClubsByUserId>
-  isProfile: boolean
-}
+// interface LoaderData {
+//   user: RequiredFuncType<typeof getUserById>
+//   userStats: RequiredFuncType<typeof getUserStats>
+//   clubs: FuncType<typeof getClubsByUserId>
+//   isProfile: boolean
+// }
 
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.userId, 'expected userId')
 
   const userId = await requireUserId(request)
@@ -47,7 +47,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     getClubsByUserId(user.id),
   ])
 
-  return json<LoaderData>({
+  return json({
     user,
     userStats,
     clubs,
@@ -66,7 +66,7 @@ type Stat = {
 }
 
 export default function ProfilePage() {
-  const { user, userStats, isProfile, clubs } = useLoaderData() as LoaderData
+  const { user, userStats, isProfile, clubs } = useLoaderData<typeof loader>()
   const [open, setOpen] = useState(false)
   const openModal = () => setOpen(true)
   const closeModal = () => setOpen(false)
@@ -115,7 +115,11 @@ export default function ProfilePage() {
   )
 }
 
-const ClubsSection = ({ clubs }: { clubs: LoaderData['clubs'] }) => {
+const ClubsSection = ({
+  clubs,
+}: {
+  clubs: Serialized<FuncType<typeof getClubsByUserId>>
+}) => {
   return (
     <div>
       <div className="relative mb-4 flex w-full snap-x gap-6 overflow-x-auto rounded-lg bg-background-secondary p-4">
@@ -127,7 +131,11 @@ const ClubsSection = ({ clubs }: { clubs: LoaderData['clubs'] }) => {
   )
 }
 
-const CoverCard = ({ club }: { club: LoaderData['clubs'][number] }) => {
+const CoverCard = ({
+  club,
+}: {
+  club: Serialized<FuncType<typeof getClubsByUserId>[number]>
+}) => {
   const [open, setOpen] = useState(false)
   const openModal = () => setOpen(true)
   const closeModal = () => setOpen(false)
@@ -250,7 +258,7 @@ const CoverCard = ({ club }: { club: LoaderData['clubs'][number] }) => {
 const StatsSection = ({
   userStats,
 }: {
-  userStats: LoaderData['userStats']
+  userStats: RequiredFuncType<typeof getUserStats>
 }) => {
   const stats: Stat[] = [
     {

@@ -22,6 +22,7 @@ export async function getTopDiscussionByClub(clubId: string) {
         select: {
           id: true,
           title: true,
+          clubId: true,
         },
       },
       _count: {
@@ -76,6 +77,7 @@ export async function getTopDiscussionByChapter(chapterId: string) {
         select: {
           id: true,
           title: true,
+          clubId: true,
         },
       },
       _count: {
@@ -230,6 +232,7 @@ export async function getDiscussionsByChapter(
         select: {
           id: true,
           title: true,
+          clubId: true,
         },
       },
     },
@@ -248,6 +251,67 @@ export async function getDiscussionsByChapter(
     chapter: {
       id: d.chapter.id,
       title: d.chapter.title,
+      clubId: d.chapter.clubId,
+    },
+  }))
+}
+
+export async function getDiscussionsForReadChapters(
+  clubId: string,
+  userId: string,
+) {
+  const dbDiscussions = await prisma.discussion.findMany({
+    where: {
+      AND: [
+        // right club that the user is a part of
+        { chapter: { clubId } },
+        // and user had read the chapter or is the creator
+        {
+          OR: [
+            { chapter: { progress: { some: { member: { userId } } } } },
+            { member: { userId } },
+          ],
+        },
+      ],
+    },
+    select: {
+      id: true,
+      title: true,
+      member: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+        },
+      },
+      chapter: {
+        select: {
+          id: true,
+          title: true,
+          clubId: true,
+        },
+      },
+    },
+  })
+
+  return dbDiscussions.map(d => ({
+    user: {
+      id: d.member.user.id,
+      username: d.member.user.username,
+      avatar: d.member.user.avatar,
+    },
+    discussion: {
+      id: d.id,
+      title: d.title,
+    },
+    chapter: {
+      id: d.chapter.id,
+      title: d.chapter.title,
+      clubId: d.chapter.clubId,
     },
   }))
 }

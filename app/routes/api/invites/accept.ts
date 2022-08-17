@@ -1,13 +1,13 @@
 import invariant from 'tiny-invariant'
 import { redirect } from '@remix-run/node'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type { ActionArgs } from '@remix-run/node'
 
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
 import { addUserToClub } from '~/models/clubs.server'
 import { deleteInvite } from '~/models/invites.server'
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request)
 
   const formData = await parseStringFormData(request)
@@ -26,5 +26,4 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect(`/clubs/${formData.clubId}`)
 }
 
-export const loader: LoaderFunction = () =>
-  new Response('Invalid method', { status: 405 })
+export const loader = () => new Response('Invalid method', { status: 405 })

@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 import { useLoaderData, useNavigate } from '@remix-run/react'
 
 import TextLink from '~/elements/TextLink'
@@ -10,11 +10,7 @@ import Header from '~/elements/Typography/Header'
 import DiscussionSummary from '~/components/DiscussionSummary'
 import { getDiscussionsByChapter } from '~/models/discussions.server'
 
-interface LoaderData {
-  discussions: FuncType<typeof getDiscussionsByChapter>
-}
-
-export const loader: LoaderFunction = async ({ params, request }) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request)
   invariant(params.chapterId, 'expected chapterId')
 
@@ -29,7 +25,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 }
 
 export default function DiscussionsPage() {
-  const { discussions } = useLoaderData() as LoaderData
+  const { discussions } = useLoaderData<typeof loader>()
 
   const navigate = useNavigate()
 

@@ -3,7 +3,7 @@ import { forbidden } from 'remix-utils'
 import { json, redirect } from '@remix-run/node'
 import { useEffect, useRef, useState } from 'react'
 import { Form, useActionData } from '@remix-run/react'
-import type { ActionFunction, LoaderFunction } from '@remix-run/node'
+import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -16,7 +16,7 @@ import { createDiscussion } from '~/models/discussions.server'
 import DiscussionComposer from '~/components/DiscussionComposer'
 import { notifyNewDiscussion } from '~/models/notifications.server'
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   await requireUserId(request)
   return null
 }
