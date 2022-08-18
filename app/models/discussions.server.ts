@@ -217,6 +217,7 @@ export async function getDiscussionsByChapter(
     select: {
       id: true,
       title: true,
+      _count: { select: { replies: true } },
       member: {
         select: {
           user: {
@@ -247,6 +248,7 @@ export async function getDiscussionsByChapter(
     discussion: {
       id: d.id,
       title: d.title,
+      replyCount: d._count.replies,
     },
     chapter: {
       id: d.chapter.id,
@@ -277,6 +279,7 @@ export async function getDiscussionsForReadChapters(
     select: {
       id: true,
       title: true,
+      _count: { select: { replies: true } },
       member: {
         select: {
           user: {
@@ -307,6 +310,7 @@ export async function getDiscussionsForReadChapters(
     discussion: {
       id: d.id,
       title: d.title,
+      replyCount: d._count.replies,
     },
     chapter: {
       id: d.chapter.id,

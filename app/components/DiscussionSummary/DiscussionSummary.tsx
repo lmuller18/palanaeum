@@ -1,5 +1,4 @@
 import { Link } from '@remix-run/react'
-import { HeartIcon } from '@heroicons/react/outline'
 import { BookOpen, MessageCircle } from 'react-feather'
 
 import TextLink from '~/elements/TextLink'
@@ -18,6 +17,7 @@ const DiscussionSummary = ({
   discussion: {
     id: string
     title: string
+    replyCount: number
   }
   chapter: {
     id: string
@@ -59,13 +59,13 @@ const DiscussionSummary = ({
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 text-slate-400">
           <MessageCircle className="h-5 w-5" />
-          <Text variant="subtitle1">21</Text>
+          <Text variant="subtitle1">{discussion.replyCount}</Text>
         </div>
 
-        <div className="flex items-center gap-3 text-slate-400">
+        {/* <div className="flex items-center gap-3 text-slate-400">
           <HeartIcon className="h-5 w-5" />
           <Text variant="subtitle1">4</Text>
-        </div>
+        </div> */}
       </div>
     </div>
   )
