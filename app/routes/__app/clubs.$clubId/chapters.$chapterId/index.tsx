@@ -1,17 +1,15 @@
-import clsx from 'clsx'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 
-import Post from '~/components/Post'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
 import PieChart from '~/components/Chart/PieChart'
 import { getTopPostByChapter } from '~/models/posts.server'
+import TopConversations from '~/components/TopConversations'
 import { getChapterDetails } from '~/models/chapters.server'
-import DiscussionSummary from '~/components/DiscussionSummary'
 import { getCompletedMembersCount } from '~/models/members.server'
 import { getTopDiscussionByChapter } from '~/models/discussions.server'
 
@@ -78,71 +76,13 @@ export default function ChapterHome() {
         </div>
       </div>
 
-      {/* Top Post Block */}
-      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 via-transparent p-4">
-        <Text variant="title2" className="mb-4" as="h3">
-          Top Post
-        </Text>
-        <div className="relative">
-          {topPost ? (
-            <>
-              <div className={clsx(chapter.status !== 'complete' && 'blur-sm')}>
-                <Post
-                  clubId={clubId}
-                  user={topPost.user}
-                  chapter={topPost.chapter}
-                  post={topPost.post}
-                />
-              </div>
-              {chapter.status !== 'complete' && (
-                <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
-                  <Text variant="title2" serif>
-                    Spoilers! Catch up to your friends to view this post.
-                  </Text>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="flex h-32 flex-col items-center justify-center text-center">
-              <Text variant="title2" as="p" className="-mt-6" serif>
-                No Posts Yet.
-              </Text>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Top Discussion Block */}
-      <div className="mb-6 border-b border-t-2 border-emerald-400 border-b-background-tertiary bg-gradient-to-b from-emerald-400/10 via-transparent p-4">
-        <Text variant="title2" className="mb-4" as="h3">
-          Hottest Discussion
-        </Text>
-        <div className="relative">
-          {topDiscussion ? (
-            <>
-              <div className={clsx(chapter.status !== 'complete' && 'blur-sm')}>
-                <DiscussionSummary
-                  user={topDiscussion?.user}
-                  chapter={topDiscussion?.chapter}
-                  discussion={topDiscussion?.discussion}
-                />
-              </div>
-              {chapter.status !== 'complete' && (
-                <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
-                  <Text variant="title2" serif>
-                    Spoilers! Catch up to your friends to view this discussion.
-                  </Text>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="flex h-32 flex-col items-center justify-center text-center">
-              <Text variant="title2" as="p" className="-mt-6" serif>
-                No Discussions Yet.
-              </Text>
-            </div>
-          )}
-        </div>
+      {/* Top Conversatinos Block */}
+      <div className="mb-6 border-b border-t-2 border-sky-400 border-b-background-tertiary bg-gradient-to-b from-sky-400/10 p-4">
+        <TopConversations
+          readChapters={chapter.status === 'complete' ? [chapter.id] : []}
+          topDiscussion={topDiscussion}
+          topPost={topPost}
+        />
       </div>
     </>
   )
