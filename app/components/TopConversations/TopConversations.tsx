@@ -45,6 +45,7 @@ const TopConversations = ({
     discussion: {
       id: string
       title: string
+      replyCount: number
     }
   } | null
 }) => {

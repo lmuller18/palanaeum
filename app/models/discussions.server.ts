@@ -52,6 +52,7 @@ export async function getTopDiscussionByClub(clubId: string) {
     discussion: {
       id: dbDiscussion.id,
       title: dbDiscussion.title,
+      replyCount: dbDiscussion._count.replies,
     },
   }
 }
@@ -107,6 +108,7 @@ export async function getTopDiscussionByChapter(chapterId: string) {
     discussion: {
       id: dbDiscussion.id,
       title: dbDiscussion.title,
+      replyCount: dbDiscussion._count.replies,
     },
   }
 }
