@@ -14,7 +14,9 @@ export const loader = async ({ request }: LoaderArgs) => {
     `http://openlibrary.org/search.json?mode=works&title=${encodeURIComponent(
       search,
     )}`,
-  ).then(res => res.json())
+  )
+    .then(res => res.json())
+    .catch(() => null)
 
   if (!books?.docs?.length) return json({ results: [] })
 
