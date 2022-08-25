@@ -14,6 +14,7 @@ interface NextChapterProps {
     status: 'incomplete' | 'not_started'
     postCount: number
     discussionCount: number
+    order: number
   } | null
 }
 

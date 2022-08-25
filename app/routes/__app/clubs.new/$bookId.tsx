@@ -286,14 +286,21 @@ export const action: ActionFunction = async ({ request }) => {
     )
   }
 
-  const chapters = formData.getAll('chapters').map(c => {
-    const str = c.toString()
-    const [order, ...title] = str.split(':')
-    return {
-      title: title.join(':'),
-      order: Number(order),
-    }
-  })
+  const chapters = formData
+    .getAll('chapters')
+    .map(c => {
+      const str = c.toString()
+      const [order, ...title] = str.split(':')
+      return {
+        title: title.join(':'),
+        order: Number(order),
+      }
+    })
+    .sort((a, b) => a.order - b.order)
+    .map((c, i) => ({
+      title: c.title,
+      order: i,
+    }))
 
   const club = await createClub({
     title,
@@ -302,7 +309,6 @@ export const action: ActionFunction = async ({ request }) => {
     userId,
     chapters,
   })
-
   return redirect(`/clubs/${club.id}/members/manage`)
 }
 
