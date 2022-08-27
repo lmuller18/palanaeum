@@ -229,6 +229,7 @@ export async function getNextChapterDetails(userId: string, clubId: string) {
   return {
     id: dbChapter.id,
     title: dbChapter.title,
+    order: dbChapter.order,
     membersCompleted: dbChapter._count.progress,
     totalMembers: dbChapter.club.members.length,
     discussionCount: dbChapter._count.discussions,

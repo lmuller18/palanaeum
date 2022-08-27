@@ -421,12 +421,14 @@ const Chapter = ({
       dragControls={dragControls}
       className="relative mb-4 rounded-lg bg-background-secondary p-4"
     >
+      <span className="text-xs text-gray-400">
+        <span className="font-bold">Club Order:</span> {order + 1}
+      </span>
       <label
         htmlFor={chapter.id}
         className="flex items-center justify-between gap-2"
       >
         <div className="flex flex-grow items-center gap-2">
-          {order + 1}.
           <input
             type="hidden"
             name="chapters"

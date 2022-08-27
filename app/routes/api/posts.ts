@@ -57,7 +57,7 @@ export const action = async ({ request }: ActionArgs) => {
         )
         invariant(
           image == null || (image != null && image instanceof File),
-          'incorrect rootId type',
+          'incorrect image type',
         )
 
         const memberId = await getMemberIdFromUserByChapter(userId, chapterId)

@@ -179,6 +179,19 @@ const PostComposer = ({
   const maximumCharacters = 240
   const remaining = maximumCharacters - characters
 
+  const hasImage = !!preview
+  const hasText = !editor?.isEmpty
+  const validText =
+    editor && editor.storage.characterCount.characters() <= maximumCharacters
+
+  const submitDisabled =
+    // submitting
+    fetcher.state === 'submitting' ||
+    // empty
+    (!hasImage && !hasText) ||
+    // invalid
+    (hasText && !validText)
+
   return (
     <div className="border border-background-tertiary p-4">
       <div className="grid grid-cols-[48px,1fr] gap-4">
@@ -232,13 +245,7 @@ const PostComposer = ({
               size="xs"
               ref={submitRef}
               onClick={createPost}
-              disabled={
-                fetcher.state === 'submitting' ||
-                !editor ||
-                editor.isEmpty ||
-                editor.storage.characterCount.characters() < 10 ||
-                editor.storage.characterCount.characters() > maximumCharacters
-              }
+              disabled={submitDisabled}
             >
               Post
             </Button>

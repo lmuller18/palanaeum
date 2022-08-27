@@ -1,8 +1,8 @@
 import bcrypt from '@node-rs/bcrypt'
 import { differenceInDays } from 'date-fns'
 import { prisma } from '~/db.server'
-
-export type { User } from '@prisma/client'
+import type { User } from '@prisma/client'
+export { User }
 
 export async function getUserById(id: string) {
   return prisma.user.findUnique({ where: { id } })
@@ -206,4 +206,14 @@ export async function getUserStats(userId: string) {
     postTotal,
     posts30Days,
   }
+}
+
+export async function updateUser(
+  userId: string,
+  user: Partial<Omit<User, 'id' | 'createdAt' | 'updatedAt'>>,
+) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: user,
+  })
 }
