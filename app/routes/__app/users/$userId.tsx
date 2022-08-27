@@ -30,10 +30,10 @@ import {
 
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
-import { putObject } from '~/s3.server'
 import { getErrorMessage } from '~/utils'
 import Text from '~/elements/Typography/Text'
 import SheetModal from '~/components/SheetModal'
+import { putObject, removeObject } from '~/s3.server'
 import { getClubsByUserId } from '~/models/clubs.server'
 import { requireUser, requireUserId } from '~/session.server'
 import { getUserById, getUserStats, updateUser } from '~/models/users.server'
@@ -560,6 +560,7 @@ export const action = async ({ params, request }: ActionArgs) => {
                 image != null && image instanceof File,
                 'incorrect image type',
               )
+              const prefix = '/reserve/'
               const key = `users/${user.id}/${cuid.slug()}.jpeg`
               await putObject({
                 key,
@@ -568,8 +569,19 @@ export const action = async ({ params, request }: ActionArgs) => {
                 filename: `${user.id}.jpeg`,
               })
               await updateUser(user.id, {
-                avatar: `/reserve/${key}`,
+                avatar: `${prefix}${key}`,
               })
+              if (user.avatar.startsWith(prefix)) {
+                const oldKey = user.avatar.slice(
+                  user.avatar.indexOf(prefix) + prefix.length,
+                )
+                try {
+                  console.log('removing old avatar: ', oldKey)
+                  await removeObject(oldKey)
+                } catch (e) {
+                  console.error('Failure to remove old avatar')
+                }
+              }
             }
             return json({ ok: true })
           default:
