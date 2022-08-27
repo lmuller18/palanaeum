@@ -1,7 +1,7 @@
 import mime from 'mime-types'
 import { Readable } from 'stream'
 import { notFound } from 'remix-utils'
-import { GetObjectCommand } from '@aws-sdk/client-s3'
+import { DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 
 import { s3Client } from './storage.server'
 import { Upload } from '@aws-sdk/lib-storage'
@@ -71,4 +71,13 @@ export async function putObject({
 
   const res = await upload.done()
   return res.$metadata
+}
+
+export async function removeObject(key: string) {
+  return s3Client.send(
+    new DeleteObjectCommand({
+      Bucket: process.env.S3_BUCKET,
+      Key: key,
+    }),
+  )
 }

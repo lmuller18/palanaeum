@@ -1,10 +1,18 @@
+import cuid from 'cuid'
 import clsx from 'clsx'
-import { useState } from 'react'
-import { json } from '@remix-run/node'
 import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
-import { useLoaderData } from '@remix-run/react'
-import type { LoaderArgs } from '@remix-run/node'
+import AvatarEditor from 'react-avatar-editor'
+import { useEffect, useRef, useState } from 'react'
+import { useFetcher, useLoaderData } from '@remix-run/react'
+import type { LoaderArgs, ActionArgs } from '@remix-run/node'
+import {
+  json,
+  unstable_composeUploadHandlers as composeUploadHandlers,
+  unstable_parseMultipartFormData as parseMultipartFormData,
+  unstable_createMemoryUploadHandler as createMemoryUploadHandler,
+} from '@remix-run/node'
+
 import {
   MinusSmIcon,
   ArrowSmUpIcon,
@@ -13,25 +21,22 @@ import {
 import {
   FireIcon,
   UsersIcon,
+  CameraIcon,
   BookOpenIcon,
   BookmarkIcon,
   PencilAltIcon,
   InformationCircleIcon,
 } from '@heroicons/react/outline'
 
+import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
+import { putObject } from '~/s3.server'
+import { getErrorMessage } from '~/utils'
 import Text from '~/elements/Typography/Text'
 import SheetModal from '~/components/SheetModal'
-import { requireUserId } from '~/session.server'
 import { getClubsByUserId } from '~/models/clubs.server'
-import { getUserById, getUserStats } from '~/models/users.server'
-
-// interface LoaderData {
-//   user: RequiredFuncType<typeof getUserById>
-//   userStats: RequiredFuncType<typeof getUserStats>
-//   clubs: FuncType<typeof getClubsByUserId>
-//   isProfile: boolean
-// }
+import { requireUser, requireUserId } from '~/session.server'
+import { getUserById, getUserStats, updateUser } from '~/models/users.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.userId, 'expected userId')
@@ -67,9 +72,7 @@ type Stat = {
 
 export default function ProfilePage() {
   const { user, userStats, isProfile, clubs } = useLoaderData<typeof loader>()
-  const [open, setOpen] = useState(false)
-  const openModal = () => setOpen(true)
-  const closeModal = () => setOpen(false)
+  const [editing, setEditing] = useState(false)
 
   return (
     <div className="mx-auto max-w-lg">
@@ -85,19 +88,22 @@ export default function ProfilePage() {
         />
       </div>
       <div className="-mt-14 flex items-center justify-between gap-4 px-4 xs:-mt-16">
-        <img
-          src={user.avatar}
-          className="mb-2 h-28 w-28 rounded-full border-[4px] border-background-primary xs:h-32 xs:w-32"
-          alt="user avatar"
+        <AvatarSection
+          editing={editing}
+          avatar={user.avatar}
+          username={user.username}
+          setEditing={setEditing}
         />
+
         {isProfile && (
           <div className="mt-8 pt-4">
-            <Button onClick={openModal} type="button" variant="secondary">
+            <Button
+              onClick={() => setEditing(true)}
+              type="button"
+              variant="secondary"
+            >
               Edit Profile
             </Button>
-            <SheetModal open={open} onClose={closeModal}>
-              <Button onClick={closeModal}>Close</Button>
-            </SheetModal>
           </div>
         )}
       </div>
@@ -111,6 +117,173 @@ export default function ProfilePage() {
           <StatsSection userStats={userStats} />
         </div>
       </div>
+    </div>
+  )
+}
+
+const AvatarSection = ({
+  editing,
+  avatar,
+  username,
+  setEditing,
+}: {
+  editing: boolean
+  avatar: string
+  username: string
+  setEditing: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
+  const uploadRef = useRef<HTMLInputElement>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview)
+    }
+  }, [preview])
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e?.target?.files?.[0]) return
+    const image = e.target.files[0]
+    if (preview) URL.revokeObjectURL(preview)
+    const objectUrl = URL.createObjectURL(image)
+    setPreview(objectUrl)
+  }
+
+  const changePhoto = () => {
+    uploadRef.current?.click()
+  }
+
+  const clearPhoto = () => {
+    if (uploadRef.current) uploadRef.current.value = ''
+    setPreview(null)
+  }
+
+  const closeModal = () => {
+    clearPhoto()
+    setEditing(false)
+  }
+
+  return (
+    <div className="relative mb-2 overflow-hidden rounded-full ">
+      <img
+        src={avatar}
+        className="h-28 w-28 rounded-full border-[4px] border-background-primary xs:h-32 xs:w-32"
+        alt="user avatar"
+      />
+      {editing && (
+        <div className="absolute inset-[4px] flex items-center justify-center rounded-full bg-black/70">
+          <button
+            className="rounded-full bg-black/70 p-[6px]"
+            type="button"
+            onClick={changePhoto}
+          >
+            <CameraIcon className="h-6 w-6" />
+            <input
+              ref={uploadRef}
+              onChange={handleImageChange}
+              id="image"
+              name="image"
+              type="file"
+              className="sr-only"
+            />
+          </button>
+          <Modal open={!!preview} onClose={closeModal}>
+            <div className="flex flex-col pt-3">
+              <div className="px-3 pb-4 shadow-sm">
+                <div className="relative mt-2 text-center">
+                  <span className="font-medium">Create Discussion</span>
+                  <div className="absolute inset-y-0 right-0">
+                    <button
+                      className="mr-1 text-blue-500 focus:outline-none"
+                      onClick={closeModal}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="p-2">
+                  {preview && (
+                    <EditAvatarSection
+                      avatar={preview}
+                      username={username}
+                      onSave={closeModal}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </Modal>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const EditAvatarSection = ({
+  avatar,
+  username,
+  onSave: onSaveCallback,
+}: {
+  avatar: string
+  username: string
+  onSave: () => void
+}) => {
+  const [scale, setScale] = useState(1)
+  const ref = useRef<AvatarEditor>(null)
+  const fetcher = useFetcher()
+
+  const onSave = async () => {
+    if (ref.current) {
+      const canvas = ref.current
+      const blob = await new Promise<Blob | null>(resolve =>
+        canvas.getImage().toBlob(resolve, 'image/jpeg'),
+      )
+
+      if (!blob) return
+      const formData = new FormData()
+      formData.append('_action', 'UPDATE_AVATAR')
+      formData.append('image', blob, `${username}.jpg`)
+      fetcher.submit(formData, {
+        method: 'post',
+        replace: true,
+        encType: 'multipart/form-data',
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (fetcher.type === 'done') {
+      if (fetcher.data.ok) {
+        onSaveCallback()
+      }
+    }
+  }, [fetcher, onSaveCallback])
+
+  return (
+    <div className="flex flex-col items-center">
+      <AvatarEditor
+        image={avatar}
+        width={250}
+        height={250}
+        scale={scale}
+        borderRadius={9999}
+        ref={ref}
+      />
+
+      <input
+        type="range"
+        value={scale}
+        min={1}
+        max={2}
+        step={0.01}
+        onChange={e => setScale(Number(e.target.value))}
+      />
+
+      <Button type="button" onClick={onSave}>
+        Save
+      </Button>
     </div>
   )
 }
@@ -359,6 +532,61 @@ const StatsSection = ({
       </dl>
     </div>
   )
+}
+
+export const action = async ({ params, request }: ActionArgs) => {
+  const user = await requireUser(request)
+  switch (request.method.toLowerCase()) {
+    case 'post':
+      try {
+        const formData = await parseMultipartFormData(
+          request,
+          composeUploadHandlers(createMemoryUploadHandler()),
+        )
+
+        const action = formData.get('_action')
+
+        // required fields
+        invariant(
+          action != null && typeof action === 'string',
+          'action required',
+        )
+
+        switch (action) {
+          case 'UPDATE_AVATAR':
+            {
+              const image = formData.get('image')
+              invariant(
+                image != null && image instanceof File,
+                'incorrect image type',
+              )
+              const key = `users/${user.id}/${cuid.slug()}.jpeg`
+              await putObject({
+                key,
+                contentType: 'image/jpeg',
+                data: image,
+                filename: `${user.id}.jpeg`,
+              })
+              await updateUser(user.id, {
+                avatar: `/reserve/${key}`,
+              })
+            }
+            return json({ ok: true })
+          default:
+            throw new Response('Bad request', { status: 400 })
+        }
+      } catch (error) {
+        console.error(error)
+        return json(
+          { error: getErrorMessage(error) },
+          {
+            status: 500,
+          },
+        )
+      }
+    default:
+      throw new Response('Invalid method', { status: 405 })
+  }
 }
 
 export { default as CatchBoundary } from '~/components/CatchBoundary'

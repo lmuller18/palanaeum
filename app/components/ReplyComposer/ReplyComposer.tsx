@@ -173,6 +173,19 @@ const ReplyComposer = ({
 
   const [animateRef, { height }] = useMeasure()
 
+  const hasImage = !!preview
+  const hasText = !editor?.isEmpty
+  const validText =
+    editor && editor.storage.characterCount.characters() <= maximumCharacters
+
+  const submitDisabled =
+    // submitting
+    fetcher.state === 'submitting' ||
+    // empty
+    (!hasImage && !hasText) ||
+    // invalid
+    (hasText && !validText)
+
   return (
     <div
       ref={clickawayRef}
@@ -195,18 +208,9 @@ const ReplyComposer = ({
                 animate="focused"
                 exit="exit"
                 variants={{
-                  blurred: {
-                    opacity: 0,
-                    y: -10,
-                  },
-                  focused: {
-                    opacity: 1,
-                    y: 0,
-                  },
-                  exit: {
-                    opacity: 0,
-                    y: 10,
-                  },
+                  blurred: { opacity: 0, y: -10 },
+                  focused: { opacity: 1, y: 0 },
+                  exit: { opacity: 0, y: 10 },
                 }}
                 ref={animateRef}
                 className={clsx(height ? 'absolute w-full' : 'relative')}
@@ -240,14 +244,7 @@ const ReplyComposer = ({
                       size="xs"
                       onClick={createReply}
                       ref={submitRef}
-                      disabled={
-                        fetcher.state === 'submitting' ||
-                        !editor ||
-                        editor.isEmpty ||
-                        editor.storage.characterCount.characters() < 10 ||
-                        editor.storage.characterCount.characters() >
-                          maximumCharacters
-                      }
+                      disabled={submitDisabled}
                     >
                       Post
                     </Button>
@@ -261,14 +258,8 @@ const ReplyComposer = ({
                       animate="focused"
                       exit="blurred"
                       variants={{
-                        blurred: {
-                          opacity: 0,
-                          y: 10,
-                        },
-                        focused: {
-                          opacity: 1,
-                          y: 0,
-                        },
+                        blurred: { opacity: 0, y: 10 },
+                        focused: { opacity: 1, y: 0 },
                       }}
                       className="mt-6"
                     >
