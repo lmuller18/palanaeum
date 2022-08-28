@@ -77,14 +77,11 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-lg">
       <div className="h-36 w-full overflow-hidden xs:max-h-64 sm:mt-4 sm:rounded-lg">
-        <div
-          className={clsx('h-full w-full bg-cover bg-center bg-no-repeat')}
-          style={{
-            backgroundImage: user.background
-              ? `url("${user.background}")`
-              : 'url("https://www.tor.com/wp-content/uploads/2016/08/WoK-wallpaper-iphone-horizontal-960x640.jpg")',
-            // `url("data:image/svg+xml,<svg id='patternId' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='20' height='20' patternTransform='scale(1) rotate(0)'><rect x='0' y='0' width='100%' height='100%' fill='transparent'/><path d='M3.25 10h13.5M10 3.25v13.5'  stroke-linecap='square' stroke-width='1' stroke='hsla(220, 17%, 14%, 1)' fill='none'/></pattern></defs><rect width='800%' height='800%' transform='translate(0,0)' fill='url(%23a)'/></svg>")`,
-          }}
+        <HeaderSection
+          background={user.background}
+          editing={editing}
+          username={user.username}
+          setEditing={setEditing}
         />
       </div>
       <div className="-mt-14 flex items-center justify-between gap-4 px-4 xs:-mt-16">
@@ -97,13 +94,23 @@ export default function ProfilePage() {
 
         {isProfile && (
           <div className="mt-8 pt-4">
-            <Button
-              onClick={() => setEditing(true)}
-              type="button"
-              variant="secondary"
-            >
-              Edit Profile
-            </Button>
+            {editing ? (
+              <Button
+                onClick={() => setEditing(false)}
+                type="button"
+                variant="warning"
+              >
+                Cancel Edit
+              </Button>
+            ) : (
+              <Button
+                onClick={() => setEditing(true)}
+                type="button"
+                variant="secondary"
+              >
+                Edit Profile
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -117,6 +124,110 @@ export default function ProfilePage() {
           <StatsSection userStats={userStats} />
         </div>
       </div>
+    </div>
+  )
+}
+
+const HeaderSection = ({
+  editing,
+  background,
+  username,
+  setEditing,
+}: {
+  editing: boolean
+  background: string | null
+  username: string
+  setEditing: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
+  const uploadRef = useRef<HTMLInputElement>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview)
+    }
+  }, [preview])
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e?.target?.files?.[0]) return
+    const image = e.target.files[0]
+    if (preview) URL.revokeObjectURL(preview)
+    const objectUrl = URL.createObjectURL(image)
+    setPreview(objectUrl)
+  }
+
+  const changePhoto = () => {
+    uploadRef.current?.click()
+  }
+
+  const clearPhoto = () => {
+    if (uploadRef.current) uploadRef.current.value = ''
+    setPreview(null)
+  }
+
+  const closeModal = () => {
+    clearPhoto()
+    setEditing(false)
+  }
+
+  return (
+    <div className="relative h-full w-full">
+      <div
+        className={clsx('h-full w-full bg-cover bg-center bg-no-repeat')}
+        style={{
+          backgroundImage: background
+            ? `url("${background}")`
+            : 'url("https://www.tor.com/wp-content/uploads/2016/08/WoK-wallpaper-iphone-horizontal-960x640.jpg")',
+        }}
+      />
+      {editing && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+          <button
+            className="rounded-full bg-black/70 p-[6px]"
+            type="button"
+            onClick={changePhoto}
+          >
+            <CameraIcon className="h-6 w-6" />
+            <input
+              ref={uploadRef}
+              onChange={handleImageChange}
+              id="image"
+              name="image"
+              type="file"
+              className="sr-only"
+            />
+          </button>
+          <Modal open={!!preview} onClose={closeModal}>
+            <div className="flex flex-col pt-3">
+              <div className="px-3 pb-4 shadow-sm">
+                <div className="relative mt-2 text-center">
+                  <span className="font-medium">Upload Header</span>
+                  <div className="absolute inset-y-0 right-0">
+                    <button
+                      className="mr-1 text-blue-500 focus:outline-none"
+                      onClick={closeModal}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="p-2">
+                  {preview && (
+                    <EditUploadSection
+                      image={preview}
+                      username={username}
+                      onSave={closeModal}
+                      uploadAction="UPDATE_HEADER"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </Modal>
+        </div>
+      )}
     </div>
   )
 }
@@ -191,7 +302,7 @@ const AvatarSection = ({
             <div className="flex flex-col pt-3">
               <div className="px-3 pb-4 shadow-sm">
                 <div className="relative mt-2 text-center">
-                  <span className="font-medium">Create Discussion</span>
+                  <span className="font-medium">Upload Avatar</span>
                   <div className="absolute inset-y-0 right-0">
                     <button
                       className="mr-1 text-blue-500 focus:outline-none"
@@ -205,10 +316,11 @@ const AvatarSection = ({
               <div className="flex-1">
                 <div className="p-2">
                   {preview && (
-                    <EditAvatarSection
-                      avatar={preview}
+                    <EditUploadSection
+                      image={preview}
                       username={username}
                       onSave={closeModal}
+                      uploadAction="UPDATE_AVATAR"
                     />
                   )}
                 </div>
@@ -221,13 +333,15 @@ const AvatarSection = ({
   )
 }
 
-const EditAvatarSection = ({
-  avatar,
+const EditUploadSection = ({
+  image,
   username,
+  uploadAction,
   onSave: onSaveCallback,
 }: {
-  avatar: string
+  image: string
   username: string
+  uploadAction: 'UPDATE_AVATAR' | 'UPDATE_HEADER'
   onSave: () => void
 }) => {
   const [scale, setScale] = useState(1)
@@ -243,8 +357,14 @@ const EditAvatarSection = ({
 
       if (!blob) return
       const formData = new FormData()
-      formData.append('_action', 'UPDATE_AVATAR')
-      formData.append('image', blob, `${username}.jpg`)
+      formData.append('_action', uploadAction)
+      formData.append(
+        'image',
+        blob,
+        `${
+          uploadAction === 'UPDATE_AVATAR' ? 'avatar' : 'header'
+        }-${username}.jpg`,
+      )
       fetcher.submit(formData, {
         method: 'post',
         replace: true,
@@ -261,14 +381,24 @@ const EditAvatarSection = ({
     }
   }, [fetcher, onSaveCallback])
 
+  const avatarProps = {
+    width: 250,
+    height: 250,
+    borderRadius: 9999,
+    scale,
+  }
+
+  const headerProps = {
+    width: 512,
+    height: 144,
+    scale,
+  }
+
   return (
     <div className="flex flex-col items-center">
       <AvatarEditor
-        image={avatar}
-        width={250}
-        height={250}
-        scale={scale}
-        borderRadius={9999}
+        image={image}
+        {...(uploadAction === 'UPDATE_AVATAR' ? avatarProps : headerProps)}
         ref={ref}
       />
 
@@ -281,7 +411,11 @@ const EditAvatarSection = ({
         onChange={e => setScale(Number(e.target.value))}
       />
 
-      <Button type="button" onClick={onSave}>
+      <Button
+        type="button"
+        onClick={onSave}
+        disabled={fetcher.state === 'submitting'}
+      >
         Save
       </Button>
     </div>
@@ -553,6 +687,36 @@ export const action = async ({ params, request }: ActionArgs) => {
         )
 
         switch (action) {
+          case 'UPDATE_HEADER': {
+            const image = formData.get('image')
+            invariant(
+              image != null && image instanceof File,
+              'incorrect image type',
+            )
+            const prefix = '/reserve/'
+            const key = `users/${user.id}/header-${cuid.slug()}.jpeg`
+            await putObject({
+              key,
+              contentType: 'image/jpeg',
+              data: image,
+              filename: 'header.jpeg',
+            })
+            await updateUser(user.id, {
+              background: `${prefix}${key}`,
+            })
+            if (user.background?.startsWith(prefix)) {
+              const oldKey = user.background.slice(
+                user.background.indexOf(prefix) + prefix.length,
+              )
+              try {
+                console.log('removing old background: ', oldKey)
+                await removeObject(oldKey)
+              } catch (e) {
+                console.error('Failure to remove old background')
+              }
+            }
+            return json({ ok: true })
+          }
           case 'UPDATE_AVATAR':
             {
               const image = formData.get('image')
@@ -561,12 +725,12 @@ export const action = async ({ params, request }: ActionArgs) => {
                 'incorrect image type',
               )
               const prefix = '/reserve/'
-              const key = `users/${user.id}/${cuid.slug()}.jpeg`
+              const key = `users/${user.id}/avatar-${cuid.slug()}.jpeg`
               await putObject({
                 key,
                 contentType: 'image/jpeg',
                 data: image,
-                filename: `${user.id}.jpeg`,
+                filename: 'avatar.jpeg',
               })
               await updateUser(user.id, {
                 avatar: `${prefix}${key}`,
