@@ -96,7 +96,7 @@ const TopConversations = ({
                 as="div"
                 className={clsx(
                   !readChapters.includes(topPost.chapter.id) && 'blur-sm',
-                  'p-2 active:rounded-lg',
+                  'rounded-lg p-2',
                 )}
               >
                 <Post
@@ -130,7 +130,7 @@ const TopConversations = ({
                 as="div"
                 className={clsx(
                   !readChapters.includes(topDiscussion.chapter.id) && 'blur-sm',
-                  'p-2 active:rounded-lg',
+                  'rounded-lg p-2',
                 )}
                 onClick={() =>
                   navigate(
