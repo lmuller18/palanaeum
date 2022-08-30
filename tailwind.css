@@ -9,6 +9,10 @@
     /* default to body1 text variant */
     /* @apply text-base font-normal leading-6 tracking-[0.00938em]; */
   }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 .dark {
