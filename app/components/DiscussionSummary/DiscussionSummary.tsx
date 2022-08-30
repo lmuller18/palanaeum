@@ -26,7 +26,7 @@ const DiscussionSummary = ({
   }
 }) => {
   return (
-    <div>
+    <article>
       <Text variant="title3" className="mb-2 line-clamp-2">
         {discussion.title}
       </Text>
@@ -41,7 +41,11 @@ const DiscussionSummary = ({
             />
           </Link>
 
-          <TextLink to={`/users/${user.id}`} variant="subtitle1">
+          <TextLink
+            to={`/users/${user.id}`}
+            variant="subtitle1"
+            onClick={e => e.stopPropagation()}
+          >
             {user.username}
           </TextLink>
         </div>
@@ -50,6 +54,7 @@ const DiscussionSummary = ({
           color="blue"
           to={`/clubs/${chapter.clubId}/chapters/${chapter.id}`}
           className="flex items-center gap-1"
+          onClick={e => e.stopPropagation()}
         >
           <BookOpen className="h-4 w-4" />
           {chapter.title}
@@ -67,7 +72,7 @@ const DiscussionSummary = ({
           <Text variant="subtitle1">4</Text>
         </div> */}
       </div>
-    </div>
+    </article>
   )
 }
 

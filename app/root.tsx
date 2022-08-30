@@ -45,7 +45,8 @@ export const links: LinksFunction = () => {
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
   title: 'Palanaeum',
-  viewport: 'width=device-width,initial-scale=1, viewport-fit=cover',
+  viewport:
+    'width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no',
   'apple-mobile-web-app-status-bar-style': 'black-translucent',
 })
 

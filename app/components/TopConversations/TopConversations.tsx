@@ -1,10 +1,11 @@
 import clsx from 'clsx'
 import { Tab } from '@headlessui/react'
-import { useParams } from '@remix-run/react'
+import { useNavigate, useParams } from '@remix-run/react'
 
 import Post from '../Post'
 import Text from '~/elements/Typography/Text'
 import DiscussionSummary from '../DiscussionSummary'
+import ClickableArea from '~/elements/ClickableArea'
 
 const TopConversations = ({
   topPost,
@@ -50,6 +51,7 @@ const TopConversations = ({
   } | null
 }) => {
   const { clubId } = useParams()
+  const navigate = useNavigate()
   if (!clubId) return null
 
   if (topPost && !readChapters.includes(topPost.chapter.id)) {
@@ -87,12 +89,14 @@ const TopConversations = ({
         </Tab>
       </Tab.List>
       <Tab.Panels className="mt-4">
-        <Tab.Panel className={clsx('focus:outline-none')}>
+        <Tab.Panel className="focus:outline-none">
           {topPost ? (
             <div className="relative">
-              <div
+              <ClickableArea
+                as="div"
                 className={clsx(
                   !readChapters.includes(topPost.chapter.id) && 'blur-sm',
+                  'p-2 active:rounded-lg',
                 )}
               >
                 <Post
@@ -101,7 +105,7 @@ const TopConversations = ({
                   chapter={topPost.chapter}
                   post={topPost.post}
                 />
-              </div>
+              </ClickableArea>
               {!readChapters.includes(topPost.chapter.id) && (
                 <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
                   <Text variant="title2" serif>
@@ -122,17 +126,24 @@ const TopConversations = ({
         <Tab.Panel className={clsx('focus:outline-none')}>
           {topDiscussion ? (
             <div className="relative">
-              <div
+              <ClickableArea
+                as="div"
                 className={clsx(
                   !readChapters.includes(topDiscussion.chapter.id) && 'blur-sm',
+                  'p-2 active:rounded-lg',
                 )}
+                onClick={() =>
+                  navigate(
+                    `/clubs/${topDiscussion.chapter.clubId}/chapters/${topDiscussion.chapter.id}/discussions/${topDiscussion.discussion.id}`,
+                  )
+                }
               >
                 <DiscussionSummary
-                  user={topDiscussion?.user}
-                  chapter={topDiscussion?.chapter}
-                  discussion={topDiscussion?.discussion}
+                  user={topDiscussion.user}
+                  chapter={topDiscussion.chapter}
+                  discussion={topDiscussion.discussion}
                 />
-              </div>
+              </ClickableArea>
               {!readChapters.includes(topDiscussion.chapter.id) && (
                 <div className="absolute inset-0 flex h-full w-full items-center justify-center text-center">
                   <Text variant="title2" serif>
