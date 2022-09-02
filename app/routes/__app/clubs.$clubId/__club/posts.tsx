@@ -41,7 +41,7 @@ export default function PostsPage() {
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <div>
+    <div className="mb-4">
       <PostComposer
         defaultChapter={nextChapter ?? chapters[chapters.length - 1]}
         chapters={chapters}

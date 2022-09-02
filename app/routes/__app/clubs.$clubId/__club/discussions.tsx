@@ -44,7 +44,7 @@ export default function DiscussionsPage() {
 
   return (
     <>
-      <div>
+      <div className="mb-4">
         <div className="mb-4 flex items-baseline justify-between">
           <Header size="h5" font="serif">
             Discussions
