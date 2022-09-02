@@ -14,7 +14,7 @@ const ClickableArea = ({ as, className, ...props }: ClickableAreaProps) => {
   return (
     <Tag
       className={clsx(
-        'group touch-none select-none transition-colors duration-75 active:bg-white/10',
+        'group select-none transition-colors duration-75 active:bg-white/10',
         className,
       )}
       {...props}

@@ -7,6 +7,7 @@ const PwaMeta = () => (
       href="/icons/favicon-196.png"
     />
     <link rel="apple-touch-icon" href="/icons/apple-icon-180.png" />
+    <meta name="theme-color" content="#191a21" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link
       rel="apple-touch-startup-image"
