@@ -84,7 +84,9 @@ const TabLink = ({
                 layoutId="underline"
                 className={clsx('h-[2px] w-full', themes[color].border)}
               />
-            ) : null}
+            ) : (
+              <div className="h-[2px] w-full" />
+            )}
           </>
         )}
       </NavLink>

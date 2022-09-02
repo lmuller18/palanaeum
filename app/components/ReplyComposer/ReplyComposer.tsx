@@ -189,10 +189,7 @@ const ReplyComposer = ({
   return (
     <div
       ref={clickawayRef}
-      className="fixed bottom-0 left-0 right-0 min-h-[62px] w-full border-t border-background-tertiary bg-background-secondary"
-      style={{
-        paddingBottom: 'env(safe-area-inset-bottom)',
-      }}
+      className="fixed bottom-0 left-0 right-0 min-h-[62px] w-full border-t border-background-tertiary bg-background-secondary pb-safe-bottom"
     >
       <div className="min-w-0 flex-grow border-x border-t border-background-tertiary p-4">
         <EditorContent editor={editor} />

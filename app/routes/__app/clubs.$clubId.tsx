@@ -19,12 +19,7 @@ export default function ClubNavigationLayout() {
       <Outlet />
 
       {/* Nav section */}
-      <div
-        className="h-14"
-        style={{
-          paddingBottom: 'env(safe-area-inset-bottom)',
-        }}
-      />
+      <div className="h-14 pb-safe-bottom" />
       <NavSection secondaryNavSections={secondaryNavSections} />
     </>
   )
@@ -62,12 +57,7 @@ const NavSection = ({
           </motion.div>
         )}
       </AnimatePresence>
-      <div
-        className="relative z-[999] bg-black"
-        style={{
-          paddingBottom: 'env(safe-area-inset-bottom)',
-        }}
-      >
+      <div className="relative z-[999] bg-background-secondary pb-safe-bottom">
         <NavBar hasSecondaryNav={hasSecondaryNav} />
       </div>
     </div>
