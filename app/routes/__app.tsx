@@ -6,7 +6,6 @@ import { useUser } from '~/utils'
 import Sidenav from '~/components/Sidenav'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
-import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 
 export default function AppLayout() {
@@ -21,12 +20,7 @@ export default function AppLayout() {
 
   return (
     <>
-      <motion.header
-        className={clsx(
-          'fixed left-0 right-0 top-0 isolate z-50 bg-background-secondary pt-safe-top',
-          !secondaryNav && 'shadow-lg',
-        )}
-      >
+      <motion.header className="fixed left-0 right-0 top-0 isolate z-50 bg-background-secondary pt-safe-top shadow-lg">
         <div className="relative z-[999] flex items-center justify-between bg-background-secondary px-4 py-2">
           <button type="button" onClick={() => setSidebarOpen(o => !o)}>
             <MenuAlt2Icon className="h-8 w-8" />
