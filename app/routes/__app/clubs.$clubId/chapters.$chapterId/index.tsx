@@ -39,7 +39,7 @@ export default function ChapterHome() {
 
   return (
     <>
-      <Header size="h4" font="serif" className="my-4">
+      <Header size="h4" font="serif" className="mb-4">
         Chapter Overview
       </Header>
 

@@ -36,7 +36,7 @@ export default function ChapterPage() {
 
   return (
     <>
-      <div className="h-12" />
+      <div className="mb-4 h-12" />
 
       <div className="relative mx-auto max-w-lg px-4">
         <Outlet />
