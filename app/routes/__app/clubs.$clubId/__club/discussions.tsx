@@ -1,9 +1,15 @@
-import { Fragment, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
+import { Fragment, useState } from 'react'
 import type { LoaderArgs } from '@remix-run/node'
+import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
 import { CheckIcon, SelectorIcon } from '@heroicons/react/outline'
-import { useLoaderData, useNavigate, useParams } from '@remix-run/react'
+import {
+  useLoaderData,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from '@remix-run/react'
 
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
@@ -17,11 +23,13 @@ import DiscussionSummary from '~/components/DiscussionSummary'
 import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
-  const userId = await requireUserId(request)
   invariant(params.clubId, 'expected clubId')
+  const userId = await requireUserId(request)
+  const searchParams = new URL(request.url).searchParams
+  const sortOrder = searchParams.get('sort') === 'time' ? 'time' : 'chapter'
 
   const [discussions, chapters] = await Promise.all([
-    getDiscussionsForReadChapters(params.clubId, userId),
+    getDiscussionsForReadChapters(params.clubId, userId, sortOrder),
     getChapterList(params.clubId, userId),
   ])
 
@@ -45,7 +53,7 @@ export default function DiscussionsPage() {
   return (
     <>
       <div className="mb-4">
-        <div className="mb-4 flex items-baseline justify-between">
+        <div className="mb-4 flex items-baseline justify-between border-b border-background-tertiary pb-2">
           <Header size="h5" font="serif">
             Discussions
           </Header>
@@ -53,6 +61,9 @@ export default function DiscussionsPage() {
             New +
           </TextButton>
         </div>
+
+        {discussions.length !== 0 && <DiscussionSort />}
+
         <div className="flex flex-col gap-4">
           {discussions.map(d => (
             <button
@@ -82,6 +93,32 @@ export default function DiscussionsPage() {
       </div>
       <CreateDiscussionModal open={open} onClose={onClose} />
     </>
+  )
+}
+
+const DiscussionSort = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const sort = searchParams.get('sort') === 'time' ? 'time' : 'chapter'
+
+  const changeSort = () => {
+    searchParams.set('sort', sort === 'time' ? 'chapter' : 'time')
+    setSearchParams(searchParams)
+  }
+
+  return (
+    <div className="mb-4 flex w-full items-center justify-end text-blue-500">
+      <button type="button" onClick={changeSort}>
+        <Text variant="subtitle2" className="cursor-pointer font-bold" as="p">
+          Sort{' '}
+          <Text variant="subtitle2" as="span" className="font-normal">
+            {sort === 'time' && '(Time)'}
+            {sort === 'chapter' && '(Chapter)'}
+          </Text>
+        </Text>
+      </button>
+      <SortIcon className="h-6 w-6" />
+    </div>
   )
 }
 
