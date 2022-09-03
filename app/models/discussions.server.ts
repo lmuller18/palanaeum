@@ -263,7 +263,9 @@ export async function getDiscussionsByChapter(
 export async function getDiscussionsForReadChapters(
   clubId: string,
   userId: string,
+  sortOrder?: 'chapter' | 'time',
 ) {
+  const sort = sortOrder ?? 'time'
   const dbDiscussions = await prisma.discussion.findMany({
     where: {
       AND: [
@@ -301,6 +303,10 @@ export async function getDiscussionsForReadChapters(
         },
       },
     },
+    orderBy:
+      sort === 'chapter'
+        ? [{ chapter: { order: 'desc' } }, { createdAt: 'desc' }]
+        : { createdAt: 'desc' },
   })
 
   return dbDiscussions.map(d => ({
