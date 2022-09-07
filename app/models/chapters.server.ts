@@ -265,6 +265,7 @@ export async function getChaptersReadByDay(userId: string, clubId: string) {
       read: 0,
       remaining: dbClub._count.chapters,
       countsByDay: [],
+      total: dbClub._count.chapters,
     }
 
   const progress = dbProgress.reduce((acc, cur) => {
@@ -334,6 +335,7 @@ export async function getChaptersReadByDay(userId: string, clubId: string) {
     read: dbProgress.length,
     remaining: remaining,
     countsByDay,
+    total: dbClub._count.chapters,
   }
 }
 

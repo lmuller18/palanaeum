@@ -1,4 +1,6 @@
+import clsx from 'clsx'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import invariant from 'tiny-invariant'
 import { json, redirect } from '@remix-run/node'
 import { ChevronUpIcon } from '@heroicons/react/solid'
@@ -19,6 +21,7 @@ import { getTopPostByClub } from '~/models/posts.server'
 import { deleteClub, getClub } from '~/models/clubs.server'
 import TopConversations from '~/components/TopConversations'
 import { getTopDiscussionByClub } from '~/models/discussions.server'
+import { getMembersWithProgressByClub } from '~/models/members.server'
 import {
   getReadChapters,
   getChaptersReadByDay,
@@ -29,15 +32,23 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
 
-  const [nextChapter, counts, club, topPost, topDiscussion, readChapters] =
-    await Promise.all([
-      getNextChapterDetails(userId, params.clubId),
-      getChaptersReadByDay(userId, params.clubId),
-      getClub(params.clubId, userId),
-      getTopPostByClub(params.clubId),
-      getTopDiscussionByClub(params.clubId),
-      getReadChapters(userId, params.clubId),
-    ])
+  const [
+    nextChapter,
+    counts,
+    club,
+    topPost,
+    topDiscussion,
+    readChapters,
+    members,
+  ] = await Promise.all([
+    getNextChapterDetails(userId, params.clubId),
+    getChaptersReadByDay(userId, params.clubId),
+    getClub(params.clubId, userId),
+    getTopPostByClub(params.clubId),
+    getTopDiscussionByClub(params.clubId),
+    getReadChapters(userId, params.clubId),
+    getMembersWithProgressByClub(params.clubId),
+  ])
 
   if (!club) throw new Response('Club not found', { status: 404 })
   if (!counts) throw new Response('Club not found', { status: 404 })
@@ -45,6 +56,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   return json({
     counts,
     topPost,
+    members,
     nextChapter,
     readChapters,
     topDiscussion,
@@ -54,8 +66,15 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
 export default function ClubPage() {
   const { clubId } = useParams()
-  const { counts, topPost, isOwner, nextChapter, readChapters, topDiscussion } =
-    useLoaderData<typeof loader>()
+  const {
+    counts,
+    topPost,
+    isOwner,
+    nextChapter,
+    readChapters,
+    topDiscussion,
+    members,
+  } = useLoaderData<typeof loader>()
 
   const [deleteOpen, setDeleteOpen] = useState(false)
   const openDeleteModal = () => setDeleteOpen(true)
@@ -159,6 +178,53 @@ export default function ClubPage() {
               }
             />
           </div>
+        </div>
+      </div>
+
+      {/* Member Progress Block */}
+      <div className="mb-6 border-b border-t-2 border-pink-500 border-b-background-tertiary bg-gradient-to-b from-pink-300/10 via-transparent p-4">
+        <Text variant="title2" as="h3" className="mb-4">
+          Member Progress
+        </Text>
+        <div className="flex flex-col gap-4">
+          {members.map(m => (
+            <div key={m.user.id} className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <img
+                    src={m.user.avatar}
+                    className="mr-3 h-7 w-7 overflow-hidden rounded-full"
+                    alt={`${m.user.username} avatar`}
+                  />
+
+                  <Text variant="body1">{m.user.username}</Text>
+                </div>
+
+                <div>
+                  <Text
+                    variant="caption"
+                    className="tracking-widest text-gray-100/70"
+                  >
+                    {m.chapterCount} / {counts.total}
+                  </Text>
+                </div>
+              </div>
+              <div className="mx-4 flex flex-auto rounded-full bg-background-tertiary">
+                <motion.div
+                  className={clsx(
+                    'h-2 flex-none rounded-l-full  bg-pink-600/70',
+                    m.chapterCount === counts.total
+                      ? 'rounded-r-full'
+                      : 'rounded-r-[1px]',
+                  )}
+                  animate={{
+                    width: `${(m.chapterCount / counts.total) * 100}%`,
+                  }}
+                />
+                <motion.div className="-my-[0.3125rem] ml-0.5 h-[1.125rem] w-1 rounded-full bg-pink-600" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

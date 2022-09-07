@@ -26,3 +26,24 @@ export async function getCompletedMembersCount(
     remaining: dbClub._count.members - total,
   }
 }
+
+export async function getMembersWithProgressByClub(clubId: string) {
+  const dbMembers = await prisma.member.findMany({
+    where: { removed: false, clubId },
+    select: {
+      user: {
+        select: {
+          id: true,
+          avatar: true,
+          username: true,
+        },
+      },
+      _count: { select: { progress: true } },
+    },
+  })
+
+  return dbMembers.map(m => ({
+    user: m.user,
+    chapterCount: m._count.progress,
+  }))
+}

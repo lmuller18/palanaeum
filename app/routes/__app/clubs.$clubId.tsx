@@ -16,10 +16,12 @@ export default function ClubNavigationLayout() {
 
   return (
     <>
-      <Outlet />
+      <div className="pb-safe-bottom">
+        <Outlet />
+      </div>
 
       {/* Nav section */}
-      <div className="h-14 pb-safe-bottom" />
+      <div className="h-14" />
       <NavSection secondaryNavSections={secondaryNavSections} />
     </>
   )
