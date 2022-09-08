@@ -82,7 +82,12 @@ const TopNav = ({
         <TextLink to={absoluteUrl}>
           <ChevronLeftIcon className="h-4 w-4" />
         </TextLink>
-        <TextLink serif variant="title2" className="block" to=".">
+        <TextLink
+          serif
+          variant="title2"
+          className="block"
+          to={`/clubs/${clubId}/chapters/${chapterId}`}
+        >
           {title}
         </TextLink>
       </div>
