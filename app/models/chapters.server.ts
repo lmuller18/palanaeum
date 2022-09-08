@@ -307,6 +307,10 @@ export async function getChaptersReadByDay(userId: string, clubId: string) {
     )
 
   const startDate = add(dbClub.createdAt, { days: -1 })
+  const endDate =
+    dbProgress.length === dbClub._count.chapters
+      ? counts.at(-1)?.date ?? startOfToday()
+      : startOfToday()
 
   let current = {
     name: startDate.toISOString(),
@@ -316,7 +320,7 @@ export async function getChaptersReadByDay(userId: string, clubId: string) {
 
   const range = eachDayOfInterval({
     start: startDate,
-    end: startOfToday(),
+    end: endDate,
   })
 
   const countsByDay: Array<{ name: string; date: Date; y: number }> = [current]

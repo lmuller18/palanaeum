@@ -2,7 +2,13 @@ import clsx from 'clsx'
 import type { RouteMatch } from '@remix-run/react'
 import { Outlet, useMatches } from '@remix-run/react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { FireIcon, HomeIcon, NewspaperIcon } from '@heroicons/react/outline'
+import {
+  HomeIcon,
+  BookOpenIcon,
+  NewspaperIcon as DiscussionsIcon,
+  BookmarkAltIcon as ChaptersIcon,
+  SpeakerphoneIcon as PostsIcon,
+} from '@heroicons/react/outline'
 
 import TabLink from '~/components/TabLink'
 import useValueChanged from '~/hooks/use-value-changed'
@@ -74,14 +80,22 @@ const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
     )}
   >
     <LayoutGroup id="club-nav">
-      <TabLink to="posts" color="sky">
-        <FireIcon className="h-6 w-6" />
-      </TabLink>
-      <TabLink to="." end color="teal">
+      <TabLink to=".." color="sky">
         <HomeIcon className="h-6 w-6" />
       </TabLink>
+      <TabLink to="chapters" color="pink">
+        <ChaptersIcon className="h-6 w-6" />
+      </TabLink>
+
+      <TabLink to="." end color="teal">
+        <BookOpenIcon className="h-6 w-6" />
+      </TabLink>
+
+      <TabLink to="posts" color="sky">
+        <PostsIcon className="h-6 w-6" />
+      </TabLink>
       <TabLink to="discussions" color="indigo">
-        <NewspaperIcon className="h-6 w-6" />
+        <DiscussionsIcon className="h-6 w-6" />
       </TabLink>
     </LayoutGroup>
   </div>

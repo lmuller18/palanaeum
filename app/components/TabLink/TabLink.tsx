@@ -23,6 +23,10 @@ const themes = {
     bg: 'from-teal-400/20',
     border: 'bg-teal-500',
   },
+  pink: {
+    bg: 'from-pink-400/20',
+    border: 'bg-pink-500',
+  },
 }
 
 const TabLink = ({
