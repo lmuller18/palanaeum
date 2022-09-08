@@ -69,6 +69,21 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   })
 }
 
+export const handle = {
+  topNav: ({ data: { book } }: { data: { book: { title: string } } }) => (
+    <div className="bg-background-secondary">
+      <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
+        <TextLink to={`/clubs/new/search?q=${encodeURIComponent(book.title)}`}>
+          <ChevronLeftIcon className="h-4 w-4" />
+        </TextLink>
+        <Text serif variant="title2" as="p">
+          Import Book
+        </Text>
+      </div>
+    </div>
+  ),
+}
+
 export default function BookPage() {
   const { book } = useLoaderData<typeof loader>()
 
@@ -77,18 +92,7 @@ export default function BookPage() {
 
   return (
     <div>
-      <div className="bg-background-secondary">
-        <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
-          <TextLink
-            to={`/clubs/new/search?q=${encodeURIComponent(book.title)}`}
-          >
-            <ChevronLeftIcon className="h-4 w-4" />
-          </TextLink>
-          <TextLink serif variant="title2" className="block" to=".">
-            Import Book
-          </TextLink>
-        </div>
-      </div>
+      <div className="h-12" />
 
       <Form method="post">
         <div className="relative py-6 pt-10">

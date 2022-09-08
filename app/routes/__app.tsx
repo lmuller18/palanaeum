@@ -41,7 +41,7 @@ export default function AppLayout() {
           </div>
         </div>
 
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="popLayout" initial={false}>
           {secondaryNav && (
             <motion.div
               initial={{ y: -50 }}
@@ -49,9 +49,8 @@ export default function AppLayout() {
               exit={{ y: -50 }}
             >
               {secondaryNav.handle?.topNav({
-                title: secondaryNav.data.chapter.title,
-                clubId: secondaryNav.params.clubId,
-                chapterId: secondaryNav.params.chapterId,
+                data: secondaryNav.data,
+                params: secondaryNav.params,
               })}
             </motion.div>
           )}

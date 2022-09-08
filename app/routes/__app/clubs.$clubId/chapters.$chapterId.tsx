@@ -135,13 +135,16 @@ const SpringLink = ({
 
 export const handle = {
   topNav: ({
-    title,
-    chapterId,
-    clubId,
+    params: { clubId, chapterId },
+    data: {
+      chapter: { title },
+    },
   }: {
-    title: string
-    chapterId: string
-    clubId: string
+    params: {
+      clubId: string
+      chapterId: string
+    }
+    data: { chapter: { title: string } }
   }) => <TopNav title={title} chapterId={chapterId} clubId={clubId} />,
   nav: (match: { params: { chapterId: string; clubId: string } }) => (
     <div className="relative grid grid-cols-3 items-center overflow-hidden rounded-md bg-background-primary bg-opacity-50 p-1">
