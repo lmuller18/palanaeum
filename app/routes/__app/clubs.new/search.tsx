@@ -52,6 +52,21 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const BOOKS = ['Leviathan Wakes', 'Warbreaker', 'Dune']
 
+export const handle = {
+  topNav: () => (
+    <div className="bg-background-secondary">
+      <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
+        <TextLink to="/clubs/new">
+          <ChevronLeftIcon className="h-4 w-4" />
+        </TextLink>
+        <Text serif variant="title2" as="p">
+          Import Book
+        </Text>
+      </div>
+    </div>
+  ),
+}
+
 export default function Page() {
   const data = useLoaderData() as LoaderData
   const [params] = useSearchParams()
@@ -63,16 +78,7 @@ export default function Page() {
 
   return (
     <div>
-      <div className="mb-4 bg-background-secondary">
-        <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
-          <TextLink to={`/clubs/new`}>
-            <ChevronLeftIcon className="h-4 w-4" />
-          </TextLink>
-          <TextLink serif variant="title2" className="block" to=".">
-            Import Book
-          </TextLink>
-        </div>
-      </div>
+      <div className="mb-4 h-12" />
 
       <div className="mx-auto w-full max-w-md px-8 md:max-w-lg">
         <Form method="get" className="mb-4">
