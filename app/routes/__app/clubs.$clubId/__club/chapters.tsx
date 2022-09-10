@@ -200,7 +200,7 @@ const ChapterEntry = ({
             <Link
               to={chapter.id}
               className="flex items-center text-sm font-bold leading-6 text-pink-500 hover:text-pink-700 active:text-pink-900"
-              aria-label={`Show notes for episode ${chapter.title}`}
+              aria-label={`Chapter homepage for chapter ${chapter.title}`}
             >
               View Chapter
             </Link>
