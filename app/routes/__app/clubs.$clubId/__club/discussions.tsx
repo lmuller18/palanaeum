@@ -83,15 +83,21 @@ export default function DiscussionsPage() {
             <DiscussionEntry key={d.discussion.id} data={d} />
           ))}
           {!discussions.length && (
-            <div className="block overflow-hidden rounded-lg bg-background-secondary p-4 text-left shadow-sm">
-              <Text>
-                No discussions yet. Be the first to{' '}
-                <TextButton onClick={onOpen} color="indigo">
-                  start the conversation
-                </TextButton>{' '}
-                about this chapter.
-              </Text>
-            </div>
+            <Container className="mt-4">
+              <div className="block overflow-hidden rounded-lg bg-background-secondary p-4 text-left shadow-sm">
+                <Text>
+                  No discussions yet. Be the first to{' '}
+                  <TextButton
+                    onClick={onOpen}
+                    color="indigo"
+                    className="font-medium"
+                  >
+                    start the conversation
+                  </TextButton>{' '}
+                  about this chapter.
+                </Text>
+              </div>
+            </Container>
           )}
         </div>
       </div>
@@ -148,9 +154,9 @@ const DiscussionEntry = ({
           </div>
           <div className="mt-4 flex items-center gap-4">
             <Link
-              to={data.discussion.id}
+              to={`../chapters/${data.chapter.id}`}
               className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
-              aria-label={`Show notes for episode ${data.discussion.title}`}
+              aria-label={`Chapter for discussion ${data.discussion.title}`}
             >
               View Chapter
             </Link>
@@ -161,9 +167,9 @@ const DiscussionEntry = ({
               /
             </span>
             <Link
-              to={data.discussion.id}
+              to={`../chapters/${data.chapter.id}/discussions/${data.discussion.id}`}
               className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
-              aria-label={`Show notes for episode ${data.discussion.title}`}
+              aria-label={`Full discussion for ${data.discussion.title}`}
             >
               View Discussion
             </Link>
