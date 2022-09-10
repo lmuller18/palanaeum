@@ -91,7 +91,7 @@ const NavBar = ({ hasSecondaryNav }: { hasSecondaryNav: boolean }) => (
         <BookOpenIcon className="h-6 w-6" />
       </TabLink>
 
-      <TabLink to="posts" color="sky">
+      <TabLink to="posts" color="blue">
         <PostsIcon className="h-6 w-6" />
       </TabLink>
       <TabLink to="discussions" color="indigo">

@@ -28,11 +28,20 @@ import { ClipboardCopyIcon } from '@heroicons/react/outline'
 export const links: LinksFunction = () => {
   return [
     { rel: 'manifest', href: '/site.webmanifest' },
+    {
+      rel: 'preconnect',
+      href: 'https://cdn.fontshare.com',
+      crossOrigin: 'anonymous',
+    },
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     {
       rel: 'preconnect',
       href: 'https://fonts.gstatic.com',
       crossOrigin: 'anonymous',
+    },
+    {
+      href: 'https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap',
+      rel: 'stylesheet',
     },
     {
       href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Roboto+Slab:wght@100;200;300;400;500;600;700;800;900&display=swap',
@@ -78,7 +87,10 @@ export default function App() {
   const data = useLoaderData() as LoaderData
 
   return (
-    <html lang="en" className="dark h-screen">
+    <html
+      lang="en"
+      className="dark h-screen select-none bg-background-primary antialiased"
+    >
       <head>
         <Meta />
         <Links />

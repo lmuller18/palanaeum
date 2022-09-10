@@ -240,7 +240,7 @@ const PostComposer = ({
               percent={(characters / maximumCharacters) * 100}
             />
 
-            <Button
+            {/* <Button
               type="button"
               size="xs"
               ref={submitRef}
@@ -248,7 +248,17 @@ const PostComposer = ({
               disabled={submitDisabled}
             >
               Post
-            </Button>
+            </Button> */}
+
+            <button
+              type="button"
+              className="inline-flex items-center rounded border border-transparent bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700"
+              ref={submitRef}
+              onClick={createPost}
+              disabled={submitDisabled}
+            >
+              Post
+            </button>
           </div>
         </div>
 

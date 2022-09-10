@@ -19,7 +19,8 @@ const ChapterPagination = ({
             <Link
               to={page.to}
               className={clsx(
-                page.active && 'border-t-2 border-indigo-500 text-indigo-300',
+                page.active &&
+                  'border-t-2 border-pink-500 font-bold text-pink-400',
                 'flex-grow py-2',
               )}
             >
