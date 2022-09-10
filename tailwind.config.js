@@ -19,7 +19,7 @@ module.exports = {
         book: '0.66 / 1',
       },
       fontFamily: {
-        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+        sans: ['Satoshi', ...defaultTheme.fontFamily.sans],
         serif: ['Roboto Slab', ...defaultTheme.fontFamily.serif],
       },
       typography: {

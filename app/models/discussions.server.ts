@@ -283,6 +283,7 @@ export async function getDiscussionsForReadChapters(
     select: {
       id: true,
       title: true,
+      createdAt: true,
       _count: { select: { replies: true } },
       member: {
         select: {
@@ -319,6 +320,7 @@ export async function getDiscussionsForReadChapters(
       id: d.id,
       title: d.title,
       replyCount: d._count.replies,
+      createdAt: d.createdAt,
     },
     chapter: {
       id: d.chapter.id,

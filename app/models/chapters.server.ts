@@ -106,6 +106,7 @@ export async function getPaginatedChapterList(
       completedCount: {
         others: number
         total: number
+        percent: number
       }
     } = {
       id: c.id,
@@ -117,6 +118,7 @@ export async function getPaginatedChapterList(
       completedCount: {
         others: otherMemberCount,
         total: c.progress.length,
+        percent: c.progress.length / dbClub.members.length,
       },
     }
 

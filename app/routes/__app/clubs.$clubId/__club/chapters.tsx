@@ -1,13 +1,12 @@
-import clsx from 'clsx'
+import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
+import type { ComponentProps } from 'react'
 import type { LoaderArgs } from '@remix-run/node'
-import { CheckCircle, XCircle } from 'react-feather'
-import { Link, useFetcher, useLoaderData, useNavigate } from '@remix-run/react'
+import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 
 import { pluralize } from '~/utils'
-import Button from '~/elements/Button'
-import Text from '~/elements/Typography/Text'
+import Container from '~/components/Container'
 import { requireUserId } from '~/session.server'
 import ChapterPagination from '~/components/ChapterPagination'
 import { getPaginatedChapterList } from '~/models/chapters.server'
@@ -40,16 +39,52 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 export default function ChaptersPage() {
   const { chapters, page, totalPages } = useLoaderData<typeof loader>()
-  const fetcher = useFetcher()
-  const navigate = useNavigate()
 
-  // no one completed                           ALL_INCOMPLETE
-  // user completed with some others            USER_COMPLETE_SOME_OTHERS
-  // some others completed, user incomplete     USER_INCOMPLETE_SOME_OTHERS
-  // all complete                               ALL_COMPLETE
-  const getStatus = (
-    chapter: typeof chapters[number],
-  ):
+  return (
+    <>
+      <div>
+        <Container>
+          <h1 className="text-2xl font-bold leading-7 text-slate-100">
+            Chapters
+          </h1>
+        </Container>
+        <div className="divide-y divide-slate-700 sm:mt-4 lg:mt-8 lg:border-t lg:border-slate-700">
+          {chapters.map(chapter => (
+            <ChapterEntry key={chapter.id} chapter={chapter} />
+          ))}
+        </div>
+      </div>
+
+      {totalPages > 1 && (
+        <ChapterPagination currentPage={page} lastPage={totalPages} />
+      )}
+    </>
+  )
+}
+
+const ChapterEntry = ({
+  chapter,
+}: {
+  chapter: Awaited<
+    ReturnType<Awaited<ReturnType<typeof loader>>['json']>
+  >['chapters'][number]
+}) => {
+  const fetcher = useFetcher()
+
+  const toggleChapterStatus = () => {
+    fetcher.submit(
+      {
+        _action:
+          chapter.userStatus === 'incomplete' ? 'MARK_PREVIOUS' : 'MARK_UNREAD',
+      },
+      {
+        action: `/api/chapters/${chapter.id}/read`,
+        method: 'post',
+      },
+    )
+  }
+
+  const status = useMemo(():
     | 'all-incomplete'
     | 'user-complete-some-others'
     | 'user-incomplete-some-others'
@@ -62,150 +97,136 @@ export default function ChaptersPage() {
       return 'user-incomplete-some-others'
 
     return 'user-incomplete-some-others'
-  }
+  }, [chapter.clubStatus, chapter.userStatus])
 
-  const getSpoilerStatusMessaging = (
-    status: ReturnType<typeof getStatus>,
-    count: typeof chapters[number]['completedCount'],
-  ) => {
+  const spoilerStatusMessaging = useMemo(() => {
     switch (status) {
       case 'all-complete':
-        return (
-          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
-            All members have{' '}
-            <span className="bg-gradient-to-l from-teal-300 to-green-400 bg-clip-text font-bold text-transparent">
-              completed this chapter
-            </span>
-            .
-          </Text>
-        )
+        return 'All members have completed this chapter.'
       case 'all-incomplete':
-        return (
-          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
-            You{' '}
-            <span className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text font-bold text-transparent">
-              could be first
-            </span>{' '}
-            to read this chapter.
-          </Text>
-        )
+        return 'You could be first to read this chapter.'
       case 'user-complete-some-others':
-        return (
-          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
-            <span className="bg-gradient-to-l from-red-300 to-pink-500 bg-clip-text font-bold text-transparent">
-              Spoiler Warning:{' '}
-            </span>
-            Not all members have read this chapter yet.
-          </Text>
-        )
+        return 'Spoiler Warning: Not all members have read this chapter yet.'
       case 'user-incomplete-some-others':
       default:
-        return (
-          <Text variant="subtitle2" className="mb-3 font-normal" as="p">
-            <span className="bg-gradient-to-l from-red-300 to-pink-500 bg-clip-text font-bold text-transparent">
-              Spoiler Warning:{' '}
-            </span>
-            {count.others} other{' '}
-            {pluralize('member has', 'members have', count.others)} already read
-            this chapter.
-          </Text>
-        )
+        return `Spoiler Warning: ${
+          chapter.completedCount.others
+        } other ${pluralize(
+          'member has',
+          'members have',
+          chapter.completedCount.others,
+        )} already read this chapter.`
     }
-  }
+  }, [chapter.completedCount.others, status])
 
   return (
-    <>
-      <div className="grid gap-4 p-2">
-        {chapters.map(chapter => (
-          <div
-            key={chapter.id}
-            className="overflow-hidden rounded-md bg-background-secondary p-4 shadow-md"
+    <article
+      aria-labelledby={`episode-${chapter.id}-title`}
+      className="py-5 sm:py-6"
+    >
+      <Container>
+        <div className="flex flex-col items-start">
+          <h2
+            id={`episode-${chapter.id}-title`}
+            className="mt-2 text-lg font-bold text-slate-100"
           >
-            <div>
-              <div className="relative mb-2 flex items-baseline gap-2">
-                <div className="relative h-5 w-5">
-                  {chapter.userStatus === 'complete' ? (
-                    <CheckCircle className="absolute top-[2px] h-5 w-5 text-emerald-400" />
-                  ) : (
-                    <XCircle className="absolute top-[2px] h-5 w-5 text-red-400" />
-                  )}{' '}
-                </div>
-
-                <Link
-                  to={chapter.id}
-                  className={clsx(
-                    'block w-fit text-2xl font-bold line-clamp-2',
-                  )}
-                >
-                  {chapter.title}
-                </Link>
-              </div>
-
-              {getSpoilerStatusMessaging(
-                getStatus(chapter),
-                chapter.completedCount,
-              )}
-
-              <div className="flex items-center gap-2 bg-gradient-to-r from-rose-400 via-fuchsia-500 to-indigo-500 bg-clip-text text-transparent">
-                <span className="text-lg font-bold">
-                  {chapter.postCount}{' '}
-                  <span className="text-base font-medium text-white">
-                    {pluralize('Post', 'Posts', chapter.postCount)}
-                  </span>
-                </span>
-
-                <span className="text-lg font-bold">
-                  {chapter.discussionCount}{' '}
-                  <span className="text-base font-medium text-white">
-                    {pluralize(
-                      'Discussion',
-                      'Discussions',
-                      chapter.discussionCount,
-                    )}
-                  </span>
-                </span>
-              </div>
-
-              <fetcher.Form
-                action={`/api/chapters/${chapter.id}/read`}
-                method="post"
-                className="mt-4 grid grid-cols-2 gap-2"
-              >
-                <Button
-                  type="button"
-                  onClick={() => navigate(chapter.id)}
-                  variant="secondary"
-                >
-                  View Chapter
-                </Button>
-                {chapter.userStatus === 'complete' ? (
-                  <Button
-                    variant="warning"
-                    name="_action"
-                    value="MARK_UNREAD"
-                    disabled={fetcher.state !== 'idle'}
-                  >
-                    Mark Unread
-                  </Button>
-                ) : (
-                  <Button
-                    name="_action"
-                    value="MARK_PREVIOUS"
-                    disabled={fetcher.state !== 'idle'}
-                  >
-                    Mark Read
-                  </Button>
-                )}
-              </fetcher.Form>
-            </div>
+            <Link to={chapter.id}>{chapter.title}</Link>
+          </h2>
+          {/* <FormattedDate
+            date={new Date('11/12/22')}
+            className="order-first font-mono text-sm leading-7 text-slate-300"
+          /> */}
+          <div className="mt-1 flex items-center gap-4">
+            <span className="text-sm font-bold leading-6">
+              <span className="mr-1 text-pink-500">
+                {chapter.discussionCount}
+              </span>{' '}
+              {pluralize('Discussion', 'Discussions', chapter.discussionCount)}
+            </span>
+            <span
+              aria-hidden="true"
+              className="text-sm font-bold text-slate-400"
+            >
+              /
+            </span>
+            <span className="text-sm font-bold leading-6">
+              <span className="mr-1 text-pink-500">{chapter.postCount}</span>{' '}
+              {pluralize('Post', 'Posts', chapter.postCount)}
+            </span>
+            <span
+              aria-hidden="true"
+              className="text-sm font-bold text-slate-400"
+            >
+              /
+            </span>
+            <span className="text-sm font-bold leading-6">
+              <span className="mr-1 text-pink-500">
+                {(chapter.completedCount.percent * 100)
+                  .toFixed(2)
+                  .replace(/[.,]00$/, '')}
+                %
+              </span>{' '}
+              Complete
+            </span>
           </div>
-        ))}
-      </div>
+          <p className="mt-1 text-base leading-7 text-slate-200">
+            {spoilerStatusMessaging}
+          </p>
+          <div className="mt-4 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={toggleChapterStatus}
+              className="flex items-center text-sm font-bold leading-6 text-pink-500 hover:text-pink-400 active:text-pink-600"
+              aria-label={`Mark ${
+                chapter.userStatus === 'incomplete' ? 'read' : 'unread'
+              } chapter ${chapter.title}`}
+            >
+              <PlayPauseIcon
+                playing={chapter.userStatus === 'complete'}
+                className="h-5 w-5 fill-current"
+              />
+              <span className="ml-1" aria-hidden="true">
+                {chapter.userStatus === 'incomplete'
+                  ? 'Mark Read'
+                  : 'Mark Unread'}
+              </span>
+            </button>
+            <span
+              aria-hidden="true"
+              className="text-sm font-bold text-slate-400"
+            >
+              /
+            </span>
+            <Link
+              to={chapter.id}
+              className="flex items-center text-sm font-bold leading-6 text-pink-500 hover:text-pink-700 active:text-pink-900"
+              aria-label={`Show notes for episode ${chapter.title}`}
+            >
+              View Chapter
+            </Link>
+          </div>
+        </div>
+      </Container>
+    </article>
+  )
+}
 
-      {totalPages > 1 && (
-        <ChapterPagination currentPage={page} lastPage={totalPages} />
+function PlayPauseIcon({
+  playing,
+  ...props
+}: { playing: boolean } & ComponentProps<'svg'>) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" {...props}>
+      {playing ? (
+        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+      ) : (
+        <path
+          fill-rule="evenodd"
+          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+          clip-rule="evenodd"
+        />
       )}
-    </>
+    </svg>
   )
 }
 

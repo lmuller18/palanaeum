@@ -1,26 +1,22 @@
 import invariant from 'tiny-invariant'
-import { json } from '@remix-run/node'
 import { Fragment, useState } from 'react'
 import type { LoaderArgs } from '@remix-run/node'
+import { Listbox, Transition } from '@headlessui/react'
 import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
-import { CheckIcon, SelectorIcon } from '@heroicons/react/outline'
-import {
-  useLoaderData,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from '@remix-run/react'
+import { BookOpenIcon, CheckIcon, SelectorIcon } from '@heroicons/react/outline'
+import { Link, useNavigate, useParams, useSearchParams } from '@remix-run/react'
 
+import { pluralize } from '~/utils'
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
 import Text from '~/elements/Typography/Text'
 import TextButton from '~/elements/TextButton'
+import Container from '~/components/Container'
 import { requireUserId } from '~/session.server'
-import Header from '~/elements/Typography/Header'
-import { Listbox, Transition } from '@headlessui/react'
+import FormattedDate from '~/components/FormattedDate'
 import { getChapterList } from '~/models/chapters.server'
-import DiscussionSummary from '~/components/DiscussionSummary'
 import { getDiscussionsForReadChapters } from '~/models/discussions.server'
+import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
@@ -36,16 +32,15 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   if (!discussions)
     throw new Response('Problem finding discussions', { status: 500 })
 
-  return json({
+  return typedjson({
     discussions,
     chapters,
   })
 }
 
 export default function DiscussionsPage() {
-  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
-  const { discussions } = useLoaderData<typeof loader>()
+  const { discussions } = useTypedLoaderData<typeof loader>()
 
   const onOpen = () => setOpen(true)
   const onClose = () => setOpen(false)
@@ -53,36 +48,45 @@ export default function DiscussionsPage() {
   return (
     <>
       <div className="mb-4">
-        <div className="mb-4 flex items-baseline justify-between border-b border-background-tertiary pb-2">
+        {/* <div className="mb-4 flex items-baseline justify-between border-b border-background-tertiary pb-2">
           <Header size="h5" font="serif">
             Discussions
           </Header>
           <TextButton onClick={onOpen} color="blue">
             New +
           </TextButton>
-        </div>
+        </div> */}
 
-        {discussions.length !== 0 && <DiscussionSort />}
+        <Container>
+          <div className="flex items-baseline justify-between">
+            <h1 className="text-2xl font-bold leading-7 text-slate-100">
+              Discussions
+            </h1>
 
-        <div className="flex flex-col gap-4">
-          {discussions.map(d => (
             <button
-              onClick={() =>
-                navigate(
-                  `/clubs/${d.chapter.clubId}/chapters/${d.chapter.id}/discussions/${d.discussion.id}`,
-                )
-              }
-              key={d.discussion.id}
-              className="block overflow-hidden rounded-lg bg-background-secondary p-4 text-left shadow-sm"
+              onClick={onOpen}
+              className="text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
             >
-              <DiscussionSummary {...d} />
+              New +
             </button>
+          </div>
+        </Container>
+
+        {discussions.length !== 0 && (
+          <Container className="mt-4">
+            <DiscussionSort />
+          </Container>
+        )}
+
+        <div className="divide-y divide-slate-700 lg:border-t lg:border-slate-700">
+          {discussions.map(d => (
+            <DiscussionEntry key={d.discussion.id} data={d} />
           ))}
           {!discussions.length && (
             <div className="block overflow-hidden rounded-lg bg-background-secondary p-4 text-left shadow-sm">
               <Text>
                 No discussions yet. Be the first to{' '}
-                <TextButton onClick={onOpen} color="blue">
+                <TextButton onClick={onOpen} color="indigo">
                   start the conversation
                 </TextButton>{' '}
                 about this chapter.
@@ -93,6 +97,80 @@ export default function DiscussionsPage() {
       </div>
       <CreateDiscussionModal open={open} onClose={onClose} />
     </>
+  )
+}
+
+const DiscussionEntry = ({
+  data,
+}: {
+  data: Awaited<
+    ReturnType<Awaited<ReturnType<typeof loader>>['typedjson']>
+  >['discussions'][number]
+}) => {
+  return (
+    <article
+      aria-labelledby={`discussion-${data.discussion.id}-title`}
+      className="py-5 sm:py-6"
+    >
+      <Container>
+        <div className="flex flex-col items-start">
+          <h2
+            id={`episode-${data.discussion.id}-title`}
+            className="text-lg font-bold text-slate-100"
+          >
+            <Link to={data.discussion.id}>{data.discussion.title}</Link>
+          </h2>
+          <FormattedDate
+            date={new Date(data.discussion.createdAt)}
+            className="order-first font-mono text-sm leading-7 text-slate-300"
+          />
+          <div className="mt-1 flex items-center gap-4">
+            <span className="text-sm font-bold leading-6">
+              <span className="mr-1 text-indigo-500">
+                {data.discussion.replyCount}
+              </span>{' '}
+              {pluralize('Reply', 'Replies', data.discussion.replyCount)}
+            </span>
+
+            <span
+              aria-hidden="true"
+              className="text-sm font-bold text-slate-400"
+            >
+              /
+            </span>
+
+            <span className="flex items-center text-sm font-bold leading-6">
+              <span className="mr-2 block text-indigo-500">
+                <BookOpenIcon className="h-4 w-4" />
+              </span>
+              {data.chapter.title}
+            </span>
+          </div>
+          <div className="mt-4 flex items-center gap-4">
+            <Link
+              to={data.discussion.id}
+              className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
+              aria-label={`Show notes for episode ${data.discussion.title}`}
+            >
+              View Chapter
+            </Link>
+            <span
+              aria-hidden="true"
+              className="text-sm font-bold text-slate-400"
+            >
+              /
+            </span>
+            <Link
+              to={data.discussion.id}
+              className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
+              aria-label={`Show notes for episode ${data.discussion.title}`}
+            >
+              View Discussion
+            </Link>
+          </div>
+        </div>
+      </Container>
+    </article>
   )
 }
 
@@ -107,17 +185,21 @@ const DiscussionSort = () => {
   }
 
   return (
-    <div className="mb-4 flex w-full items-center justify-end text-blue-500">
-      <button type="button" onClick={changeSort}>
-        <Text variant="subtitle2" className="cursor-pointer font-bold" as="p">
+    <div className="mb-4 flex w-full justify-end ">
+      <button
+        type="button"
+        onClick={changeSort}
+        className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
+      >
+        <Text variant="subtitle2" className="font-bold" as="p">
           Sort{' '}
           <Text variant="subtitle2" as="span" className="font-normal">
             {sort === 'time' && '(Time)'}
             {sort === 'chapter' && '(Chapter)'}
           </Text>
         </Text>
+        <SortIcon className="h-6 w-6" />
       </button>
-      <SortIcon className="h-6 w-6" />
     </div>
   )
 }
@@ -131,7 +213,7 @@ const CreateDiscussionModal = ({
 }) => {
   const { clubId } = useParams()
   const navigate = useNavigate()
-  const { chapters } = useLoaderData<typeof loader>()
+  const { chapters } = useTypedLoaderData<typeof loader>()
   const [selected, setSelected] = useState(chapters[0])
 
   const toCreateDiscussion = () => {
@@ -146,7 +228,7 @@ const CreateDiscussionModal = ({
             <span className="font-medium">Create Discussion</span>
             <div className="absolute inset-y-0 right-0">
               <button
-                className="mr-1 text-blue-500 focus:outline-none"
+                className="mr-1 text-indigo-500 focus:outline-none"
                 onClick={onClose}
               >
                 Cancel
@@ -210,7 +292,7 @@ const CreateDiscussionModal = ({
               </div>
             </Listbox>
 
-            <Button onClick={toCreateDiscussion} fullWidth>
+            <Button onClick={toCreateDiscussion} variant="indigo" fullWidth>
               Create Discussion
             </Button>
           </div>

@@ -26,6 +26,7 @@ const variants = {
     'bg-background-tertiary text-gray-200 hover:bg-background-tertiary/70 focus:ring-indigo-500 disabled:bg-background-tertiary/70 hover:text-white disabled:text-gray-500 disabled:focus:ring-indigo-500/70',
   warning:
     'bg-rose-500 text-white hover:bg-rose-600 focus:ring-indigo-500 disabled:bg-rose-500/70 disabled:text-white/70 disabled:focus:ring-rose-500/70',
+  indigo: 'bg-indigo-600 text-white hover:bg-indigo-500 active-bg-indigo-700',
 }
 
 const fullWidths = {

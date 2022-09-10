@@ -89,17 +89,21 @@ const PostSort = () => {
   }
 
   return (
-    <div className="flex w-full items-center justify-end py-4 text-blue-500">
-      <button type="button" onClick={changeSort}>
-        <Text variant="subtitle2" className="cursor-pointer font-bold" as="p">
+    <div className="flex w-full justify-end py-4">
+      <button
+        type="button"
+        onClick={changeSort}
+        className="active:text-inbluedigo-600 flex items-center text-blue-500 hover:text-blue-400"
+      >
+        <Text variant="subtitle2" className="font-bold" as="p">
           Sort{' '}
           <Text variant="subtitle2" as="span" className="font-normal">
             {sort === 'time' && '(Time)'}
             {sort === 'chapter' && '(Chapter)'}
           </Text>
         </Text>
+        <SortIcon className="h-6 w-6" />
       </button>
-      <SortIcon className="h-6 w-6" />
     </div>
   )
 }

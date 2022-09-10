@@ -27,6 +27,14 @@ const themes = {
     bg: 'from-pink-400/20',
     border: 'bg-pink-500',
   },
+  amber: {
+    bg: 'from-orange-400/20',
+    border: 'bg-orange-500',
+  },
+  blue: {
+    bg: 'from-blue-400/20',
+    border: 'bg-blue-500',
+  },
 }
 
 const TabLink = ({
