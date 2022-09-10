@@ -1,17 +1,10 @@
 import invariant from 'tiny-invariant'
-import { json } from '@remix-run/node'
 import { Fragment, useState } from 'react'
 import type { LoaderArgs } from '@remix-run/node'
 import { Listbox, Transition } from '@headlessui/react'
 import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
 import { BookOpenIcon, CheckIcon, SelectorIcon } from '@heroicons/react/outline'
-import {
-  Link,
-  useLoaderData,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from '@remix-run/react'
+import { Link, useNavigate, useParams, useSearchParams } from '@remix-run/react'
 
 import { pluralize } from '~/utils'
 import Modal from '~/components/Modal'
@@ -20,10 +13,10 @@ import Text from '~/elements/Typography/Text'
 import TextButton from '~/elements/TextButton'
 import Container from '~/components/Container'
 import { requireUserId } from '~/session.server'
-import Header from '~/elements/Typography/Header'
 import FormattedDate from '~/components/FormattedDate'
 import { getChapterList } from '~/models/chapters.server'
 import { getDiscussionsForReadChapters } from '~/models/discussions.server'
+import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
@@ -39,7 +32,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   if (!discussions)
     throw new Response('Problem finding discussions', { status: 500 })
 
-  return json({
+  return typedjson({
     discussions,
     chapters,
   })
@@ -47,7 +40,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
 export default function DiscussionsPage() {
   const [open, setOpen] = useState(false)
-  const { discussions } = useLoaderData<typeof loader>()
+  const { discussions } = useTypedLoaderData<typeof loader>()
 
   const onOpen = () => setOpen(true)
   const onClose = () => setOpen(false)
@@ -111,7 +104,7 @@ const DiscussionEntry = ({
   data,
 }: {
   data: Awaited<
-    ReturnType<Awaited<ReturnType<typeof loader>>['json']>
+    ReturnType<Awaited<ReturnType<typeof loader>>['typedjson']>
   >['discussions'][number]
 }) => {
   return (
@@ -220,7 +213,7 @@ const CreateDiscussionModal = ({
 }) => {
   const { clubId } = useParams()
   const navigate = useNavigate()
-  const { chapters } = useLoaderData<typeof loader>()
+  const { chapters } = useTypedLoaderData<typeof loader>()
   const [selected, setSelected] = useState(chapters[0])
 
   const toCreateDiscussion = () => {

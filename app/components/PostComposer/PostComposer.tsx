@@ -17,7 +17,6 @@ import Placeholder from '@tiptap/extension-placeholder'
 import CharacterCount from '@tiptap/extension-character-count'
 import { useEditor, EditorContent, Extension } from '@tiptap/react'
 
-import Button from '~/elements/Button'
 import { removeEmpty, useUser } from '~/utils'
 import CircularProgress from '../CircularProgress'
 
