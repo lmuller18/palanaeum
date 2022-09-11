@@ -101,7 +101,7 @@ const DiscussionEntry = ({
               aria-hidden="true"
               className="text-sm font-bold text-slate-400"
             >
-              /
+              &#183;
             </span>
 
             <span className="flex items-center text-sm font-bold leading-6">
