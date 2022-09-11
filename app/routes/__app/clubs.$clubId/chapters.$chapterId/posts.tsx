@@ -6,7 +6,6 @@ import { useLoaderData, useParams } from '@remix-run/react'
 import Post from '~/components/Post'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
-import Header from '~/elements/Typography/Header'
 import PostComposer from '~/components/PostComposer'
 import { getPostsByChapter } from '~/models/posts.server'
 import { getChapterDetails } from '~/models/chapters.server'
@@ -40,9 +39,9 @@ export default function PostsPage() {
 
   return (
     <div>
-      <Header size="h4" font="serif" className="mb-4">
+      <h1 className="my-6 text-2xl font-bold leading-7 text-slate-100">
         Posts
-      </Header>
+      </h1>
       <PostComposer defaultChapter={chapter} chapters={[chapter]} />
       <div className="grid gap-2 border border-background-tertiary">
         {!posts.length && (

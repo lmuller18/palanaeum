@@ -48,33 +48,31 @@ export default function DiscussionsPage() {
   return (
     <>
       <div className="mb-4">
-        <Container>
-          <div className="flex items-baseline justify-between">
-            <h1 className="text-2xl font-bold leading-7 text-slate-100">
-              Discussions
-            </h1>
+        <div className="flex items-baseline justify-between">
+          <h1 className="text-2xl font-bold leading-7 text-slate-100">
+            Discussions
+          </h1>
 
-            <div className="flex items-center gap-4">
-              {discussions.length !== 0 && (
-                <>
-                  <DiscussionSort />
-                  <span
-                    aria-hidden="true"
-                    className="text-sm font-bold text-slate-400"
-                  >
-                    /
-                  </span>
-                </>
-              )}
-              <button
-                onClick={onOpen}
-                className="text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-400 active:text-indigo-600"
-              >
-                New +
-              </button>
-            </div>
+          <div className="flex items-center gap-4">
+            {discussions.length !== 0 && (
+              <>
+                <DiscussionSort />
+                <span
+                  aria-hidden="true"
+                  className="text-sm font-bold text-slate-400"
+                >
+                  /
+                </span>
+              </>
+            )}
+            <button
+              onClick={onOpen}
+              className="text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-400 active:text-indigo-600"
+            >
+              New +
+            </button>
           </div>
-        </Container>
+        </div>
 
         <div className="divide-y divide-slate-700 lg:border-t lg:border-slate-700">
           {discussions.map(d => (
@@ -143,12 +141,15 @@ const DiscussionEntry = ({
               /
             </span>
 
-            <span className="flex items-center text-sm font-bold leading-6">
-              <span className="mr-2 block text-indigo-400">
+            <Link
+              className="group flex items-center text-sm font-bold leading-6 active:text-slate-300"
+              to={`../chapters/${data.chapter.id}/discussions/${data.discussion.id}`}
+            >
+              <span className="mr-2 block text-indigo-400 group-hover:text-indigo-300 group-active:text-indigo-500">
                 <BookOpenIcon className="h-4 w-4" />
               </span>
               {data.chapter.title}
-            </span>
+            </Link>
           </div>
           <div className="mt-4 flex items-center gap-4">
             <Link

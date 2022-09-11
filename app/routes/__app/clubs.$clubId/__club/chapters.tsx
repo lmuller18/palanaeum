@@ -43,11 +43,9 @@ export default function ChaptersPage() {
   return (
     <>
       <div>
-        <Container>
-          <h1 className="text-2xl font-bold leading-7 text-slate-100">
-            Chapters
-          </h1>
-        </Container>
+        <h1 className="text-2xl font-bold leading-7 text-slate-100">
+          Chapters
+        </h1>
         <div className="divide-y divide-slate-700 sm:mt-4 lg:mt-8 lg:border-t lg:border-slate-700">
           {chapters.map(chapter => (
             <ChapterEntry key={chapter.id} chapter={chapter} />
