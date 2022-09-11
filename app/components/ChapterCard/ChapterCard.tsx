@@ -45,7 +45,7 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
       <div className="flex flex-col gap-4">
         <div className="flex-grow py-8 px-8 pb-0">
           <div className="mb-4 flex items-center gap-2 overflow-hidden">
-            <AnimatePresence exitBeforeEnter>
+            <AnimatePresence mode="wait">
               <motion.div
                 key={status}
                 initial={changedStatus ? { opacity: 0 } : false}
@@ -141,7 +141,7 @@ const Stat = ({
   return (
     <DynamicLink to={to}>
       <dt className="truncate text-sm font-medium text-gray-300">{stat}</dt>
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence mode="wait">
         <motion.dd
           initial={valueChanged ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}

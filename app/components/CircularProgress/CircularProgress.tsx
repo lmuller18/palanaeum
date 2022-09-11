@@ -38,7 +38,7 @@ const CircularProgress = ({
 
   return (
     <div className="relative items-center justify-center">
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence mode="wait">
         {typeof label !== 'undefined' && (
           <motion.div
             className="absolute flex h-full w-full items-center justify-center"

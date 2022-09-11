@@ -47,7 +47,7 @@ const NavSection = ({
       id="club-nav"
       className="fixed bottom-0 left-0 right-0 w-full transform-gpu"
     >
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence mode="wait">
         {hasSecondaryNav && (
           <motion.div
             className="z-40 -mb-1 border-t border-background-tertiary bg-background-secondary"

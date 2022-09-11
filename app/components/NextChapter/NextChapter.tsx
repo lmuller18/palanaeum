@@ -21,7 +21,7 @@ interface NextChapterProps {
 const NextChapter = ({ chapter }: NextChapterProps) => {
   return (
     <div>
-      <AnimatePresence initial={false} exitBeforeEnter>
+      <AnimatePresence initial={false} mode="wait">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
