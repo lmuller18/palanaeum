@@ -126,7 +126,7 @@ const ChapterEntry = ({
         <div className="flex flex-col items-start">
           <h2
             id={`episode-${chapter.id}-title`}
-            className="mt-2 text-lg font-bold text-slate-100"
+            className="text-lg font-bold text-slate-100"
           >
             <Link to={chapter.id}>{chapter.title}</Link>
           </h2>
@@ -141,7 +141,7 @@ const ChapterEntry = ({
               aria-hidden="true"
               className="text-sm font-bold text-slate-400"
             >
-              /
+              &#183;
             </span>
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-pink-500">{chapter.postCount}</span>{' '}
@@ -151,7 +151,7 @@ const ChapterEntry = ({
               aria-hidden="true"
               className="text-sm font-bold text-slate-400"
             >
-              /
+              &#183;
             </span>
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-pink-500">

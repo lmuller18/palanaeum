@@ -61,7 +61,7 @@ export default function DiscussionsPage() {
                   aria-hidden="true"
                   className="text-sm font-bold text-slate-400"
                 >
-                  /
+                  &#183;
                 </span>
               </>
             )}
@@ -138,7 +138,7 @@ const DiscussionEntry = ({
               aria-hidden="true"
               className="text-sm font-bold text-slate-400"
             >
-              /
+              &#183;
             </span>
 
             <Link
