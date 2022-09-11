@@ -48,35 +48,31 @@ export default function DiscussionsPage() {
   return (
     <>
       <div className="mb-4">
-        {/* <div className="mb-4 flex items-baseline justify-between border-b border-background-tertiary pb-2">
-          <Header size="h5" font="serif">
+        <div className="flex items-baseline justify-between">
+          <h1 className="text-2xl font-bold leading-7 text-slate-100">
             Discussions
-          </Header>
-          <TextButton onClick={onOpen} color="blue">
-            New +
-          </TextButton>
-        </div> */}
+          </h1>
 
-        <Container>
-          <div className="flex items-baseline justify-between">
-            <h1 className="text-2xl font-bold leading-7 text-slate-100">
-              Discussions
-            </h1>
-
+          <div className="flex items-center gap-4">
+            {discussions.length !== 0 && (
+              <>
+                <DiscussionSort />
+                <span
+                  aria-hidden="true"
+                  className="text-sm font-bold text-slate-400"
+                >
+                  /
+                </span>
+              </>
+            )}
             <button
               onClick={onOpen}
-              className="text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
+              className="text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-400 active:text-indigo-600"
             >
               New +
             </button>
           </div>
-        </Container>
-
-        {discussions.length !== 0 && (
-          <Container className="mt-4">
-            <DiscussionSort />
-          </Container>
-        )}
+        </div>
 
         <div className="divide-y divide-slate-700 lg:border-t lg:border-slate-700">
           {discussions.map(d => (
@@ -132,7 +128,7 @@ const DiscussionEntry = ({
           />
           <div className="mt-1 flex items-center gap-4">
             <span className="text-sm font-bold leading-6">
-              <span className="mr-1 text-indigo-500">
+              <span className="mr-1 text-indigo-400">
                 {data.discussion.replyCount}
               </span>{' '}
               {pluralize('Reply', 'Replies', data.discussion.replyCount)}
@@ -145,17 +141,20 @@ const DiscussionEntry = ({
               /
             </span>
 
-            <span className="flex items-center text-sm font-bold leading-6">
-              <span className="mr-2 block text-indigo-500">
+            <Link
+              className="group flex items-center text-sm font-bold leading-6 active:text-slate-300"
+              to={`../chapters/${data.chapter.id}/discussions/${data.discussion.id}`}
+            >
+              <span className="mr-2 block text-indigo-400 group-hover:text-indigo-300 group-active:text-indigo-500">
                 <BookOpenIcon className="h-4 w-4" />
               </span>
               {data.chapter.title}
-            </span>
+            </Link>
           </div>
           <div className="mt-4 flex items-center gap-4">
             <Link
               to={`../chapters/${data.chapter.id}`}
-              className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
+              className="flex items-center text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-300 active:text-indigo-500"
               aria-label={`Chapter for discussion ${data.discussion.title}`}
             >
               View Chapter
@@ -168,7 +167,7 @@ const DiscussionEntry = ({
             </span>
             <Link
               to={`../chapters/${data.chapter.id}/discussions/${data.discussion.id}`}
-              className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
+              className="flex items-center text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-300 active:text-indigo-500"
               aria-label={`Full discussion for ${data.discussion.title}`}
             >
               View Discussion
@@ -191,22 +190,20 @@ const DiscussionSort = () => {
   }
 
   return (
-    <div className="mb-4 flex w-full justify-end ">
-      <button
-        type="button"
-        onClick={changeSort}
-        className="flex items-center text-sm font-bold leading-6 text-indigo-500 hover:text-indigo-400 active:text-indigo-600"
-      >
-        <Text variant="subtitle2" className="font-bold" as="p">
-          Sort{' '}
-          <Text variant="subtitle2" as="span" className="font-normal">
-            {sort === 'time' && '(Time)'}
-            {sort === 'chapter' && '(Chapter)'}
-          </Text>
+    <button
+      type="button"
+      onClick={changeSort}
+      className="flex items-center gap-1 text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-300 active:text-indigo-500"
+    >
+      <Text variant="subtitle2" className="font-bold" as="p">
+        Sort{' '}
+        <Text variant="subtitle2" as="span" className="font-normal">
+          {sort === 'time' && '(Time)'}
+          {sort === 'chapter' && '(Chapter)'}
         </Text>
-        <SortIcon className="h-6 w-6" />
-      </button>
-    </div>
+      </Text>
+      <SortIcon className="h-5 w-5" />
+    </button>
   )
 }
 
@@ -234,7 +231,7 @@ const CreateDiscussionModal = ({
             <span className="font-medium">Create Discussion</span>
             <div className="absolute inset-y-0 right-0">
               <button
-                className="mr-1 text-indigo-500 focus:outline-none"
+                className="mr-1 text-indigo-400 focus:outline-none"
                 onClick={onClose}
               >
                 Cancel

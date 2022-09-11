@@ -43,11 +43,9 @@ export default function ChaptersPage() {
   return (
     <>
       <div>
-        <Container>
-          <h1 className="text-2xl font-bold leading-7 text-slate-100">
-            Chapters
-          </h1>
-        </Container>
+        <h1 className="text-2xl font-bold leading-7 text-slate-100">
+          Chapters
+        </h1>
         <div className="divide-y divide-slate-700 sm:mt-4 lg:mt-8 lg:border-t lg:border-slate-700">
           {chapters.map(chapter => (
             <ChapterEntry key={chapter.id} chapter={chapter} />
@@ -132,10 +130,6 @@ const ChapterEntry = ({
           >
             <Link to={chapter.id}>{chapter.title}</Link>
           </h2>
-          {/* <FormattedDate
-            date={new Date('11/12/22')}
-            className="order-first font-mono text-sm leading-7 text-slate-300"
-          /> */}
           <div className="mt-1 flex items-center gap-4">
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-pink-500">
@@ -221,9 +215,9 @@ function PlayPauseIcon({
         <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
       ) : (
         <path
-          fill-rule="evenodd"
+          fillRule="evenodd"
           d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-          clip-rule="evenodd"
+          clipRule="evenodd"
         />
       )}
     </svg>

@@ -47,3 +47,27 @@ export async function getMembersWithProgressByClub(clubId: string) {
     chapterCount: m._count.progress,
   }))
 }
+
+export async function getCompletedMembersByChapter(
+  clubId: string,
+  chapterId: string,
+) {
+  const members = await prisma.member.findMany({
+    where: { clubId },
+    select: {
+      progress: { where: { chapterId }, select: { createdAt: true } },
+      user: {
+        select: {
+          id: true,
+          avatar: true,
+          username: true,
+        },
+      },
+    },
+  })
+
+  return members.map(m => ({
+    user: m.user,
+    progress: m.progress[0] ?? null,
+  }))
+}

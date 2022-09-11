@@ -1,78 +1,89 @@
+import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
 import { json } from '@remix-run/node'
+import type { ComponentProps } from 'react'
 import type { LoaderArgs } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 
+import { toLuxonDate } from '~/utils'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
-import Header from '~/elements/Typography/Header'
-import PieChart from '~/components/Chart/PieChart'
 import { getTopPostByChapter } from '~/models/posts.server'
 import TopConversations from '~/components/TopConversations'
 import { getChapterDetails } from '~/models/chapters.server'
-import { getCompletedMembersCount } from '~/models/members.server'
+import { getCompletedMembersByChapter } from '~/models/members.server'
 import { getTopDiscussionByChapter } from '~/models/discussions.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
+  invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
 
-  const [counts, chapter, topPost, topDiscussion] = await Promise.all([
-    getCompletedMembersCount(params.chapterId, userId),
+  const [members, chapter, topPost, topDiscussion] = await Promise.all([
+    getCompletedMembersByChapter(params.clubId, params.chapterId),
     getChapterDetails(params.chapterId, userId),
     getTopPostByChapter(params.chapterId),
     getTopDiscussionByChapter(params.chapterId),
   ])
 
-  if (!counts) throw new Response('Club not found', { status: 404 })
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
 
-  return json({ counts, chapter, topPost, topDiscussion })
+  return json({ members, chapter, topPost, topDiscussion })
 }
 
 export default function ChapterHome() {
   const { clubId } = useParams()
-  const { counts, chapter, topPost, topDiscussion } =
+  const { members, chapter, topPost, topDiscussion } =
     useLoaderData<typeof loader>()
 
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
     <>
-      <Header size="h4" font="serif" className="mb-4">
+      <h1 className="my-6 text-2xl font-bold leading-7 text-slate-100">
         Chapter Overview
-      </Header>
+      </h1>
 
-      {/* Chart Block */}
-      <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
-        <div
-          className="h-full w-full"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%231e222a' fill-opacity='1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        >
-          <div className="-mb-11 px-4 pt-4">
-            <Text variant="title2" as="h3" className="mb-3">
-              Reading Trajectory
-            </Text>
-            <div className="mb-4 flex items-baseline justify-between">
-              <div>
-                <Text variant="title1">{counts.completed}</Text>{' '}
-                <Text variant="subtitle1">Members Completed</Text>
-              </div>
-              <div>
-                <Text variant="caption">{counts.remaining} Remaining</Text>
+      {/* Member Progress Block */}
+      <div className="mb-6 border-b border-t-2 border-pink-500 border-b-background-tertiary bg-gradient-to-b from-pink-300/10 via-transparent p-4">
+        <Text variant="title2" as="h3" className="mb-4">
+          Member Progress
+        </Text>
+        <div className="flex flex-col divide-y divide-slate-700">
+          {members.map(m => (
+            <div
+              key={m.user.id}
+              className="flex flex-col gap-2 py-2 first-of-type:pt-0 last-of-type:pb-0"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <img
+                    src={m.user.avatar}
+                    className="mr-3 h-7 w-7 overflow-hidden rounded-full"
+                    alt={`${m.user.username} avatar`}
+                  />
+
+                  <Text variant="body1">{m.user.username}</Text>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Text
+                    variant="caption"
+                    className="tracking-widest text-gray-100/70"
+                  >
+                    {m.progress &&
+                      toLuxonDate(m.progress.createdAt).toLocaleString(
+                        DateTime.DATE_MED,
+                      )}
+                  </Text>
+                  <ReadIcon
+                    read={!!m.progress}
+                    className="h-5 w-5 fill-pink-500"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="h-52">
-            <PieChart
-              data={[
-                { name: 'Completed', value: counts.completed },
-                { name: 'Remaining', value: counts.remaining },
-              ]}
-            />
-          </div>
+          ))}
         </div>
       </div>
 
@@ -85,6 +96,25 @@ export default function ChapterHome() {
         />
       </div>
     </>
+  )
+}
+
+function ReadIcon({
+  read,
+  ...props
+}: { read: boolean } & ComponentProps<'svg'>) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" {...props}>
+      {read ? (
+        <path
+          fillRule="evenodd"
+          d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+          clipRule="evenodd"
+        />
+      ) : (
+        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+      )}
+    </svg>
   )
 }
 
