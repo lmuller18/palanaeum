@@ -93,7 +93,7 @@ const PostSort = () => {
       <button
         type="button"
         onClick={changeSort}
-        className="active:text-inbluedigo-600 flex items-center text-blue-500 hover:text-blue-400"
+        className="flex items-center gap-1 text-blue-500 hover:text-blue-400 active:text-blue-600"
       >
         <Text variant="subtitle2" className="font-bold" as="p">
           Sort{' '}
@@ -102,7 +102,7 @@ const PostSort = () => {
             {sort === 'chapter' && '(Chapter)'}
           </Text>
         </Text>
-        <SortIcon className="h-6 w-6" />
+        <SortIcon className="h-5 w-5" />
       </button>
     </div>
   )

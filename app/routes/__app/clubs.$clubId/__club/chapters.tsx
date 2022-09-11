@@ -132,10 +132,6 @@ const ChapterEntry = ({
           >
             <Link to={chapter.id}>{chapter.title}</Link>
           </h2>
-          {/* <FormattedDate
-            date={new Date('11/12/22')}
-            className="order-first font-mono text-sm leading-7 text-slate-300"
-          /> */}
           <div className="mt-1 flex items-center gap-4">
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-pink-500">

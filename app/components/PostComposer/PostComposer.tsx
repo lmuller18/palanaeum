@@ -192,7 +192,7 @@ const PostComposer = ({
     (hasText && !validText)
 
   return (
-    <div className="border border-background-tertiary p-4">
+    <div className="border border-background-tertiary p-4 pb-0">
       <div className="grid grid-cols-[48px,1fr] gap-4">
         <Link to={`/users/${user.id}`} className="flex-shrink-0">
           <img
@@ -239,19 +239,9 @@ const PostComposer = ({
               percent={(characters / maximumCharacters) * 100}
             />
 
-            {/* <Button
-              type="button"
-              size="xs"
-              ref={submitRef}
-              onClick={createPost}
-              disabled={submitDisabled}
-            >
-              Post
-            </Button> */}
-
             <button
               type="button"
-              className="inline-flex items-center rounded border border-transparent bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700"
+              className="inline-flex items-center rounded border border-transparent bg-blue-600 px-5 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-blue-700"
               ref={submitRef}
               onClick={createPost}
               disabled={submitDisabled}
@@ -267,7 +257,7 @@ const PostComposer = ({
         />
       </div>
       {preview && (
-        <div className="flex snap-x flex-row gap-2 overflow-y-auto border-t border-t-background-tertiary pt-2">
+        <div className="mb-4 flex snap-x flex-row gap-2 overflow-y-auto border-t border-t-background-tertiary pt-2">
           <div className="relative h-28 w-28 flex-shrink-0 snap-start overflow-hidden rounded-lg shadow-lg">
             <img
               src={preview}
@@ -301,7 +291,7 @@ const ContextInputSection = ({
   return (
     <motion.div
       animate={{ height: height || 'auto' }}
-      className="relative col-span-full overflow-hidden"
+      className="col-span-full"
     >
       <AnimatePresence initial={false}>
         {showContextInput && (
@@ -310,12 +300,11 @@ const ContextInputSection = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={clsx(
-              height ? 'absolute w-full' : 'relative',
-              'border-y border-background-tertiary py-2',
-            )}
+            className="pb-4"
           >
-            <EditorContent editor={editor} />
+            <div className="border-y border-background-tertiary py-2">
+              <EditorContent editor={editor} />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
