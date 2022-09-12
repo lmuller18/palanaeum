@@ -130,7 +130,7 @@ const ChapterEntry = ({
           >
             <Link to={chapter.id}>{chapter.title}</Link>
           </h2>
-          <div className="mt-1 flex items-center gap-4">
+          <div className="mt-1 flex items-center gap-2">
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-pink-500">
                 {chapter.discussionCount}
@@ -193,7 +193,7 @@ const ChapterEntry = ({
             </span>
             <Link
               to={chapter.id}
-              className="flex items-center text-sm font-bold leading-6 text-pink-500 hover:text-pink-700 active:text-pink-900"
+              className="flex items-center text-sm font-bold leading-6 text-pink-500 hover:text-pink-400 active:text-pink-600"
               aria-label={`Chapter homepage for chapter ${chapter.title}`}
             >
               View Chapter

@@ -89,7 +89,7 @@ const DiscussionEntry = ({
             date={new Date(data.discussion.createdAt)}
             className="order-first font-mono text-sm leading-7 text-slate-300"
           />
-          <div className="mt-1 flex items-center gap-4">
+          <div className="mt-1 flex items-center gap-2">
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-indigo-400">
                 {data.discussion.replyCount}
