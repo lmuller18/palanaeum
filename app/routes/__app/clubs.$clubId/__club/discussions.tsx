@@ -15,8 +15,8 @@ import Container from '~/components/Container'
 import { requireUserId } from '~/session.server'
 import FormattedDate from '~/components/FormattedDate'
 import { getChapterList } from '~/models/chapters.server'
-import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 import { typedjson, useTypedLoaderData } from 'remix-typedjson'
+import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
@@ -53,7 +53,7 @@ export default function DiscussionsPage() {
             Discussions
           </h1>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {discussions.length !== 0 && (
               <>
                 <DiscussionSort />
@@ -61,13 +61,13 @@ export default function DiscussionsPage() {
                   aria-hidden="true"
                   className="text-sm font-bold text-slate-400"
                 >
-                  &#183;
+                  /
                 </span>
               </>
             )}
             <button
               onClick={onOpen}
-              className="text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-400 active:text-indigo-600"
+              className="text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-300 active:text-indigo-500"
             >
               New +
             </button>
@@ -105,9 +105,7 @@ export default function DiscussionsPage() {
 const DiscussionEntry = ({
   data,
 }: {
-  data: Awaited<
-    ReturnType<Awaited<ReturnType<typeof loader>>['typedjson']>
-  >['discussions'][number]
+  data: FuncType<typeof getDiscussionsForReadChapters>[number]
 }) => {
   return (
     <article
@@ -126,7 +124,7 @@ const DiscussionEntry = ({
             date={new Date(data.discussion.createdAt)}
             className="order-first font-mono text-sm leading-7 text-slate-300"
           />
-          <div className="mt-1 flex items-center gap-4">
+          <div className="mt-1 flex items-center gap-3">
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-indigo-400">
                 {data.discussion.replyCount}
