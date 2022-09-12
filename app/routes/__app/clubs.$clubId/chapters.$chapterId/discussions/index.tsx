@@ -68,9 +68,7 @@ export default function DiscussionsPage() {
 const DiscussionEntry = ({
   data,
 }: {
-  data: Awaited<
-    ReturnType<Awaited<ReturnType<typeof loader>>['typedjson']>
-  >['discussions'][number]
+  data: FuncType<typeof getDiscussionsByChapter>[number]
 }) => {
   return (
     <article

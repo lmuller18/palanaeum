@@ -15,8 +15,8 @@ import Container from '~/components/Container'
 import { requireUserId } from '~/session.server'
 import FormattedDate from '~/components/FormattedDate'
 import { getChapterList } from '~/models/chapters.server'
-import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 import { typedjson, useTypedLoaderData } from 'remix-typedjson'
+import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.clubId, 'expected clubId')
@@ -67,7 +67,7 @@ export default function DiscussionsPage() {
             )}
             <button
               onClick={onOpen}
-              className="text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-400 active:text-indigo-600"
+              className="text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-300 active:text-indigo-500"
             >
               New +
             </button>
@@ -105,9 +105,7 @@ export default function DiscussionsPage() {
 const DiscussionEntry = ({
   data,
 }: {
-  data: Awaited<
-    ReturnType<Awaited<ReturnType<typeof loader>>['typedjson']>
-  >['discussions'][number]
+  data: FuncType<typeof getDiscussionsForReadChapters>[number]
 }) => {
   return (
     <article

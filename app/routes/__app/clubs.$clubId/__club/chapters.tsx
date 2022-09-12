@@ -63,9 +63,7 @@ export default function ChaptersPage() {
 const ChapterEntry = ({
   chapter,
 }: {
-  chapter: Awaited<
-    ReturnType<Awaited<ReturnType<typeof loader>>['json']>
-  >['chapters'][number]
+  chapter: FuncType<typeof getPaginatedChapterList>['chapters'][number]
 }) => {
   const fetcher = useFetcher()
 
