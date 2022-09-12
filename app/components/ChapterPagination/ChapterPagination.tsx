@@ -15,15 +15,15 @@ const ChapterPagination = ({
         {currentPage !== 1 ? (
           <Link
             to={`?page=${currentPage - 1}`}
-            className="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-slate-300 hover:border-slate-400 hover:text-slate-100"
+            className="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-slate-300 hover:text-slate-100"
           >
             <ArrowLeftIcon className="mr-3 h-5 w-5" aria-hidden="true" />
-            Previous
+            <span className="hidden sm:inline">Previous</span>
           </Link>
         ) : (
           <span className="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-slate-500">
             <ArrowLeftIcon className="mr-3 h-5 w-5" aria-hidden="true" />
-            Previous
+            <span className="hidden sm:inline">Previous</span>
           </span>
         )}
       </div>
@@ -56,14 +56,14 @@ const ChapterPagination = ({
         {currentPage !== lastPage ? (
           <Link
             to={`?page=${currentPage + 1}`}
-            className="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-slate-300 hover:border-slate-400 hover:text-slate-100"
+            className="inline-flex items-center border-t-2 border-transparent pt-4 pl-1 text-sm font-medium text-slate-300 hover:text-slate-100"
           >
-            Next
+            <span className="hidden sm:inline">Next</span>
             <ArrowRightIcon className="ml-3 h-5 w-5" aria-hidden="true" />
           </Link>
         ) : (
           <span className="inline-flex items-center border-t-2 border-transparent pt-4 pr-1 text-sm font-medium text-slate-500">
-            Next
+            <span className="hidden sm:inline">Next</span>
             <ArrowRightIcon className="ml-3 h-5 w-5" aria-hidden="true" />
           </span>
         )}
