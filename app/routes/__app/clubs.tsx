@@ -1,13 +1,14 @@
 import clsx from 'clsx'
-import { DateTime } from 'luxon'
-import { json } from '@remix-run/node'
 import { Tab } from '@headlessui/react'
+import { Link } from '@remix-run/react'
 import type { LoaderArgs } from '@remix-run/node'
-import { Link, useLoaderData, useNavigate } from '@remix-run/react'
+import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
-import { toLuxonDate } from '~/utils'
+import { pluralize } from '~/utils'
 import Text from '~/elements/Typography/Text'
+import Container from '~/components/Container'
 import { requireUserId } from '~/session.server'
+import FormattedDate from '~/components/FormattedDate'
 import { getClubListDetails } from '~/models/clubs.server'
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -15,83 +16,78 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   const { currentlyReading, previouslyRead } = await getClubListDetails(userId)
 
-  return json({ currentlyReading, previouslyRead })
+  return typedjson({ currentlyReading, previouslyRead })
 }
 
 export default function ClubsPage() {
-  const data = useLoaderData<typeof loader>()
+  const data = useTypedLoaderData<typeof loader>()
 
   return (
     <div className="mx-auto max-w-lg p-4">
       <Tab.Group>
-        <Tab.List className="flex space-x-1 rounded-xl bg-background-secondary/70 p-1">
+        <Tab.List className="flex items-baseline justify-between">
           <Tab
             className={({ selected }) =>
               clsx(
-                'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-white',
-                'focus:outline-none',
+                'leading-7',
+                'transition-[font-size,color] duration-150 ease-in-out focus:outline-none',
                 selected
-                  ? 'bg-background-tertiary shadow'
-                  : 'text-blue-100 hover:bg-white/[0.12] hover:text-white',
+                  ? 'text-2xl font-bold text-indigo-400'
+                  : 'text-slate-100 hover:text-indigo-400',
               )
             }
           >
             Currently Reading
           </Tab>
+
           <Tab
             className={({ selected }) =>
               clsx(
-                'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-white',
-                'focus:outline-none',
+                'leading-7',
+                'transition-[font-size,color] duration-150 ease-in-out focus:outline-none',
                 selected
-                  ? 'bg-background-tertiary shadow'
-                  : 'text-blue-100 hover:bg-white/[0.12] hover:text-white',
+                  ? 'text-2xl font-bold text-indigo-400'
+                  : 'text-slate-100 hover:text-indigo-400',
               )
             }
           >
             Previously Read
           </Tab>
         </Tab.List>
-        <Tab.Panels className="mt-2">
-          <Tab.Panel
-            className={clsx(
-              'rounded-xl bg-background-tertiary p-3',
-              'focus:outline-none',
-            )}
-          >
-            <div className="grid gap-4">
-              {!data.currentlyReading ||
-                (data.currentlyReading.length === 0 && (
-                  <div className="flex items-center justify-center py-6">
-                    <Text variant="title3" serif>
-                      No Clubs Found
-                    </Text>
-                  </div>
-                ))}
-              {data.currentlyReading.map(club => (
-                <ClubCard key={club.id} club={club} />
-              ))}
+        <Tab.Panels>
+          <Tab.Panel className="focus:outline-none">
+            <div className="sm:mt-4 lg:mt-8 lg:border-t lg:border-slate-700">
+              {!data.currentlyReading || data.currentlyReading.length === 0 ? (
+                <div className="flex items-center justify-center py-6">
+                  <Text variant="title3" serif>
+                    No Clubs Found
+                  </Text>
+                </div>
+              ) : (
+                <>
+                  {data.currentlyReading.map(club => (
+                    <ClubCard key={club.id} club={club} />
+                  ))}
+                </>
+              )}
             </div>
           </Tab.Panel>
 
-          <Tab.Panel
-            className={clsx(
-              'rounded-xl bg-background-tertiary p-3',
-              'focus:outline-none',
-            )}
-          >
-            <div className="grid gap-4">
-              {!data.previouslyRead ||
-                (data.previouslyRead.length === 0 && (
-                  <div className="flex items-center justify-center py-6">
-                    <Text variant="title3" serif>
-                      No Clubs Found
-                    </Text>
-                  </div>
-                ))}
-              {data.previouslyRead.map(club => (
-                <ClubCard key={club.id} club={club} />
-              ))}
+          <Tab.Panel className="focus:outline-none">
+            <div className="sm:mt-4 lg:mt-8 lg:border-t lg:border-slate-700">
+              {!data.previouslyRead || data.previouslyRead.length === 0 ? (
+                <div className="flex items-center justify-center py-6">
+                  <Text variant="title3" serif>
+                    No Clubs Found
+                  </Text>
+                </div>
+              ) : (
+                <>
+                  {data.previouslyRead.map(club => (
+                    <ClubCard key={club.id} club={club} />
+                  ))}
+                </>
+              )}
             </div>
           </Tab.Panel>
         </Tab.Panels>
@@ -103,75 +99,88 @@ export default function ClubsPage() {
 const ClubCard = ({
   club,
 }: {
-  club: Serialized<
-    FuncType<typeof getClubListDetails>['currentlyReading'][number]
-  >
+  club: FuncType<typeof getClubListDetails>['currentlyReading'][number]
 }) => {
-  const navigate = useNavigate()
   return (
-    <div
-      className="rounded-lg bg-background-secondary p-4 pt-3 active:bg-background-secondary/70"
-      onClick={() => {
-        navigate(club.id)
-      }}
+    <article
+      aria-labelledby={`club-${club.id}-title`}
+      className="border-b border-b-slate-700 py-10 sm:py-12"
     >
-      <Link to={club.id} onClick={e => e.stopPropagation()} className="w-fit">
-        <Text variant="title3" as="p" className="mb-2 line-clamp-2" serif>
-          {club.title}
-        </Text>
-      </Link>
-      <div className="grid grid-cols-[1fr,2fr] gap-6">
-        <Link
-          onClick={e => e.stopPropagation()}
-          to={club.id}
-          className="mx-auto aspect-book w-full overflow-hidden rounded-lg shadow-md"
-        >
-          <img
-            className="h-full w-full object-cover"
-            src={club.image}
-            alt="selected cover"
-          />
-        </Link>
-        <div className="flex flex-col justify-between">
-          <Text variant="subtitle2" as="p" className="line-clamp-1">
-            By {club.author}
-          </Text>
+      <Container>
+        <div className="grid grid-cols-[1fr,120px] gap-x-4 gap-y-2">
+          <div className="flex flex-col items-start">
+            <h2
+              id={`club-${club.id}-title`}
+              className="text-lg font-bold text-slate-100 line-clamp-2"
+            >
+              <Link to={club.id} className="hover:text-white">
+                {club.title}
+              </Link>
+            </h2>
+            <p className="ml-3 mb-2 text-xs leading-6 text-slate-50">
+              By {club.author}
+            </p>
+            <div className="mt-1 flex items-center gap-3">
+              <span className="text-sm font-bold leading-6">
+                <span className="mr-1 text-indigo-400">
+                  {club.chapterCount}
+                </span>{' '}
+                {pluralize('Chapter', 'Chapters', club.chapterCount)}
+              </span>
+              <span
+                aria-hidden="true"
+                className="text-sm font-bold text-slate-400"
+              >
+                &#183;
+              </span>
+              <span className="text-sm font-bold leading-6">
+                <span className="mr-1 text-indigo-400">{club.memberCount}</span>{' '}
+                {pluralize('Member', 'Members', club.memberCount)}
+              </span>
+            </div>
 
-          <div className="grid grid-cols-[auto,1fr] items-center gap-x-4">
-            <Text variant="body2">Chapters</Text>
-            <Text variant="caption">{club.chapterCount}</Text>
-            <Text variant="body2">Members</Text>
-            <Text variant="caption">{club.memberCount}</Text>
-            <Text variant="body2">Club Created</Text>
-            <Text variant="caption">
-              {toLuxonDate(club.createdAt).toLocaleString(DateTime.DATE_MED)}
-            </Text>
+            <FormattedDate
+              date={new Date(club.createdAt)}
+              className="font-mono text-sm leading-7 text-slate-300"
+            />
+
+            <div className="mt-4 flex flex-grow items-end">
+              <div className="flex items-center gap-4">
+                <Link
+                  to={club.id}
+                  className="flex items-center text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-300 active:text-indigo-500"
+                >
+                  View Club
+                </Link>
+                /
+                <Link
+                  to={`/users/${club.owner.id}`}
+                  onClick={e => e.stopPropagation()}
+                  className="flex items-center justify-start gap-2 hover:text-indigo-300 active:text-indigo-500"
+                >
+                  <img
+                    src={club.owner.avatar}
+                    className="h-5 w-5 flex-shrink-0 rounded-full"
+                    alt={`${club.owner.username} avatar`}
+                  />
+                  <Text as="p" variant="subtitle2">
+                    {club.owner.username}
+                  </Text>
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col justify-end">
-            <Link
-              to={`/users/${club.owner.id}`}
-              onClick={e => e.stopPropagation()}
-              className="flex w-fit items-center justify-start gap-2"
-            >
-              <img
-                src={club.owner.avatar}
-                className="h-8 w-8 flex-shrink-0 rounded-full"
-                alt={`${club.owner.username} avatar`}
-              />
-              <div>
-                <Text as="p" variant="caption">
-                  Owner
-                </Text>
-                <Text as="p" variant="subtitle2">
-                  {club.owner.username}
-                </Text>
-              </div>
-            </Link>
+          <div className="aspect-book w-full overflow-hidden rounded-lg shadow">
+            <img
+              className="h-full w-full object-cover"
+              src={club.image}
+              alt="selected cover"
+            />
           </div>
         </div>
-      </div>
-    </div>
+      </Container>
+    </article>
   )
 }
 
