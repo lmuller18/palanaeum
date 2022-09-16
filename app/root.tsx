@@ -89,7 +89,7 @@ export default function App() {
   return (
     <html
       lang="en"
-      className="dark h-screen select-none bg-background-primary antialiased"
+      className="dark select-none bg-background-primary antialiased"
     >
       <head>
         <Meta />
@@ -97,8 +97,8 @@ export default function App() {
         <PwaMeta />
       </head>
       <QueryClientProvider client={queryClient}>
-        <body className="h-full">
-          <div id="app" className="h-full bg-background-primary">
+        <body>
+          <div id="app" className="bg-background-primary">
             <Outlet />
             <script
               dangerouslySetInnerHTML={{

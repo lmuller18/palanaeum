@@ -1,6 +1,10 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
 
+/** @type {import('tailwindcss').Config} */
 module.exports = {
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   content: ['./app/**/*.{ts,tsx,jsx,js}'],
   theme: {
     screens: {

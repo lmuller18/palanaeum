@@ -128,6 +128,7 @@ const ChapterEntry = ({
           >
             <Link to={chapter.id}>{chapter.title}</Link>
           </h2>
+
           <div className="mt-1 flex items-center gap-3">
             <span className="text-sm font-bold leading-6">
               <span className="mr-1 text-pink-500">
@@ -161,7 +162,8 @@ const ChapterEntry = ({
               Complete
             </span>
           </div>
-          <p className="mt-1 text-base leading-7 text-slate-200">
+
+          <p className="mt-1 text-base leading-7 text-slate-50">
             {spoilerStatusMessaging}
           </p>
           <div className="mt-4 flex items-center gap-4">
