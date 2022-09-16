@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { Tab } from '@headlessui/react'
-import { Link } from '@remix-run/react'
+import { Link, useNavigate } from '@remix-run/react'
 import type { LoaderArgs } from '@remix-run/node'
 import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
@@ -101,19 +101,30 @@ const ClubCard = ({
 }: {
   club: FuncType<typeof getClubListDetails>['currentlyReading'][number]
 }) => {
+  const navigate = useNavigate()
+
   return (
     <article
+      onClick={e => {
+        e.stopPropagation()
+        navigate(club.id)
+      }}
       aria-labelledby={`club-${club.id}-title`}
-      className="border-b border-b-slate-700 py-10 sm:py-12"
+      className="group-select border-b border-b-slate-700 py-10 sm:py-12"
     >
-      <Container>
-        <div className="grid grid-cols-[1fr,120px] gap-x-4 gap-y-2">
+      <Container className="relative">
+        <div className="active-container absolute inset-0 scale-y-125 select-none rounded-lg transition-colors duration-75" />
+        <div className="relative grid grid-cols-[1fr,120px] gap-x-4 gap-y-2">
           <div className="flex flex-col items-start">
             <h2
               id={`club-${club.id}-title`}
               className="text-lg font-bold text-slate-100 line-clamp-2"
             >
-              <Link to={club.id} className="hover:text-white">
+              <Link
+                to={club.id}
+                onClick={e => e.stopPropagation()}
+                className="hover:text-white"
+              >
                 {club.title}
               </Link>
             </h2>
@@ -148,6 +159,7 @@ const ClubCard = ({
               <div className="flex items-center gap-4">
                 <Link
                   to={club.id}
+                  onClick={e => e.stopPropagation()}
                   className="flex items-center text-sm font-bold leading-6 text-indigo-400 hover:text-indigo-300 active:text-indigo-500"
                 >
                   View Club

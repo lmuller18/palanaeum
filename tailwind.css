@@ -10,6 +10,10 @@
   color-scheme: dark;
 }
 
+.group-select:active:not(:focus-within) .active-container {
+  @apply bg-white/10;
+}
+
 /* Placeholder (at the top) */
 .ProseMirror p.is-editor-empty:first-child::before {
   color: #adb5bd;
