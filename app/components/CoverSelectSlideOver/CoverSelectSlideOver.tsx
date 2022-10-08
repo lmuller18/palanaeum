@@ -25,7 +25,7 @@ const CoverSelectSlideOver = ({
   title: string
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
-  setCover: React.Dispatch<React.SetStateAction<string>>
+  setCover: (newCover: string) => void
 }) => {
   const [selected, setSelected] = useState<Book | null>(null)
   const placeholder = useMemo(

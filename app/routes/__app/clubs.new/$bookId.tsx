@@ -1,10 +1,23 @@
 import invariant from 'tiny-invariant'
-import { useMemo, useState } from 'react'
 import { intervalToDuration } from 'date-fns'
 import { json, redirect } from '@remix-run/node'
-import { Form, useLoaderData } from '@remix-run/react'
-import { ChevronLeftIcon } from '@heroicons/react/outline'
+import { Fragment, useMemo, useRef, useState } from 'react'
+import { Menu, Transition } from '@headlessui/react'
+import { Form, useFetcher, useLoaderData } from '@remix-run/react'
 import type { ActionFunction, LoaderArgs } from '@remix-run/node'
+import { ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/outline'
+
+import {
+  RefreshIcon as ResetInactiveIcon,
+  PhotographIcon as ChangeInactiveIcon,
+  ArrowsExpandIcon as RepositionInactiveIcon,
+} from '@heroicons/react/outline'
+
+import {
+  RefreshIcon as ResetActiveIcon,
+  PhotographIcon as ChangeActiveIcon,
+  ArrowsExpandIcon as RepositionActiveIcon,
+} from '@heroicons/react/solid'
 
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
@@ -13,6 +26,8 @@ import { requireUserId } from '~/session.server'
 import { createClub } from '~/models/clubs.server'
 import OutlinedInput from '~/elements/OutlinedInput'
 import CoverSelectSlideOver from '~/components/CoverSelectSlideOver'
+import Modal from '~/components/Modal'
+import AvatarEditor from 'react-avatar-editor'
 
 interface LoaderData {
   book: {
@@ -52,8 +67,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     getDetails(params.bookId),
   ])
 
-  const defaultCover =
-    details.product.product_images?.[720] ?? '/images/no-cover.png'
+  const audibleCover = details.product.product_images?.[720]
+  const cover = audibleCover
+    ? `/soulcast/${encodeURI(audibleCover)}`
+    : '/images/no-cover.png'
 
   return json<LoaderData>({
     book: {
@@ -62,7 +79,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
       title: details.product.title,
       subtitle: details.product.subtitle,
       description: details.product.merchandising_summary,
-      image: defaultCover,
+      image: cover,
       publishDate: details.product.release_date,
       authors: details.product.authors.map((a: { name: string }) => a.name),
     },
@@ -88,7 +105,19 @@ export default function BookPage() {
   const { book } = useLoaderData<typeof loader>()
 
   const [cover, setCover] = useState(book.image)
+  const [croppedCover, setCroppedCover] = useState<string>(book.image)
   const [open, setOpen] = useState(false)
+  const [repositionOpen, setRepositionOpen] = useState(false)
+
+  const resetCover = () => {
+    setCover(book.image)
+    setCroppedCover(book.image)
+  }
+
+  const selectCover = (newCover: string) => {
+    setCover(newCover)
+    setCroppedCover(newCover)
+  }
 
   return (
     <div>
@@ -103,33 +132,119 @@ export default function BookPage() {
             }}
           />
           <div className="relative mx-auto aspect-book w-full max-w-[200px] overflow-hidden rounded-lg shadow-md">
-            <input type="hidden" name="image" value={cover} />
+            <input type="hidden" name="image" value={croppedCover} />
             <img
               className="h-full w-full object-cover"
-              src={cover}
+              src={croppedCover}
               alt="selected cover"
             />
           </div>
         </div>
 
         <div className="mx-auto w-full max-w-md space-y-6 px-8">
-          <div className="mt-1 flex justify-between">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setCover(book.image)}
-              disabled={cover === book.image}
-            >
-              Reset Cover
-            </Button>
-
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setOpen(true)}
-            >
-              Change Cover
-            </Button>
+          <div className="mt-1 flex justify-end">
+            <Menu as="div" className="relative inline-block text-left">
+              <div>
+                <Menu.Button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md bg-black bg-opacity-20 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                >
+                  Cover Options
+                  <ChevronDownIcon
+                    className="ml-2 -mr-1 h-5 w-5 text-violet-200 hover:text-violet-100"
+                    aria-hidden="true"
+                  />
+                </Menu.Button>
+              </div>
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-top-right divide-y divide-gray-500 rounded-md bg-background-secondary shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                  <div className="px-1 py-1 ">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          type="button"
+                          onClick={() => setRepositionOpen(true)}
+                          className={`${
+                            active && 'bg-violet-500 text-white'
+                          } group flex w-full items-center rounded-md px-2 py-2 text-sm text-white`}
+                        >
+                          {active ? (
+                            <RepositionActiveIcon
+                              className="mr-2 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <RepositionInactiveIcon
+                              className="mr-2 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          )}
+                          Reposition
+                        </button>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          type="button"
+                          onClick={() => setOpen(true)}
+                          className={`${
+                            active && 'bg-violet-500 text-white'
+                          } group flex w-full items-center rounded-md px-2 py-2 text-sm text-white`}
+                        >
+                          {active ? (
+                            <ChangeActiveIcon
+                              className="mr-2 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <ChangeInactiveIcon
+                              className="mr-2 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          )}
+                          Change
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                  <div className="px-1 py-1">
+                    <Menu.Item>
+                      {({ active }) => (
+                        <button
+                          type="button"
+                          onClick={resetCover}
+                          className={`${
+                            active && 'bg-violet-500 text-white'
+                          } group flex w-full items-center rounded-md px-2 py-2 text-sm text-white`}
+                        >
+                          {active ? (
+                            <ResetActiveIcon
+                              className="mr-2 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <ResetInactiveIcon
+                              className="mr-2 h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          )}
+                          Reset
+                        </button>
+                      )}
+                    </Menu.Item>
+                  </div>
+                </Menu.Items>
+              </Transition>
+            </Menu>
           </div>
 
           <OutlinedInput
@@ -182,13 +297,103 @@ export default function BookPage() {
         </div>
       </Form>
 
+      {repositionOpen && (
+        <CoverReposition
+          setOpen={setRepositionOpen}
+          image={cover}
+          setCroppedCover={setCroppedCover}
+        />
+      )}
+
       <CoverSelectSlideOver
         open={open}
         setOpen={setOpen}
         title={book.title}
-        setCover={setCover}
+        setCover={selectCover}
       />
     </div>
+  )
+}
+
+const CoverReposition = ({
+  image,
+  setOpen,
+  setCroppedCover,
+}: {
+  image: string
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setCroppedCover: React.Dispatch<React.SetStateAction<string>>
+}) => {
+  const [scale, setScale] = useState(1)
+  const ref = useRef<AvatarEditor>(null)
+  const fetcher = useFetcher()
+
+  const onClose = () => {
+    setOpen(false)
+  }
+
+  const onSave = async () => {
+    if (ref.current) {
+      const canvas = ref.current
+      const blob = await new Promise<string | null>(resolve =>
+        resolve(canvas.getImage().toDataURL()),
+      )
+
+      if (!blob) return
+      setCroppedCover(blob)
+    }
+    onClose()
+  }
+
+  return (
+    <Modal open onClose={onClose}>
+      <div className="flex flex-col pt-3">
+        <div className="px-3 pb-4 shadow-sm">
+          <div className="relative mt-2 text-center">
+            <span className="font-medium">Upload Header</span>
+            <div className="absolute inset-y-0 right-0">
+              <button
+                className="mr-1 text-blue-500 focus:outline-none"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1">
+          <div className="p-2">
+            <div className="flex flex-col items-center">
+              <AvatarEditor
+                image={image}
+                width={334}
+                height={500}
+                scale={scale}
+                ref={ref}
+                crossOrigin="anonymous"
+              />
+
+              <input
+                type="range"
+                value={scale}
+                min={1}
+                max={2}
+                step={0.01}
+                onChange={e => setScale(Number(e.target.value))}
+              />
+
+              <Button
+                type="button"
+                onClick={onSave}
+                disabled={fetcher.state === 'submitting'}
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Modal>
   )
 }
 
