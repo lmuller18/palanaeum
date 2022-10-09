@@ -20,7 +20,8 @@ module.exports = {
         },
       },
       aspectRatio: {
-        book: '0.66 / 1',
+        // book: '0.66 / 1',
+        book: '167 / 250',
       },
       fontFamily: {
         sans: ['Satoshi', ...defaultTheme.fontFamily.sans],

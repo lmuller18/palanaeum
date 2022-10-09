@@ -18,6 +18,7 @@
     "typescript",
     "typescriptreact"
   ],
+  "githubPullRequests.ignoredPullRequestBranches": ["dev"],
   "search.exclude": {
     ".cache": true,
     "build": true,
