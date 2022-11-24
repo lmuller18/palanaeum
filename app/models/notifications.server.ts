@@ -52,38 +52,64 @@ export async function notifyClubCompletion(
 
   if (!lastChapter || !club || !user || lastChapter.id !== chapter.id) return
 
-  const subscriptions = await prisma.subscription.findMany({
-    where: {
-      User: {
-        members: {
-          some: {
-            removed: false,
-            id: { not: memberId },
-            progress: { none: { chapterId } },
-          },
-        },
+  const [incompleteUsers, completedUsers] = await Promise.all([
+    prisma.member.findMany({
+      where: {
+        removed: false,
+        clubId: club.id,
+        id: { not: memberId },
+        progress: { none: { chapterId } },
       },
-    },
-  })
+      select: { userId: true },
+    }),
+    prisma.member.findMany({
+      where: {
+        removed: false,
+        clubId: club.id,
+        id: { not: memberId },
+        progress: { some: { chapterId } },
+      },
+      select: { userId: true },
+    }),
+  ])
+
+  const [completedSubscriptions, incompleteSubscriptions] = await Promise.all([
+    prisma.subscription.findMany({
+      where: { userId: { in: completedUsers.map(u => u.userId) } },
+    }),
+    prisma.subscription.findMany({
+      where: { userId: { in: incompleteUsers.map(u => u.userId) } },
+    }),
+  ])
 
   const clubUrl = `/clubs/${club.id}`
 
-  const notification = createNotification({
-    title: `${user.username} just completed ${club.title}`,
-    body: `${user.username} just wrapped up reading ${club.title} by ${club.author}. Don't fall behind now!`,
-    icon: user.avatar,
-    image: club.image,
-    data: {
-      options: {
-        action: 'navigate',
-        url: clubUrl,
+  const createClubNotification = (completed: boolean) =>
+    createNotification({
+      title: `${user.username} just completed ${club.title}`,
+      body: `${user.username} just wrapped up reading ${club.title} by ${
+        club.author
+      }. ${
+        completed
+          ? "They're ready to join you in the conversation"
+          : "Don't fall behind now!"
+      }`,
+      icon: user.avatar,
+      image: club.image,
+      data: {
+        options: {
+          action: 'navigate',
+          url: clubUrl,
+        },
       },
-    },
-  })
+    })
 
   const notifications: Promise<any>[] = []
-  subscriptions.forEach(subscription => {
-    notifications.push(sendPush(subscription, notification))
+  completedSubscriptions.forEach(subscription => {
+    notifications.push(sendPush(subscription, createClubNotification(true)))
+  })
+  incompleteSubscriptions.forEach(subscription => {
+    notifications.push(sendPush(subscription, createClubNotification(false)))
   })
   return Promise.allSettled(notifications)
 }
