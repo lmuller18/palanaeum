@@ -1,8 +1,9 @@
 import clsx from 'clsx'
-import { Tab } from '@headlessui/react'
-import { Link, useNavigate } from '@remix-run/react'
-import type { LoaderArgs } from '@remix-run/node'
 import { typedjson, useTypedLoaderData } from 'remix-typedjson'
+
+import { Tab } from '@headlessui/react'
+import type { LoaderArgs } from '@remix-run/node'
+import { Link, useNavigate } from '@remix-run/react'
 
 import { pluralize } from '~/utils'
 import Text from '~/elements/Typography/Text'

@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Link, Outlet, useMatches } from '@remix-run/react'
+import { motion, AnimatePresence } from 'framer-motion'
+
 import { MenuAlt2Icon } from '@heroicons/react/outline'
+import { Link, Outlet, useMatches } from '@remix-run/react'
 
 import { useUser } from '~/utils'
 import Sidenav from '~/components/Sidenav'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
-import { AnimatePresence, motion } from 'framer-motion'
 
 export default function AppLayout() {
   const user = useUser()
@@ -59,7 +60,7 @@ export default function AppLayout() {
 
       <Sidenav open={sidebarOpen} setOpen={setSidebarOpen} />
 
-      <main className="mb-4 mt-[59.91px] pt-safe-top">
+      <main className="isolate mb-4 mt-[59.91px] pt-safe-top">
         <Outlet />
       </main>
     </>

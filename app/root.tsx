@@ -87,10 +87,7 @@ export default function App() {
   const data = useLoaderData() as LoaderData
 
   return (
-    <html
-      lang="en"
-      className="dark select-none bg-background-primary antialiased"
-    >
+    <html lang="en" className="dark antialiased">
       <head>
         <Meta />
         <Links />
@@ -98,7 +95,7 @@ export default function App() {
       </head>
       <QueryClientProvider client={queryClient}>
         <body>
-          <div id="app" className="bg-background-primary">
+          <div id="app">
             <Outlet />
             <script
               dangerouslySetInnerHTML={{

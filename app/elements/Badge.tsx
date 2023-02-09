@@ -27,6 +27,7 @@ const colors = {
   fuchsia: 'bg-fuchsia-200 text-fuchsia-800',
   pink: 'bg-pink-200 text-pink-800',
   rose: 'bg-rose-200 text-rose-800',
+  minimal: 'bg-background-primary border border-background-tertiary',
 }
 
 const radii = {

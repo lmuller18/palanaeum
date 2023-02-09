@@ -1,8 +1,20 @@
 @tailwind base;
 
 @layer base {
-  body {
+  body,
+  html {
+    height: 100%;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    /* scroll-behavior: smooth; */
+    user-select: none;
+  }
+
+  body {
+    /* @apply bg-slate-900; */
+    @apply bg-background-primary;
   }
 }
 
@@ -36,4 +48,48 @@
 }
 
 @tailwind components;
+
+@layer components {
+  .content-wrapper {
+    @apply mx-auto max-w-[75rem] px-4;
+    @apply sm:px-12;
+    /* @apply md:px-10 lg:px-16 xl:px-6; */
+  }
+
+  .content-wrapper-min {
+    @apply mx-auto max-w-[60rem] px-4;
+    @apply sm:px-12;
+    /* @apply md:px-10 lg:px-16 xl:px-6; */
+  }
+
+  .content-wrapper-max {
+    @apply mx-auto max-w-[120rem];
+  }
+
+  .background-grid {
+    @apply relative z-0 bg-[#0c1222];
+  }
+
+  .background-grid::before {
+    @apply absolute inset-0 z-[-1] content-[''] bg-grid-slate-50/[.025];
+
+    mask-image: linear-gradient(transparent, black, transparent);
+  }
+
+  .background-grid--fade-out {
+    /* @apply bg-transparent bg-gradient-to-b from-[#0c1222] via-[#0c1222]; */
+    @apply bg-transparent bg-gradient-to-b from-background-secondary/60 via-background-tertiary/60;
+  }
+
+  .background-grid--fade-out::before {
+    mask-image: linear-gradient(black, black, transparent);
+  }
+
+  .background-image {
+    @apply [mask-image:linear-gradient(black,transparent)];
+    @apply sm:[mask-image:linear-gradient(black,black,transparent)];
+    /* mask-image: linear-gradient(black, black, transparent); */
+  }
+}
+
 @tailwind utilities;
