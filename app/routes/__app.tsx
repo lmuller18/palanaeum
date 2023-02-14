@@ -21,11 +21,17 @@ export default function AppLayout() {
 
   return (
     <>
-      <motion.header className="fixed left-0 right-0 top-0 isolate z-50 bg-background-secondary pt-safe-top shadow-lg">
+      <motion.header className="fixed left-0 right-0 top-0 isolate z-50 block bg-background-secondary pt-safe-top shadow-lg md:hidden">
         <div className="relative z-[999] flex items-center justify-between bg-background-secondary px-4 py-2">
-          <button type="button" onClick={() => setSidebarOpen(o => !o)}>
-            <MenuAlt2Icon className="h-8 w-8" />
-          </button>
+          <div>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(o => !o)}
+              className="block md:hidden"
+            >
+              <MenuAlt2Icon className="h-8 w-8" />
+            </button>
+          </div>
 
           <div className="flex items-center gap-2">
             <div className="flex flex-col justify-start text-right">
@@ -60,9 +66,11 @@ export default function AppLayout() {
 
       <Sidenav open={sidebarOpen} setOpen={setSidebarOpen} />
 
-      <main className="isolate mb-4 mt-[59.91px] pt-safe-top">
-        <Outlet />
-      </main>
+      <div className="isolate mb-4 mt-[59.91px] flex flex-1 flex-col pt-safe-top md:mt-0 md:pl-64">
+        <main className="flex-1">
+          <Outlet />
+        </main>
+      </div>
     </>
   )
 }

@@ -2,8 +2,9 @@ import clsx from 'clsx'
 import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
-import { json } from '@remix-run/node'
 import type { ReactNode } from 'react'
+
+import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
 import { ChevronLeftIcon } from '@heroicons/react/outline'
 import { Outlet, NavLink, useParams, useMatches } from '@remix-run/react'
@@ -36,13 +37,13 @@ export default function ChapterPage() {
 
   return (
     <>
-      <div className="mb-4 h-12" />
+      <div className="mb-4 h-12 md:hidden" />
 
-      <div className="relative mx-auto max-w-lg px-4">
+      <div className="content-wrapper relative">
         <Outlet />
       </div>
 
-      <div className="h-14" />
+      <div className="h-14 md:hidden" />
     </>
   )
 }

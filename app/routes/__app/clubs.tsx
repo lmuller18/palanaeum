@@ -24,7 +24,7 @@ export default function ClubsPage() {
   const data = useTypedLoaderData<typeof loader>()
 
   return (
-    <div className="mx-auto max-w-lg p-4">
+    <div className="content-wrapper my-4">
       <Tab.Group>
         <Tab.List className="flex items-baseline justify-between">
           <Tab

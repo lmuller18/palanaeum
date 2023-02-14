@@ -134,20 +134,20 @@ export default function ClubPage() {
         </Disclosure>
       )}
 
-      {/* Next Chapter Block */}
-      <div className="mb-6 border-b border-t-2 border-emerald-500 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 p-4">
-        <div className="mb-1 flex items-baseline justify-between">
-          <Text variant="title2" as="h3">
-            Next Chapter
-          </Text>
-          <TextLink to="chapters" variant="caption">
-            More Chapters
-          </TextLink>
-        </div>
-        <NextChapter chapter={nextChapter} />
-      </div>
-
       <div className="grid grid-cols-[repeat(auto-fill,minmax(theme(width.96),1fr))] gap-2 p-2">
+        {/* Next Chapter Block */}
+        <div className="mb-6 border-b border-t-2 border-emerald-500 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 p-4">
+          <div className="mb-1 flex items-baseline justify-between">
+            <Text variant="title2" as="h3">
+              Next Chapter
+            </Text>
+            <TextLink to="chapters" variant="caption">
+              More Chapters
+            </TextLink>
+          </div>
+          <NextChapter chapter={nextChapter} />
+        </div>
+
         {/* Chart Block */}
         <div className="mb-6 border-b border-t-2 border-indigo-500 border-b-background-tertiary bg-gradient-to-b from-indigo-400/10 via-transparent">
           <div

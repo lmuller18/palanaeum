@@ -1,21 +1,23 @@
+import { QueryClient, QueryClientProvider } from 'react-query'
+
 import type {
-  ErrorBoundaryComponent,
+  MetaFunction,
   LinksFunction,
   LoaderFunction,
-  MetaFunction,
+  ErrorBoundaryComponent,
 } from '@remix-run/node'
 import {
-  Links,
-  LiveReload,
   Meta,
+  Links,
   Outlet,
   Scripts,
-  ScrollRestoration,
   useCatch,
+  LiveReload,
   useLoaderData,
+  ScrollRestoration,
 } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { ClipboardCopyIcon } from '@heroicons/react/outline'
 
 import PwaMeta from './pwa-meta'
 import { removeEmpty } from './utils'
@@ -23,7 +25,6 @@ import TextLink from './elements/TextLink'
 import tailwindStylesheetUrl from './styles/tailwind.css'
 import { getUser, prepareUserSession } from './session.server'
 import { registerWebPush } from './utils/notifications.server'
-import { ClipboardCopyIcon } from '@heroicons/react/outline'
 
 export const links: LinksFunction = () => {
   return [
@@ -95,7 +96,7 @@ export default function App() {
       </head>
       <QueryClientProvider client={queryClient}>
         <body>
-          <div id="app">
+          <div id="app" className="bg-background-primary">
             <Outlet />
             <script
               dangerouslySetInnerHTML={{

@@ -1,20 +1,15 @@
 @tailwind base;
 
 @layer base {
-  body,
   html {
+    user-select: none;
+    @apply bg-background-primary;
+  }
+
+  html,
+  body {
     height: 100%;
     -webkit-tap-highlight-color: transparent;
-  }
-
-  html {
-    /* scroll-behavior: smooth; */
-    user-select: none;
-  }
-
-  body {
-    /* @apply bg-slate-900; */
-    @apply bg-background-primary;
   }
 }
 

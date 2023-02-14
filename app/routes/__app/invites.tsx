@@ -2,21 +2,22 @@ import clsx from 'clsx'
 import { DateTime } from 'luxon'
 import { Fragment } from 'react'
 import type { ReactNode } from 'react'
+
+import {
+  TrashIcon as InactiveTrashIcon,
+  DotsVerticalIcon,
+} from '@heroicons/react/outline'
 import { json } from '@remix-run/node'
-import Text from '~/elements/Typography/Text'
 import type { LoaderArgs } from '@remix-run/node'
-import { Menu, Tab, Transition } from '@headlessui/react'
+import { Tab, Menu, Transition } from '@headlessui/react'
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { TrashIcon as ActiveTrashIcon } from '@heroicons/react/outline'
-import {
-  DotsVerticalIcon,
-  TrashIcon as InactiveTrashIcon,
-} from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
-import { toLuxonDate, useUser } from '~/utils'
+import Text from '~/elements/Typography/Text'
+import { useUser, toLuxonDate } from '~/utils'
 import { requireUserId } from '~/session.server'
-import { getReceivedInvites, getSentInvites } from '~/models/invites.server'
+import { getSentInvites, getReceivedInvites } from '~/models/invites.server'
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request)
@@ -35,7 +36,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function InvitesPage() {
   const data = useLoaderData<typeof loader>()
   return (
-    <div className="mx-auto max-w-lg p-4">
+    <div className="content-wrapper my-4">
       <Tab.Group>
         <Tab.List className="flex space-x-1 rounded-xl bg-background-secondary/70 p-1">
           <Tab

@@ -3,6 +3,8 @@ import { useRef } from 'react'
 import type { ReactNode } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 
+import TextLink from '~/elements/TextLink'
+
 const animation = {
   hide: { x: -32, opacity: 0 },
   show: { x: 0, opacity: 1 },
@@ -35,7 +37,7 @@ function PageHeader({
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['-50px start', 'end start'],
+    offset: ['start start', 'end start'],
   })
 
   const gridY = useTransform(scrollYProgress, [0, 1], ['0%', '70%'])
@@ -99,9 +101,12 @@ function PageHeader({
           animate={animation.show}
           transition={{ delay: 0.1 }}
         >
-          <p className="text-[2.5rem] font-extrabold leading-tight text-slate-100">
+          <TextLink
+            to="."
+            className="block text-[2.5rem] font-extrabold leading-tight text-slate-100"
+          >
             {title}
-          </p>
+          </TextLink>
         </motion.div>
         <motion.div
           initial={animation.hide}

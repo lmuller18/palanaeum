@@ -3,16 +3,14 @@ import clsx from 'clsx'
 import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
 import AvatarEditor from 'react-avatar-editor'
-import { useEffect, useRef, useState } from 'react'
-import { useFetcher, useLoaderData } from '@remix-run/react'
-import type { LoaderArgs, ActionArgs } from '@remix-run/node'
+import { useRef, useState, useEffect } from 'react'
+
 import {
   json,
   unstable_composeUploadHandlers as composeUploadHandlers,
   unstable_parseMultipartFormData as parseMultipartFormData,
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
 } from '@remix-run/node'
-
 import {
   MinusSmIcon,
   ArrowSmUpIcon,
@@ -27,6 +25,8 @@ import {
   PencilAltIcon,
   InformationCircleIcon,
 } from '@heroicons/react/outline'
+import { useFetcher, useLoaderData } from '@remix-run/react'
+import type { LoaderArgs, ActionArgs } from '@remix-run/node'
 
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
@@ -36,7 +36,7 @@ import SheetModal from '~/components/SheetModal'
 import { putObject, removeObject } from '~/s3.server'
 import { getClubsByUserId } from '~/models/clubs.server'
 import { requireUser, requireUserId } from '~/session.server'
-import { getUserById, getUserStats, updateUser } from '~/models/users.server'
+import { updateUser, getUserById, getUserStats } from '~/models/users.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.userId, 'expected userId')
@@ -75,7 +75,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false)
 
   return (
-    <div className="mx-auto max-w-lg">
+    <div className="content-wrapper">
       <div className="h-36 w-full overflow-hidden xs:max-h-64 sm:mt-4 sm:rounded-lg">
         <HeaderSection
           background={user.background}

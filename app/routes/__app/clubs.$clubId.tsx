@@ -1,14 +1,15 @@
 import clsx from 'clsx'
-import type { RouteMatch } from '@remix-run/react'
-import { Outlet, useMatches } from '@remix-run/react'
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
+import { motion, LayoutGroup, AnimatePresence } from 'framer-motion'
+
 import {
   HomeIcon,
   BookOpenIcon,
-  NewspaperIcon as DiscussionsIcon,
-  BookmarkAltIcon as ChaptersIcon,
   SpeakerphoneIcon as PostsIcon,
+  BookmarkAltIcon as ChaptersIcon,
+  NewspaperIcon as DiscussionsIcon,
 } from '@heroicons/react/outline'
+import type { RouteMatch } from '@remix-run/react'
+import { Outlet, useMatches } from '@remix-run/react'
 
 import TabLink from '~/components/TabLink'
 import useValueChanged from '~/hooks/use-value-changed'
@@ -26,9 +27,11 @@ export default function ClubNavigationLayout() {
         <Outlet />
       </div>
 
-      {/* Nav section */}
-      <div className="h-14" />
-      <NavSection secondaryNavSections={secondaryNavSections} />
+      {/* Mobile nav section */}
+      <div className="block md:hidden">
+        <div className="h-14" />
+        <NavSection secondaryNavSections={secondaryNavSections} />
+      </div>
     </>
   )
 }
