@@ -1,9 +1,9 @@
-import { Link, useFetcher } from '@remix-run/react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Link, useFetcher } from '@remix-run/react'
 
-import { pluralize } from '~/utils'
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
+import { pluralize } from '~/utils'
 
 interface NextChapterProps {
   chapter: {
@@ -62,7 +62,7 @@ const UpcomingChapter = ({ chapter }: UpcomingChapterProps) => {
 
       {chapter.status === 'incomplete' && (
         <div className="mb-2">
-          <p className="bg-gradient-to-l from-fuchsia-300 to-blue-400 bg-clip-text text-lg">
+          <p className="text-lg">
             Completed by{' '}
             {chapter.membersCompleted === chapter.totalMembers - 1 ? (
               <span className="font-bold">all other members.</span>
