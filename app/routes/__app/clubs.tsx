@@ -17,7 +17,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 
   return typedjson({
     currentlyReading,
-    previouslyRead: [],
+    previouslyRead,
   })
 }
 
