@@ -75,8 +75,8 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false)
 
   return (
-    <div className="content-wrapper">
-      <div className="h-36 w-full overflow-hidden xs:max-h-64 sm:mt-4 sm:rounded-lg">
+    <div>
+      <div className="h-36 w-full">
         <HeaderSection
           background={user.background}
           editing={editing}
@@ -114,7 +114,7 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
-      <div className="px-4 pb-4">
+      <div className="content-wrapper px-4 pb-4">
         <div className="mb-2 flex items-center justify-between">
           <Text variant="title2">{user.username}</Text>
         </div>

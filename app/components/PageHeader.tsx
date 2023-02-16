@@ -103,7 +103,7 @@ function PageHeader({
         >
           <TextLink
             to="."
-            className="block text-[2.5rem] font-extrabold leading-tight text-slate-100"
+            className="block w-fit text-[2.5rem] font-extrabold leading-tight text-slate-100"
           >
             {title}
           </TextLink>
