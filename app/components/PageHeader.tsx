@@ -26,6 +26,7 @@ interface PageHeaderProps {
   description: string
   caption?: string
   headerImage?: ReactNode
+  link?: string
 }
 
 function PageHeader({
@@ -33,6 +34,7 @@ function PageHeader({
   description,
   caption = '',
   headerImage = null,
+  link,
 }: PageHeaderProps) {
   const ref = useRef(null)
   const { scrollYProgress } = useScroll({
@@ -102,7 +104,7 @@ function PageHeader({
           transition={{ delay: 0.1 }}
         >
           <TextLink
-            to="."
+            to={link ?? '.'}
             className="block w-fit text-[2.5rem] font-extrabold leading-tight text-slate-100"
           >
             {title}

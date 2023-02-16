@@ -134,7 +134,7 @@ export default function ClubPage() {
         </Disclosure>
       )}
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(theme(width.96),1fr))] gap-2 p-2">
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
         {/* Next Chapter Block */}
         <div className="mb-6 border-b border-t-2 border-emerald-500 border-b-background-tertiary bg-gradient-to-b from-teal-400/10 p-4">
           <div className="mb-1 flex items-baseline justify-between">

@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import { memo, Fragment } from 'react'
+import { ClientOnly } from 'remix-utils'
 import { useMatch, useParams } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -16,7 +17,6 @@ import {
 import { Link, NavLink } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 
-import { useUser } from '~/utils'
 import Button from '~/elements/Button'
 
 import BottomNavSection from './BottomNavSection'
@@ -56,7 +56,6 @@ const Sidenav = ({
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-  const user = useUser()
   const inClub = !!useMatch('/clubs/:clubId/*')
   const { clubId } = useParams() as { clubId: string }
 
@@ -180,7 +179,9 @@ const Sidenav = ({
                     </Button>
                   </Link>
                 </div>
-                <BottomNavSection setOpen={setOpen} />
+                <ClientOnly>
+                  {() => <BottomNavSection setOpen={setOpen} />}
+                </ClientOnly>
               </Dialog.Panel>
             </Transition.Child>
 
@@ -247,30 +248,16 @@ const Sidenav = ({
               </AnimatePresence>
             </nav>
           </div>
-          <div className="flex flex-shrink-0 bg-background-tertiary p-4">
-            <Link
-              to={`/users/${user.id}`}
-              className="group block w-full flex-shrink-0"
-            >
-              <div className="flex items-center">
-                <div>
-                  <img
-                    className="inline-block h-9 w-9 rounded-full"
-                    src={user.avatar}
-                    alt=""
-                  />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-white">
-                    {user.username}
-                  </p>
-                  <p className="text-xs font-medium text-gray-300 group-hover:text-gray-200">
-                    View profile
-                  </p>
-                </div>
-              </div>
+          <div className="p-4">
+            <Link to="/clubs/new">
+              <Button type="button" fullWidth onClick={() => setOpen(false)}>
+                New Club
+              </Button>
             </Link>
           </div>
+          <ClientOnly>
+            {() => <BottomNavSection setOpen={() => {}} />}
+          </ClientOnly>
         </div>
       </div>
     </div>

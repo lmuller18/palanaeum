@@ -8,6 +8,7 @@ const {
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: ['class', '[data-theme="dark"]'],
   future: {
     hoverOnlyWhenSupported: true,
   },
@@ -89,6 +90,7 @@ module.exports = {
         },
       )
     },
+    require('tailwindcss-animate'),
     require('@tailwindcss/typography'),
     require('@tailwindcss/forms'),
     require('@tailwindcss/line-clamp'),

@@ -1,6 +1,9 @@
+import clsx from 'clsx'
 import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
+import type { ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 import type { ToRelativeOptions } from 'luxon'
 
 import { useMatches } from '@remix-run/react'
@@ -110,4 +113,8 @@ export function threadComments(
       (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     )
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }

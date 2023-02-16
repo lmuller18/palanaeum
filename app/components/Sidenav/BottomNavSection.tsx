@@ -77,7 +77,7 @@ const BottomNavSection = ({
 
   return (
     <div
-      className="flex flex-shrink-0 flex-col gap-4 bg-background-primary p-4"
+      className="flex flex-shrink-0 flex-col gap-4 bg-background-primary p-4 md:bg-background-tertiary"
       style={{
         paddingBottom: 'max(env(safe-area-inset-top), 16px)',
       }}
@@ -108,7 +108,7 @@ const BottomNavSection = ({
             </div>
           </Switch.Group>
 
-          <div className="mx-auto h-px w-11/12 bg-background-tertiary" />
+          <div className="mx-auto h-px w-11/12 bg-background-tertiary md:bg-background-primary" />
         </>
       )}
 
