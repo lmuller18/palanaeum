@@ -1,6 +1,7 @@
+import { useState, useEffect, useCallback } from 'react'
+
 import { Switch } from '@headlessui/react'
 import { LogoutIcon } from '@heroicons/react/outline'
-import { useCallback, useEffect, useState } from 'react'
 import { Form, Link, useFetcher } from '@remix-run/react'
 
 import { useUser } from '~/utils'

@@ -1,10 +1,12 @@
 import { useMemo } from 'react'
 import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
-import { useMatches } from '@remix-run/react'
 import type { ToRelativeOptions } from 'luxon'
 
+import { useMatches } from '@remix-run/react'
+
 import type { User } from '~/models/users.server'
+
 import type { ThreadedComment } from './models/comments.server'
 
 /**

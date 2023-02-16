@@ -1,5 +1,6 @@
+import { useMemo, useEffect } from 'react'
+
 import { useFetcher } from '@remix-run/react'
-import { useEffect, useMemo } from 'react'
 
 import type { ChapterListItem } from '~/models/chapter.server'
 

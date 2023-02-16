@@ -1,14 +1,15 @@
 import invariant from 'tiny-invariant'
+import { typedjson, useTypedLoaderData } from 'remix-typedjson'
+
 import { Link } from '@remix-run/react'
 import type { LoaderArgs } from '@remix-run/node'
 import { BookOpenIcon } from '@heroicons/react/outline'
-import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
 import { pluralize } from '~/utils'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
-import { requireUserId } from '~/session.server'
 import Container from '~/components/Container'
+import { requireUserId } from '~/session.server'
 import FormattedDate from '~/components/FormattedDate'
 import { getDiscussionsByChapter } from '~/models/discussions.server'
 

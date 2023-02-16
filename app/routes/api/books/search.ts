@@ -1,6 +1,8 @@
-import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
+
+import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
+
 import { requireUserId } from '~/session.server'
 
 export const loader = async ({ request }: LoaderArgs) => {

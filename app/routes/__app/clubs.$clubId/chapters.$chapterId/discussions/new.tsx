@@ -1,13 +1,13 @@
 import invariant from 'tiny-invariant'
 import { forbidden } from 'remix-utils'
-import { json, redirect } from '@remix-run/node'
-import { useEffect, useRef, useState } from 'react'
-import { Form, useActionData } from '@remix-run/react'
-import type { ActionFunction, LoaderArgs } from '@remix-run/node'
+import { useRef, useState, useEffect } from 'react'
 
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import { json, redirect } from '@remix-run/node'
+import { Form, useActionData } from '@remix-run/react'
 import Placeholder from '@tiptap/extension-placeholder'
+import type { LoaderArgs, ActionFunction } from '@remix-run/node'
 
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'

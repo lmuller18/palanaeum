@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon'
 import invariant from 'tiny-invariant'
-import { json } from '@remix-run/node'
 import type { ComponentProps } from 'react'
+
+import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { useParams, useLoaderData } from '@remix-run/react'
 
 import { toLuxonDate } from '~/utils'
 import Text from '~/elements/Typography/Text'

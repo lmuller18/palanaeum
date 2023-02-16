@@ -5,7 +5,7 @@ import {
   useMotionValue,
   useMotionTemplate,
 } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 
 const CHAPTERS = [
   { id: '1', title: 'Chapter 1' },

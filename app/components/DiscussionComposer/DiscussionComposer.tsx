@@ -1,8 +1,4 @@
 import clsx from 'clsx'
-
-import type { Editor } from '@tiptap/react'
-import { EditorContent } from '@tiptap/react'
-
 import {
   FaBold,
   FaItalic,
@@ -11,6 +7,9 @@ import {
   FaQuoteLeft,
   FaStrikethrough,
 } from 'react-icons/fa'
+
+import type { Editor } from '@tiptap/react'
+import { EditorContent } from '@tiptap/react'
 
 const DiscussionComposer = ({ editor }: { editor: Editor | null }) => {
   return (

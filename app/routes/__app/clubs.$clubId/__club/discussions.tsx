@@ -1,10 +1,12 @@
 import invariant from 'tiny-invariant'
 import { Fragment, useState } from 'react'
+import { typedjson, useTypedLoaderData } from 'remix-typedjson'
+
 import type { LoaderArgs } from '@remix-run/node'
 import { Listbox, Transition } from '@headlessui/react'
 import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
-import { BookOpenIcon, CheckIcon, SelectorIcon } from '@heroicons/react/outline'
-import { Link, useNavigate, useParams, useSearchParams } from '@remix-run/react'
+import { CheckIcon, BookOpenIcon, SelectorIcon } from '@heroicons/react/outline'
+import { Link, useParams, useNavigate, useSearchParams } from '@remix-run/react'
 
 import { pluralize } from '~/utils'
 import Modal from '~/components/Modal'
@@ -15,7 +17,6 @@ import Container from '~/components/Container'
 import { requireUserId } from '~/session.server'
 import FormattedDate from '~/components/FormattedDate'
 import { getChapterList } from '~/models/chapters.server'
-import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {

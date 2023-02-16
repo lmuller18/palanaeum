@@ -1,16 +1,17 @@
 import invariant from 'tiny-invariant'
+
 import { json } from '@remix-run/node'
 import type { ActionArgs } from '@remix-run/node'
 
-import { getErrorMessage } from '~/utils'
-import { requireUserId } from '~/session.server'
-import { getMemberIdFromUserByChapter } from '~/models/users.server'
-import { notifyClubCompletion } from '~/models/notifications.server'
 import {
   markRead,
   markUnread,
   markPreviousRead,
 } from '~/models/chapters.server'
+import { getErrorMessage } from '~/utils'
+import { requireUserId } from '~/session.server'
+import { getMemberIdFromUserByChapter } from '~/models/users.server'
+import { notifyClubCompletion } from '~/models/notifications.server'
 
 export const action = async ({ params, request }: ActionArgs) => {
   const userId = await requireUserId(request)

@@ -1,4 +1,5 @@
 import Progress from '~/elements/Progress'
+
 import Container from './Container'
 
 const ProgressDemo = () => (

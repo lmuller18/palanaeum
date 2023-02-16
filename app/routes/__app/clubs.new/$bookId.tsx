@@ -1,33 +1,32 @@
 import invariant from 'tiny-invariant'
 import { intervalToDuration } from 'date-fns'
-import { json, redirect } from '@remix-run/node'
-import { Fragment, useMemo, useRef, useState } from 'react'
-import { Menu, Transition } from '@headlessui/react'
-import { Form, useFetcher, useLoaderData } from '@remix-run/react'
-import type { ActionFunction, LoaderArgs } from '@remix-run/node'
-import { ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/outline'
-
-import {
-  RefreshIcon as ResetInactiveIcon,
-  PhotographIcon as ChangeInactiveIcon,
-  ArrowsExpandIcon as RepositionInactiveIcon,
-} from '@heroicons/react/outline'
+import AvatarEditor from 'react-avatar-editor'
+import { useRef, useMemo, Fragment, useState } from 'react'
 
 import {
   RefreshIcon as ResetActiveIcon,
   PhotographIcon as ChangeActiveIcon,
   ArrowsExpandIcon as RepositionActiveIcon,
 } from '@heroicons/react/solid'
+import {
+  RefreshIcon as ResetInactiveIcon,
+  PhotographIcon as ChangeInactiveIcon,
+  ArrowsExpandIcon as RepositionInactiveIcon,
+} from '@heroicons/react/outline'
+import { json, redirect } from '@remix-run/node'
+import { Menu, Transition } from '@headlessui/react'
+import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import { Form, useFetcher, useLoaderData } from '@remix-run/react'
+import { ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
+import Modal from '~/components/Modal'
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import { createClub } from '~/models/clubs.server'
 import OutlinedInput from '~/elements/OutlinedInput'
 import CoverSelectSlideOver from '~/components/CoverSelectSlideOver'
-import Modal from '~/components/Modal'
-import AvatarEditor from 'react-avatar-editor'
 
 interface LoaderData {
   book: {

@@ -1,4 +1,5 @@
 import Badge from '~/elements/Badge'
+
 import Container from './Container'
 
 const BadgeDemo = () => (

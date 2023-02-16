@@ -1,21 +1,22 @@
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
-import { json } from '@remix-run/node'
 import { ChevronLeft } from 'react-feather'
+import { useRef, useState, useEffect } from 'react'
+
+import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
-import { useEffect, useRef, useState } from 'react'
-import { useLoaderData, useLocation, useNavigate } from '@remix-run/react'
+import { ExclamationIcon } from '@heroicons/react/outline'
+import { useLocation, useNavigate, useLoaderData } from '@remix-run/react'
 
 import { useUser } from '~/utils'
-import ReplyPost from '~/components/Post'
 import { prisma } from '~/db.server'
+import ReplyPost from '~/components/Post'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
 import PrimaryPost from '~/components/PostDetails'
 import ParentPost from '~/components/SecondaryPost'
 import ReplyComposer from '~/components/ReplyComposer'
 import usePostReferrer from '~/hooks/use-post-referrer'
-import { ExclamationIcon } from '@heroicons/react/outline'
 
 interface PostDetailsType {
   user: {

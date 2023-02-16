@@ -1,5 +1,6 @@
-import { Link } from '@remix-run/react'
 import { BookOpen, MessageCircle } from 'react-feather'
+
+import { Link } from '@remix-run/react'
 
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'

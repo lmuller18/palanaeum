@@ -1,8 +1,9 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
 import { Link, useParams } from '@remix-run/react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/outline'
+import { XCircleIcon, CheckCircleIcon } from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
 import useValueChanged from '~/hooks/use-value-changed'

@@ -1,8 +1,9 @@
 import clsx from 'clsx'
-import { NavLink } from '@remix-run/react'
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
-import { memo } from 'react'
+
+import { NavLink } from '@remix-run/react'
 
 import Text from '~/elements/Typography/Text'
 

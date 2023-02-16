@@ -1,29 +1,31 @@
+import { QueryClient, QueryClientProvider } from 'react-query'
+
 import type {
-  ErrorBoundaryComponent,
+  MetaFunction,
   LinksFunction,
   LoaderFunction,
-  MetaFunction,
+  ErrorBoundaryComponent,
 } from '@remix-run/node'
 import {
-  Links,
-  LiveReload,
   Meta,
+  Links,
   Outlet,
   Scripts,
-  ScrollRestoration,
   useCatch,
+  LiveReload,
   useLoaderData,
+  ScrollRestoration,
 } from '@remix-run/react'
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { getUser, prepareUserSession } from './session.server'
-
-import { ClipboardCopyIcon } from '@heroicons/react/outline'
-import PwaMeta from './pwa-meta'
-import TextLink from './elements/TextLink'
 import { json } from '@remix-run/node'
-import { registerWebPush } from './utils/notifications.server'
-import { removeEmpty } from './utils'
+import { ClipboardCopyIcon } from '@heroicons/react/outline'
+
 import tailwindStylesheetUrl from '~/tailwind.css'
+
+import PwaMeta from './pwa-meta'
+import { removeEmpty } from './utils'
+import TextLink from './elements/TextLink'
+import { getUser, prepareUserSession } from './session.server'
+import { registerWebPush } from './utils/notifications.server'
 
 export const links: LinksFunction = () => {
   return [

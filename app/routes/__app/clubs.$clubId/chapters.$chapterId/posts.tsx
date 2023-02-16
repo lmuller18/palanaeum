@@ -1,7 +1,8 @@
 import invariant from 'tiny-invariant'
+
 import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { useParams, useLoaderData } from '@remix-run/react'
 
 import Post from '~/components/Post'
 import Text from '~/elements/Typography/Text'

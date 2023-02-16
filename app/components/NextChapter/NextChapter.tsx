@@ -1,9 +1,10 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+
 import { Link, useFetcher } from '@remix-run/react'
 
+import { pluralize } from '~/utils'
 import Button from '~/elements/Button'
 import TextLink from '~/elements/TextLink'
-import { pluralize } from '~/utils'
 
 interface NextChapterProps {
   chapter: {

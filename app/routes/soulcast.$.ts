@@ -1,7 +1,8 @@
 import invariant from 'tiny-invariant'
+import { notFound, serverError } from 'remix-utils'
+
 import { Response } from '@remix-run/node'
 import type { LoaderFunction } from '@remix-run/node'
-import { notFound, serverError } from 'remix-utils'
 
 export const loader: LoaderFunction = async ({ params }) => {
   const path = params['*']

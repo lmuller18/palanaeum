@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant'
+import { notFound, forbidden } from 'remix-utils'
+
 import { json } from '@remix-run/node'
-import { forbidden, notFound } from 'remix-utils'
 import type { ActionArgs } from '@remix-run/node'
 
 import { prisma } from '~/db.server'

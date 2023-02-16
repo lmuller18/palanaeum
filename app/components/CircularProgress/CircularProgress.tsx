@@ -1,10 +1,11 @@
 import {
-  AnimatePresence,
   motion,
-  useMotionValue,
   useTransform,
+  useMotionValue,
+  AnimatePresence,
 } from 'framer-motion'
-import { useEffect, useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
+
 import Text from '~/elements/Typography/Text'
 
 const CircularProgress = ({

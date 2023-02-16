@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+
 import { variants } from './Typography/Text'
 
 interface TextButtonProps extends React.ComponentProps<'button'> {

@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
+import type { ReactNode, CSSProperties } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
 import { Dialog } from '@headlessui/react'
-import type { CSSProperties, ReactNode } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 
 const TRANSITIONS = {
   DURATION: 0.5,

@@ -1,11 +1,4 @@
 import clsx from 'clsx'
-import { useFetcher } from '@remix-run/react'
-import { useEffect, useRef } from 'react'
-
-import StarterKit from '@tiptap/starter-kit'
-import Placeholder from '@tiptap/extension-placeholder'
-import { useEditor, EditorContent } from '@tiptap/react'
-
 import {
   FaBold,
   FaItalic,
@@ -14,9 +7,15 @@ import {
   FaQuoteLeft,
   FaStrikethrough,
 } from 'react-icons/fa'
+import { useRef, useEffect } from 'react'
 
-import Button from '~/elements/Button'
+import StarterKit from '@tiptap/starter-kit'
+import { useFetcher } from '@remix-run/react'
+import Placeholder from '@tiptap/extension-placeholder'
+import { useEditor, EditorContent } from '@tiptap/react'
+
 import { removeEmpty } from '~/utils'
+import Button from '~/elements/Button'
 
 const DiscussionReplyComposer = ({
   discussionId,

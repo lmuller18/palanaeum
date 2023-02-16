@@ -1,11 +1,13 @@
 import clsx from 'clsx'
+
 import { Tab } from '@headlessui/react'
-import { useNavigate, useParams } from '@remix-run/react'
+import { useParams, useNavigate } from '@remix-run/react'
+
+import Text from '~/elements/Typography/Text'
+import ClickableArea from '~/elements/ClickableArea'
 
 import Post from '../Post'
-import Text from '~/elements/Typography/Text'
 import DiscussionSummary from '../DiscussionSummary'
-import ClickableArea from '~/elements/ClickableArea'
 
 const TopConversations = ({
   topPost,

@@ -1,23 +1,24 @@
 import clsx from 'clsx'
 import useMeasure from 'react-use-measure'
-import { CheckIcon } from '@heroicons/react/solid'
-import { Link, useFetcher } from '@remix-run/react'
-import { BookOpen, Image, Info } from 'react-feather'
-import { XCircleIcon } from '@heroicons/react/outline'
-import { Listbox, Transition } from '@headlessui/react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Info, Image, BookOpen } from 'react-feather'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useRef, Fragment, useState, useEffect } from 'react'
 
 import Text from '@tiptap/extension-text'
 import type { Editor } from '@tiptap/react'
 import History from '@tiptap/extension-history'
 import Document from '@tiptap/extension-document'
+import { CheckIcon } from '@heroicons/react/solid'
+import { Link, useFetcher } from '@remix-run/react'
 import Paragraph from '@tiptap/extension-paragraph'
+import { XCircleIcon } from '@heroicons/react/outline'
+import { Listbox, Transition } from '@headlessui/react'
 import Placeholder from '@tiptap/extension-placeholder'
 import CharacterCount from '@tiptap/extension-character-count'
-import { useEditor, EditorContent, Extension } from '@tiptap/react'
+import { useEditor, Extension, EditorContent } from '@tiptap/react'
 
-import { removeEmpty, useUser } from '~/utils'
+import { useUser, removeEmpty } from '~/utils'
+
 import CircularProgress from '../CircularProgress'
 
 const PostComposer = ({

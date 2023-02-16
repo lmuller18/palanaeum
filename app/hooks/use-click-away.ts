@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 
 function useClickAway<T extends HTMLElement>(callback: Function) {
   const ref = useRef<T>(null)

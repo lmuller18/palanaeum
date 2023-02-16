@@ -1,17 +1,25 @@
-import { json } from '@remix-run/node'
-import invariant from 'tiny-invariant'
-import { useEffect, useRef, useState } from 'react'
-import { badRequest, forbidden, notFound } from 'remix-utils'
-import type { DragControls, MotionValue } from 'framer-motion'
-import { Form, useActionData, useLoaderData } from '@remix-run/react'
-import type { ActionFunction, LoaderArgs } from '@remix-run/node'
 import {
   animate,
   Reorder,
   useMotionValue,
   useDragControls,
 } from 'framer-motion'
+import invariant from 'tiny-invariant'
+import { useRef, useState, useEffect } from 'react'
+import { notFound, forbidden, badRequest } from 'remix-utils'
+import type { MotionValue, DragControls } from 'framer-motion'
 
+import { json } from '@remix-run/node'
+import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import { Form, useActionData, useLoaderData } from '@remix-run/react'
+
+import {
+  createChapter,
+  deleteChapter,
+  renameChapter,
+  getChapterList,
+  reorderChapters,
+} from '~/models/chapters.server'
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
 import Text from '~/elements/Typography/Text'
@@ -20,13 +28,6 @@ import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
 import OutlinedInput from '~/elements/OutlinedInput'
 import { getClub, getClubWithUserMembers } from '~/models/clubs.server'
-import {
-  createChapter,
-  deleteChapter,
-  getChapterList,
-  renameChapter,
-  reorderChapters,
-} from '~/models/chapters.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request)

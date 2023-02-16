@@ -1,10 +1,11 @@
-import { json } from '@remix-run/node'
 import invariant from 'tiny-invariant'
-import { useEffect, useRef } from 'react'
+import { useRef, useEffect } from 'react'
+import { notFound, forbidden } from 'remix-utils'
+
+import { json } from '@remix-run/node'
 import { XIcon } from '@heroicons/react/outline'
-import { forbidden, notFound } from 'remix-utils'
-import type { ActionFunction, LoaderArgs } from '@remix-run/node'
-import { Link, useFetcher, useLoaderData, useParams } from '@remix-run/react'
+import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import { Link, useParams, useFetcher, useLoaderData } from '@remix-run/react'
 
 import { useUser } from '~/utils'
 import Button from '~/elements/Button'

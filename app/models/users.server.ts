@@ -1,7 +1,9 @@
-import bcrypt from '@node-rs/bcrypt'
 import { differenceInDays } from 'date-fns'
-import { prisma } from '~/db.server'
+
+import bcrypt from '@node-rs/bcrypt'
 import type { User } from '@prisma/client'
+
+import { prisma } from '~/db.server'
 export { User }
 
 export async function getUserById(id: string) {

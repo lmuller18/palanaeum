@@ -1,7 +1,9 @@
 import clsx from 'clsx'
+
 import { Link } from '@remix-run/react'
-import { variants } from './Typography/Text'
 import type { RemixLinkProps } from '@remix-run/react/dist/components'
+
+import { variants } from './Typography/Text'
 
 interface TextLinkProps extends RemixLinkProps {
   color?: keyof typeof colors

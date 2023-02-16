@@ -1,4 +1,5 @@
 import * as React from 'react'
+
 import type {
   MetaFunction,
   ActionFunction,
@@ -9,7 +10,7 @@ import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
 
 import { validateEmail } from '~/utils'
 import { verifyLogin } from '~/models/users.server'
-import { createUserSession, getUserId } from '~/session.server'
+import { getUserId, createUserSession } from '~/session.server'
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request)

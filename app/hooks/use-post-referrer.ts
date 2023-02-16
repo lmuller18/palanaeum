@@ -1,5 +1,6 @@
-import { useLocation } from '@remix-run/react'
 import { useMatch } from 'react-router'
+
+import { useLocation } from '@remix-run/react'
 
 const usePostReferrer = (): {
   currentPostReferrer: PostReferrer

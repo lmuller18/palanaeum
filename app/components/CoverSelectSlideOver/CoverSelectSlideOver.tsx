@@ -1,8 +1,9 @@
+import React, { useMemo, Fragment, useState, useEffect } from 'react'
+
 import { Form, useFetcher } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
-import { SearchIcon, XIcon } from '@heroicons/react/outline'
+import { XIcon, SearchIcon } from '@heroicons/react/outline'
 import type { FetcherWithComponents } from '@remix-run/react'
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
 
 import Text from '~/elements/Typography/Text'
 

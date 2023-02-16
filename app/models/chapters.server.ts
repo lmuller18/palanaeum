@@ -1,13 +1,15 @@
 import {
   add,
-  isSameDay,
   parseISO,
+  isSameDay,
   startOfDay,
   startOfToday,
   eachDayOfInterval,
 } from 'date-fns'
 import { notFound } from 'remix-utils'
+
 import { prisma } from '~/db.server'
+
 import { getMemberIdFromUser } from './users.server'
 
 export async function getChapter(chapterId: string, userId: string) {

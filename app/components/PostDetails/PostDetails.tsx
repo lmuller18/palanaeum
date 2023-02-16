@@ -1,14 +1,15 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 import { DateTime } from 'luxon'
-import { Link, useNavigate } from '@remix-run/react'
 import useMeasure from 'react-use-measure'
-import { BookOpen, Info } from 'react-feather'
-import { AnimatePresence, motion } from 'framer-motion'
+import { Info, BookOpen } from 'react-feather'
+import { motion, AnimatePresence } from 'framer-motion'
 
-import { pluralize, toLuxonDate } from '~/utils'
+import { Link, useNavigate } from '@remix-run/react'
+
 import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
+import { pluralize, toLuxonDate } from '~/utils'
 import usePostReferrer from '~/hooks/use-post-referrer'
 
 const PostDetails = ({

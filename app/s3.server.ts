@@ -1,11 +1,13 @@
-import mime from 'mime-types'
 import { Readable } from 'stream'
-import { notFound } from 'remix-utils'
-import { DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 
-import { s3Client } from './storage.server'
+import mime from 'mime-types'
+import { notFound } from 'remix-utils'
+
 import { Upload } from '@aws-sdk/lib-storage'
 import type { UploadHandler } from '@remix-run/node'
+import { GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+
+import { s3Client } from './storage.server'
 
 export async function getObject(key: string) {
   const data = await s3Client.send(

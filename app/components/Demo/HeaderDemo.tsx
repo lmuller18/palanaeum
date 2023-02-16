@@ -1,5 +1,6 @@
-import Container from './Container'
 import Header from '~/elements/Typography/Header'
+
+import Container from './Container'
 
 const HeaderDemo = () => (
   <Container title="Headers">

@@ -1,9 +1,10 @@
 import clsx from 'clsx'
 import { useState } from 'react'
-import { Link, useNavigate } from '@remix-run/react'
 import useMeasure from 'react-use-measure'
-import { AnimatePresence, motion } from 'framer-motion'
-import { BookOpen, Info, MessageCircle } from 'react-feather'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Info, BookOpen, MessageCircle } from 'react-feather'
+
+import { Link, useNavigate } from '@remix-run/react'
 
 import { toRelative } from '~/utils'
 import TextLink from '~/elements/TextLink'

@@ -1,9 +1,10 @@
 import { prisma } from '~/db.server'
+import { sendPush } from '~/utils/notifications.server'
+import { createNotification } from '~/utils/notifications.utils'
+
 import type { createPost } from './posts.server'
 import type { createInvite } from './invites.server'
-import { sendPush } from '~/utils/notifications.server'
 import type { createDiscussion } from './discussions.server'
-import { createNotification } from '~/utils/notifications.utils'
 
 export async function notifyNewInvite(invite: FuncType<typeof createInvite>) {
   const subscriptions = await prisma.subscription.findMany({

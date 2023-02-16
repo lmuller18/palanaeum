@@ -1,5 +1,6 @@
-import { Link } from '@remix-run/react'
 import type { ReactNode } from 'react'
+
+import { Link } from '@remix-run/react'
 
 const DynamicLink = ({
   to,

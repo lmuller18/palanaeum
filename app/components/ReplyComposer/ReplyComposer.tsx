@@ -1,22 +1,23 @@
 import clsx from 'clsx'
-import { useFetcher } from '@remix-run/react'
 import useMeasure from 'react-use-measure'
-import { Image, Info } from 'react-feather'
-import { XCircleIcon } from '@heroicons/react/outline'
-import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Info, Image } from 'react-feather'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useRef, useState, useEffect, useCallback } from 'react'
 
 import Text from '@tiptap/extension-text'
+import { useFetcher } from '@remix-run/react'
 import History from '@tiptap/extension-history'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
+import { XCircleIcon } from '@heroicons/react/outline'
 import Placeholder from '@tiptap/extension-placeholder'
 import { useEditor, EditorContent } from '@tiptap/react'
 import CharacterCount from '@tiptap/extension-character-count'
 
-import Button from '~/elements/Button'
 import { removeEmpty } from '~/utils'
+import Button from '~/elements/Button'
 import useClickAway from '~/hooks/use-click-away'
+
 import CircularProgress from '../CircularProgress'
 
 const ReplyComposer = ({

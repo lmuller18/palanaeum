@@ -1,14 +1,7 @@
 import clsx from 'clsx'
 import cuid from 'cuid'
-import { useEffect, useRef, useState } from 'react'
-import { Disclosure, Transition } from '@headlessui/react'
-import type { ActionFunction, LoaderArgs } from '@remix-run/node'
-import { Form, useActionData, useNavigate } from '@remix-run/react'
-import {
-  BookOpenIcon,
-  ChevronUpIcon,
-  InformationCircleIcon,
-} from '@heroicons/react/outline'
+import { useRef, useState, useEffect } from 'react'
+
 import {
   json,
   redirect,
@@ -16,6 +9,14 @@ import {
   unstable_parseMultipartFormData as parseMultipartFormData,
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
 } from '@remix-run/node'
+import {
+  BookOpenIcon,
+  ChevronUpIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/outline'
+import { Disclosure, Transition } from '@headlessui/react'
+import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import { Form, useNavigate, useActionData } from '@remix-run/react'
 
 import Button from '~/elements/Button'
 import { uploadS3Handler } from '~/s3.server'

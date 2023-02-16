@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import { DateTime } from 'luxon'
+
 import { json } from '@remix-run/node'
 import type { LoaderFunction } from '@remix-run/node'
-import { ChevronLeftIcon, SearchIcon } from '@heroicons/react/outline'
+import { SearchIcon, ChevronLeftIcon } from '@heroicons/react/outline'
 import { Form, Link, useLoaderData, useSearchParams } from '@remix-run/react'
 
 import { toLuxonDate } from '~/utils'
