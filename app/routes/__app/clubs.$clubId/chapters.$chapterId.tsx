@@ -10,19 +10,29 @@ import type { LoaderArgs } from '@remix-run/node'
 import { Outlet, NavLink, useParams, useLoaderData } from '@remix-run/react'
 
 import Text from '~/elements/Typography/Text'
+import { getClub } from '~/models/clubs.server'
 import { requireUserId } from '~/session.server'
 import PageHeader from '~/components/PageHeader'
 import { getChapter } from '~/models/chapters.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
+  invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
 
-  const chapter = await getChapter(params.chapterId, userId)
+  const [chapter, club] = await Promise.all([
+    getChapter(params.chapterId, userId),
+    getClub(params.clubId, userId),
+  ])
 
+  if (!club) throw new Response('Club not found', { status: 404 })
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
 
   return json({
+    club: {
+      title: club.title,
+      image: club.image,
+    },
     chapter: {
       id: chapter.id,
       title: chapter.title,
@@ -32,7 +42,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
 export default function ChapterPage() {
   const { clubId } = useParams()
-  const { chapter } = useLoaderData<typeof loader>()
+  const { chapter, club } = useLoaderData<typeof loader>()
 
   const inDiscussion = !!useMatch(
     '/clubs/:clubId/chapters/:chapterId/discussions/*',
@@ -52,7 +62,16 @@ export default function ChapterPage() {
       <PageHeader
         title={chapter.title}
         caption={title}
-        description="Chapter Overview"
+        description={club.title}
+        headerImage={
+          <div className="relative block aspect-book w-full max-w-[200px] overflow-hidden rounded-lg">
+            <img
+              src={club.image}
+              className="h-full w-full object-cover"
+              alt="Club Cover"
+            />
+          </div>
+        }
       />
 
       <div className="content-wrapper relative">

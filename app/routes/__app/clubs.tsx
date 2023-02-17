@@ -58,7 +58,7 @@ export default function ClubsPage() {
               <img
                 src="/images/nav-background.svg"
                 className="h-full w-full object-cover"
-                alt="Club Cover"
+                alt="Palanaeum Logo"
               />
             </div>
           }
