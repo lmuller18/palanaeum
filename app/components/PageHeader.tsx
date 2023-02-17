@@ -1,13 +1,14 @@
 import clsx from 'clsx'
 import { useRef } from 'react'
 import type { ReactNode } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 
 import TextLink from '~/elements/TextLink'
 
 const animation = {
   hide: { x: -32, opacity: 0 },
   show: { x: 0, opacity: 1 },
+  exit: { opacity: 0 },
 }
 
 const imageAnimation = {
@@ -86,17 +87,21 @@ function PageHeader({
       )}
 
       <div className="content-wrapper-min relative">
-        {caption && (
-          <motion.div
-            initial={animation.hide}
-            animate={animation.show}
-            transition={{ delay: 0 }}
-          >
-            <p className="mb-1 text-lg font-extrabold capitalize leading-none">
-              {caption}
-            </p>
-          </motion.div>
-        )}
+        <AnimatePresence mode="wait">
+          {caption && (
+            <motion.div
+              key={caption}
+              initial={animation.hide}
+              animate={animation.show}
+              exit={animation.exit}
+              transition={{ delay: 0 }}
+            >
+              <p className="mb-1 text-lg font-extrabold capitalize leading-none">
+                {caption}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <motion.div
           initial={animation.hide}

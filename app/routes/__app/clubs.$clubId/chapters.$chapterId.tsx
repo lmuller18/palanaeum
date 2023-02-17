@@ -3,15 +3,15 @@ import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
+import { useMatch } from 'react-router'
 
 import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
-import { ChevronLeftIcon } from '@heroicons/react/outline'
-import { Outlet, NavLink, useParams, useMatches } from '@remix-run/react'
+import { Outlet, NavLink, useParams, useLoaderData } from '@remix-run/react'
 
-import TextLink from '~/elements/TextLink'
 import Text from '~/elements/Typography/Text'
 import { requireUserId } from '~/session.server'
+import PageHeader from '~/components/PageHeader'
 import { getChapter } from '~/models/chapters.server'
 
 export const loader = async ({ params, request }: LoaderArgs) => {
@@ -32,12 +32,28 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
 export default function ChapterPage() {
   const { clubId } = useParams()
+  const { chapter } = useLoaderData<typeof loader>()
+
+  const inDiscussion = !!useMatch(
+    '/clubs/:clubId/chapters/:chapterId/discussions/*',
+  )
+  const inPosts = !!useMatch('/clubs/:clubId/chapters/:chapterId/posts/*')
+
+  const title = useMemo(() => {
+    if (inDiscussion) return 'Discussions'
+    if (inPosts) return 'Posts'
+    return 'Chapter Overview'
+  }, [inDiscussion, inPosts])
 
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
     <>
-      <div className="mb-4 h-12 md:hidden" />
+      <PageHeader
+        title={chapter.title}
+        caption={title}
+        description="Chapter Overview"
+      />
 
       <div className="content-wrapper relative">
         <Outlet />
@@ -45,54 +61,6 @@ export default function ChapterPage() {
 
       <div className="h-14 md:hidden" />
     </>
-  )
-}
-
-const TopNav = ({
-  title,
-  clubId,
-  chapterId,
-}: {
-  title: string
-  clubId: string
-  chapterId: string
-}) => {
-  const matches = useMatches()
-  const backNavigation = useMemo(() => {
-    const foundBackNav = matches
-      .filter(match => match.handle && match.handle.backNavigation)
-      .at(-1)
-
-    if (foundBackNav) {
-      const nav = foundBackNav.handle?.backNavigation()
-
-      if (nav === null) return null
-      if (typeof nav === 'string') return nav
-    }
-
-    return '..'
-  }, [matches])
-
-  if (!backNavigation) return null
-
-  const absoluteUrl = `/clubs/${clubId}/chapters/${chapterId}/${backNavigation}`
-
-  return (
-    <div className="bg-background-secondary">
-      <div className="flex items-center gap-2 px-4 pb-4">
-        <TextLink to={absoluteUrl}>
-          <ChevronLeftIcon className="h-4 w-4" />
-        </TextLink>
-        <TextLink
-          serif
-          variant="title2"
-          className="block overflow-ellipsis line-clamp-1"
-          to={`/clubs/${clubId}/chapters/${chapterId}`}
-        >
-          {title}
-        </TextLink>
-      </div>
-    </div>
   )
 }
 
@@ -135,18 +103,6 @@ const SpringLink = ({
 )
 
 export const handle = {
-  topNav: ({
-    params: { clubId, chapterId },
-    data: {
-      chapter: { title },
-    },
-  }: {
-    params: {
-      clubId: string
-      chapterId: string
-    }
-    data: { chapter: { title: string } }
-  }) => <TopNav title={title} chapterId={chapterId} clubId={clubId} />,
   nav: (match: { params: { chapterId: string; clubId: string } }) => (
     <div className="relative grid grid-cols-3 items-center overflow-hidden rounded-md bg-background-primary bg-opacity-50 p-1">
       <SpringLink

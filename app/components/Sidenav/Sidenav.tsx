@@ -259,13 +259,14 @@ const Sidenav = ({
                     <Separator />
                   </div>
                 )}
-                {clubNavigation(clubId, chapterId).map((item, i) => (
-                  <MenuItem
-                    item={item}
-                    i={i + navigation.length}
-                    key={item.to}
-                  />
-                ))}
+                {inClub &&
+                  clubNavigation(clubId, chapterId).map((item, i) => (
+                    <MenuItem
+                      item={item}
+                      i={i + navigation.length}
+                      key={item.to}
+                    />
+                  ))}
               </AnimatePresence>
             </nav>
           </div>

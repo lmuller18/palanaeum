@@ -1,4 +1,6 @@
+import { useMemo } from 'react'
 import invariant from 'tiny-invariant'
+import { useMatch } from 'react-router'
 
 import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
@@ -28,12 +30,23 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export default function ClubNavigationLayout() {
   const data = useLoaderData<typeof loader>()
 
+  const inDiscussion = !!useMatch('/clubs/:clubId/discussions/*')
+  const inPosts = !!useMatch('/clubs/:clubId/posts/*')
+  const inChapters = !!useMatch('/clubs/:clubId/chapters/*')
+
+  const title = useMemo(() => {
+    if (inDiscussion) return 'Discussions'
+    if (inPosts) return 'Posts'
+    if (inChapters) return 'Chapters'
+    return 'Club Overview'
+  }, [inDiscussion, inPosts, inChapters])
+
   return (
     <>
       <PageHeader
         title={data.club.title}
         description={`By ${data.club.author}`}
-        caption="Club Overview"
+        caption={title}
         headerImage={
           <div className="relative block aspect-book w-full max-w-[200px] overflow-hidden rounded-lg">
             <img
