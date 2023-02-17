@@ -79,14 +79,14 @@ const TopNav = ({
 
   return (
     <div className="bg-background-secondary">
-      <div className="mx-auto flex max-w-lg items-center gap-2 px-4 pb-4">
+      <div className="flex items-center gap-2 px-4 pb-4">
         <TextLink to={absoluteUrl}>
           <ChevronLeftIcon className="h-4 w-4" />
         </TextLink>
         <TextLink
           serif
           variant="title2"
-          className="block"
+          className="block overflow-ellipsis line-clamp-1"
           to={`/clubs/${clubId}/chapters/${chapterId}`}
         >
           {title}

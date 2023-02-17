@@ -1,6 +1,6 @@
 import clsx from 'clsx'
-import { memo, Fragment } from 'react'
 import { ClientOnly } from 'remix-utils'
+import React, { memo, Fragment } from 'react'
 import { useMatch, useParams } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -13,39 +13,85 @@ import {
   NewspaperIcon,
   BookmarkAltIcon,
   SpeakerphoneIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/outline'
 import { Link, NavLink } from '@remix-run/react'
 import { Dialog, Transition } from '@headlessui/react'
 
 import Button from '~/elements/Button'
 
+import { Separator } from '../Separator'
 import BottomNavSection from './BottomNavSection'
 
-const navigation = [
-  { name: 'Home', to: '/', icon: HomeIcon, end: true },
-  { name: 'Clubs', to: `/clubs`, icon: LibraryIcon, end: true },
-  { name: 'Invites', to: '/invites', icon: InboxIcon, end: false },
+type NavItem = {
+  name: string
+  to: string
+  end: boolean
+  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element
+  children: Array<Omit<NavItem, 'children'>>
+}
+
+const navigation: NavItem[] = [
+  { name: 'Home', to: '/', icon: HomeIcon, end: true, children: [] },
+  { name: 'Clubs', to: `/clubs`, icon: LibraryIcon, end: true, children: [] },
+  {
+    name: 'Invites',
+    to: '/invites',
+    icon: InboxIcon,
+    end: false,
+    children: [],
+  },
 ]
 
-const clubNavigation = (clubId: string) => [
-  { name: 'Club', to: `/clubs/${clubId}`, icon: BookOpenIcon, end: true },
+const clubNavigation = (clubId: string, chapterId: string): NavItem[] => [
+  {
+    name: 'Club',
+    to: `/clubs/${clubId}`,
+    icon: BookOpenIcon,
+    end: true,
+    children: [],
+  },
   {
     name: 'Posts',
     to: `/clubs/${clubId}/posts`,
     icon: SpeakerphoneIcon,
     end: false,
+    children: [],
   },
   {
     name: 'Discussions',
     to: `/clubs/${clubId}/discussions`,
     icon: NewspaperIcon,
     end: false,
+    children: [],
   },
   {
     name: 'Chapters',
     to: `/clubs/${clubId}/chapters`,
     icon: BookmarkAltIcon,
-    end: false,
+    end: true,
+    children: chapterId
+      ? [
+          {
+            name: 'Chapter Home',
+            to: `/clubs/${clubId}/chapters/${chapterId}`,
+            icon: ChevronRightIcon,
+            end: true,
+          },
+          {
+            name: 'Chapter Posts',
+            to: `/clubs/${clubId}/chapters/${chapterId}/posts`,
+            icon: ChevronRightIcon,
+            end: false,
+          },
+          {
+            name: 'Chapter Discussions',
+            to: `/clubs/${clubId}/chapters/${chapterId}/discussions`,
+            icon: ChevronRightIcon,
+            end: false,
+          },
+        ]
+      : [],
   },
 ]
 
@@ -57,11 +103,10 @@ const Sidenav = ({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
   const inClub = !!useMatch('/clubs/:clubId/*')
-  const { clubId } = useParams() as { clubId: string }
-
-  const navItems = inClub
-    ? [...navigation, ...clubNavigation(clubId)]
-    : navigation
+  const { clubId, chapterId } = useParams() as {
+    clubId: string
+    chapterId: string
+  }
 
   return (
     <div>
@@ -206,44 +251,20 @@ const Sidenav = ({
             </div>
             <nav className="mt-3 flex-1 space-y-1 px-2">
               <AnimatePresence>
-                {navItems.map((item, i) => (
-                  <motion.div
-                    key={item.name}
-                    initial={{ x: -30, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -200, opacity: 0 }}
-                    transition={{ delay: 0.07 * i }}
-                  >
-                    <NavLink
-                      key={item.name}
-                      to={item.to}
-                      end={item.end}
-                      className={({ isActive }) =>
-                        clsx(
-                          isActive
-                            ? 'bg-gray-800 text-white'
-                            : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                          'group flex items-center rounded-md px-2 py-2 text-sm font-medium',
-                        )
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <item.icon
-                            className={clsx(
-                              isActive
-                                ? 'text-gray-300'
-                                : 'text-gray-400 group-hover:text-gray-300',
-                              'mr-3 h-6 w-6 flex-shrink-0',
-                            )}
-                            aria-hidden="true"
-                          />
-
-                          {item.name}
-                        </>
-                      )}
-                    </NavLink>
-                  </motion.div>
+                {navigation.map((item, i) => (
+                  <MenuItem item={item} i={i} key={item.to} />
+                ))}
+                {inClub && (
+                  <div className="flex h-4 items-center">
+                    <Separator />
+                  </div>
+                )}
+                {clubNavigation(clubId, chapterId).map((item, i) => (
+                  <MenuItem
+                    item={item}
+                    i={i + navigation.length}
+                    key={item.to}
+                  />
                 ))}
               </AnimatePresence>
             </nav>
@@ -263,5 +284,86 @@ const Sidenav = ({
     </div>
   )
 }
+
+const MenuItem = ({ item, i }: { item: NavItem; i: number }) => (
+  <motion.div
+    key={item.name}
+    initial={{ x: -30, opacity: 0 }}
+    animate={{ x: 0, opacity: 1 }}
+    exit={{ x: -200, opacity: 0 }}
+    transition={{ delay: 0.07 * i }}
+  >
+    <NavLink
+      key={item.name}
+      to={item.to}
+      end={item.end}
+      className={({ isActive }) =>
+        clsx(
+          isActive
+            ? 'bg-gray-800 text-white'
+            : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+          'group flex items-center rounded-md px-2 py-2 text-sm font-medium',
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <item.icon
+            className={clsx(
+              isActive
+                ? 'text-gray-300'
+                : 'text-gray-400 group-hover:text-gray-300',
+              'mr-3 h-6 w-6 flex-shrink-0',
+            )}
+            aria-hidden="true"
+          />
+
+          {item.name}
+        </>
+      )}
+    </NavLink>
+
+    <AnimatePresence>
+      {item.children.map((child, j) => (
+        <motion.div
+          key={child.name}
+          initial={{ x: -30, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -200, opacity: 0 }}
+          transition={{ delay: 0.07 * j }}
+        >
+          <NavLink
+            to={child.to}
+            end={child.end}
+            className={({ isActive }) =>
+              clsx(
+                isActive
+                  ? 'bg-gray-800 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                'group flex items-center rounded-md px-2 py-2 pl-4 text-sm font-medium',
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <child.icon
+                  className={clsx(
+                    isActive
+                      ? 'text-gray-300'
+                      : 'text-gray-400 group-hover:text-gray-300',
+                    'mr-3 h-4 w-4 flex-shrink-0',
+                  )}
+                  aria-hidden="true"
+                />
+
+                {child.name}
+              </>
+            )}
+          </NavLink>
+        </motion.div>
+      ))}
+    </AnimatePresence>
+  </motion.div>
+)
 
 export default memo(Sidenav)
