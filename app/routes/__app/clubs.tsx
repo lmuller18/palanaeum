@@ -95,7 +95,7 @@ export default function ClubsPage() {
         ) : (
           <p className="text-sm text-slate-500 dark:text-slate-200">
             Not currently in any active clubs.{' '}
-            <TextLink to="clubs/new" color="blue">
+            <TextLink to="/clubs/new" color="blue">
               Start a new club
             </TextLink>{' '}
             or revist a past club below.
