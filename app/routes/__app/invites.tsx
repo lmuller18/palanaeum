@@ -1,22 +1,31 @@
-import clsx from 'clsx'
-import { DateTime } from 'luxon'
-import { Fragment } from 'react'
 import type { ReactNode } from 'react'
 
 import {
-  TrashIcon as InactiveTrashIcon,
+  XIcon,
+  MailIcon,
+  TrashIcon,
+  CheckIcon,
   DotsVerticalIcon,
 } from '@heroicons/react/outline'
 import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
-import { Tab, Menu, Transition } from '@headlessui/react'
-import { Link, useFetcher, useLoaderData } from '@remix-run/react'
-import { TrashIcon as ActiveTrashIcon } from '@heroicons/react/outline'
+import { useFetcher, useLoaderData } from '@remix-run/react'
 
-import Button from '~/elements/Button'
-import Text from '~/elements/Typography/Text'
-import { useUser, toLuxonDate } from '~/utils'
+import { useUser } from '~/utils'
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '~/components/DropdownMenu'
+import TextLink from '~/elements/TextLink'
 import { requireUserId } from '~/session.server'
+import PageHeader from '~/components/PageHeader'
+import { Separator } from '~/components/Separator'
+import { ScrollBar, ScrollArea } from '~/components/ScrollArea'
 import { getSentInvites, getReceivedInvites } from '~/models/invites.server'
 
 export const loader = async ({ request }: LoaderArgs) => {
@@ -34,108 +43,62 @@ export const loader = async ({ request }: LoaderArgs) => {
 }
 
 export default function InvitesPage() {
-  const data = useLoaderData<typeof loader>()
-  return (
-    <div className="content-wrapper my-4">
-      <Tab.Group>
-        <Tab.List className="flex space-x-1 rounded-xl bg-background-secondary/70 p-1">
-          <Tab
-            className={({ selected }) =>
-              clsx(
-                'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-white',
-                'focus:outline-none',
-                selected
-                  ? 'bg-background-tertiary shadow'
-                  : 'text-blue-100 hover:bg-white/[0.12] hover:text-white',
-              )
-            }
-          >
-            Received Invites
-          </Tab>
+  const { receivedInvites, sentInvites } = useLoaderData<typeof loader>()
 
-          <Tab
-            className={({ selected }) =>
-              clsx(
-                'w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-white',
-                'focus:outline-none',
-                selected
-                  ? 'bg-background-tertiary shadow'
-                  : 'text-blue-100 hover:bg-white/[0.12] hover:text-white',
-              )
-            }
-          >
-            Sent Invites
-          </Tab>
-        </Tab.List>
-        <Tab.Panels className="mt-2">
-          <Tab.Panel
-            className={clsx(
-              'rounded-xl bg-background-tertiary p-3',
-              'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
-            )}
-          >
-            <div className="grid gap-4">
-              {!data.receivedInvites ||
-                (data.receivedInvites.length === 0 && (
-                  <div className="flex items-center justify-center py-6">
-                    <Text variant="title3" serif>
-                      No Invites Found
-                    </Text>
-                  </div>
-                ))}
-              {data.receivedInvites.map((inv, i) => (
-                <InviteCard
-                  key={`${inv.club.id}-${inv.user.id}-${i}`}
-                  invite={inv}
-                >
-                  <InviteActions invite={inv} />
-                </InviteCard>
-              ))}
-            </div>
-          </Tab.Panel>
-
-          <Tab.Panel
-            className={clsx(
-              'rounded-xl bg-background-tertiary p-3',
-              'focus:outline-none',
-            )}
-          >
-            <div className="grid gap-4">
-              {!data.sentInvites ||
-                (data.sentInvites.length === 0 && (
-                  <div className="flex items-center justify-center py-6">
-                    <Text variant="title3" serif>
-                      No Invites Found
-                    </Text>
-                  </div>
-                ))}
-              {data.sentInvites.map((inv, i) => (
-                <SentInviteCard
-                  key={`${inv.club.id}-${inv.user.id}-${i}`}
-                  invite={inv}
-                />
-              ))}
-            </div>
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
-    </div>
-  )
-}
-
-const SentInviteCard = ({
-  invite,
-}: {
-  invite: Serialized<RequiredFuncType<typeof getReceivedInvites>[number]>
-}) => {
   const user = useUser()
   const removeFetcher = useFetcher()
+  const acceptFetcher = useFetcher()
+  const declineFetcher = useFetcher()
 
-  const declineInvite = () => {
+  const declineInvite = ({
+    inviterId,
+    clubId,
+  }: {
+    inviterId: string
+    clubId: string
+  }) => {
+    declineFetcher.submit(
+      {
+        inviterId,
+        clubId,
+      },
+      {
+        method: 'post',
+        action: '/api/invites/decline',
+      },
+    )
+  }
+
+  const acceptInvite = ({
+    inviterId,
+    clubId,
+  }: {
+    inviterId: string
+    clubId: string
+  }) => {
+    acceptFetcher.submit(
+      {
+        inviterId,
+        clubId,
+      },
+      {
+        method: 'post',
+        action: '/api/invites/accept',
+      },
+    )
+  }
+
+  const removeInvite = ({
+    clubId,
+    inviteeId,
+  }: {
+    inviteeId: string
+    clubId: string
+  }) => {
     removeFetcher.submit(
       {
-        clubId: invite.club.id,
-        inviteeId: invite.user.id,
+        clubId,
+        inviteeId,
         inviterId: user.id,
       },
       {
@@ -146,201 +109,201 @@ const SentInviteCard = ({
   }
 
   return (
-    <InviteCard
-      invite={invite}
-      menuItems={[
-        {
-          activeIcon: (
-            <ActiveTrashIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-          ),
-          inactiveIcon: (
-            <InactiveTrashIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-          ),
-          name: 'Remove Invite',
-          onClick: () => {
-            declineInvite()
-          },
-        },
-      ]}
-    />
-  )
-}
+    <div>
+      <PageHeader
+        link="."
+        title="Club Invites"
+        description="Manage sent and received invites to clubs."
+        headerImage={
+          <div className="relative block w-full max-w-[200px] overflow-hidden">
+            <MailIcon className="w-[200px] text-slate-700" />
+          </div>
+        }
+      />
 
-const InviteActions = ({
-  invite,
-}: {
-  invite: Serialized<RequiredFuncType<typeof getReceivedInvites>[number]>
-}) => {
-  const acceptFetcher = useFetcher()
-  const declineFetcher = useFetcher()
+      <div className="content-wrapper my-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Received Invites
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {/* // TODO Copy */}
+            </p>
+          </div>
+        </div>
+        <Separator className="my-4" />
+        {receivedInvites.length > 0 ? (
+          <ScrollArea>
+            <div className="flex space-x-4 pb-4">
+              {receivedInvites.map((inv, i) => (
+                <InviteCard
+                  key={`${inv.club.id}-${inv.user.id}-${i}`}
+                  author={inv.club.author}
+                  id={inv.club.id}
+                  image={inv.club.image}
+                  title={inv.club.title}
+                  user={{
+                    id: inv.user.id,
+                    avatar: inv.user.avatar,
+                    username: inv.user.username,
+                  }}
+                  menu={
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <DotsVerticalIcon className="h-4 w-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="min-w-[200px]">
+                        <DropdownMenuLabel>Invite Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              acceptInvite({
+                                clubId: inv.club.id,
+                                inviterId: inv.user.id,
+                              })
+                            }
+                          >
+                            <CheckIcon className="mr-2 h-4 w-4" />
+                            <span>Accept</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              declineInvite({
+                                clubId: inv.club.id,
+                                inviterId: inv.user.id,
+                              })
+                            }
+                          >
+                            <XIcon className="mr-2 h-4 w-4" />
+                            <span>Decline</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  }
+                />
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        ) : (
+          <p className="text-sm text-slate-500 dark:text-slate-200">
+            {/* // TODO Copy */}
+            Your inbox is currently empty.
+          </p>
+        )}
 
-  const declineInvite = () => {
-    declineFetcher.submit(
-      {
-        inviterId: invite.user.id,
-        clubId: invite.club.id,
-      },
-      {
-        method: 'post',
-        action: '/api/invites/decline',
-      },
-    )
-  }
-
-  const acceptInvite = () => {
-    acceptFetcher.submit(
-      {
-        inviterId: invite.user.id,
-        clubId: invite.club.id,
-      },
-      {
-        method: 'post',
-        action: '/api/invites/accept',
-      },
-    )
-  }
-
-  const isSubmitting =
-    acceptFetcher.state !== 'idle' || declineFetcher.state !== 'idle'
-
-  return (
-    <div className="mt-4 flex items-center gap-4">
-      <Button
-        type="button"
-        fullWidth
-        variant="secondary"
-        disabled={isSubmitting}
-        onClick={declineInvite}
-      >
-        {declineFetcher.state !== 'idle' ? 'Declining' : 'Decline'} Invite
-      </Button>
-      <Button
-        type="button"
-        fullWidth
-        disabled={isSubmitting}
-        onClick={acceptInvite}
-      >
-        {acceptFetcher.state !== 'idle' ? 'Accepting' : 'Accept'} Invite
-      </Button>
+        <div className="mt-6 space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Sent Invites
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            {/* // TODO Copy */}
+            {/* Revisit old favorites and captivating discussions. */}
+          </p>
+        </div>
+        <Separator className="my-4" />
+        {sentInvites.length > 0 ? (
+          <ScrollArea>
+            <div className="flex space-x-4 pb-4">
+              {sentInvites.map((inv, i) => (
+                <InviteCard
+                  key={`${inv.club.id}-${inv.user.id}-${i}`}
+                  author={inv.club.author}
+                  id={inv.club.id}
+                  image={inv.club.image}
+                  title={inv.club.title}
+                  user={{
+                    id: inv.user.id,
+                    avatar: inv.user.avatar,
+                    username: inv.user.username,
+                  }}
+                  menu={
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <DotsVerticalIcon className="h-4 w-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="min-w-[200px]">
+                        <DropdownMenuLabel>Invite Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              removeInvite({
+                                clubId: inv.club.id,
+                                inviteeId: inv.user.id,
+                              })
+                            }
+                          >
+                            <TrashIcon className="mr-2 h-4 w-4" />
+                            <span>Remove</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  }
+                />
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        ) : (
+          <p className="text-sm text-slate-500 dark:text-slate-200">
+            {/* // TODO Copy */}
+            No pending invites.
+          </p>
+        )}
+      </div>
     </div>
   )
 }
 
 const InviteCard = ({
-  invite,
-  menuItems,
-  children,
+  image,
+  title,
+  author,
+  user,
+  menu,
 }: {
-  invite: Serialized<RequiredFuncType<typeof getSentInvites>[number]>
-  menuItems?: {
-    activeIcon: JSX.Element
-    inactiveIcon: JSX.Element
-    name: string
-    onClick: Function
-  }[]
-  children?: ReactNode
-}) => (
-  <div className="rounded-lg bg-background-secondary p-4 pt-3">
-    <div className="flex items-start justify-between gap-2">
-      <Text variant="title3" as="p" className="mb-2 line-clamp-2" serif>
-        {invite.club.title}
-      </Text>
-      {menuItems && <InviteMenu menuItems={menuItems} />}
-    </div>
-
-    <div className="grid grid-cols-[1fr,2fr] gap-6">
-      <div className="mx-auto aspect-book w-full overflow-hidden rounded-lg shadow-md">
+  id: string
+  image: string
+  title: string
+  author: string
+  user: {
+    id: string
+    username: string
+    avatar: string
+  }
+  menu: ReactNode
+}) => {
+  return (
+    <div className="w-[150px] space-y-3">
+      <div className="aspect-book overflow-hidden rounded-md">
         <img
-          className="h-full w-full object-cover"
-          src={invite.club.image}
-          alt="selected cover"
+          src={image}
+          className="h-full w-full object-cover transition-all hover:scale-105"
+          alt={`${title} cover`}
         />
       </div>
-      <div className="flex flex-col justify-between">
-        <Text variant="subtitle2" as="p" className="line-clamp-1">
-          By {invite.club.author}
-        </Text>
-
-        <div className="grid grid-cols-[auto,1fr] items-center gap-x-4">
-          <Text variant="body2">Chapters</Text>
-          <Text variant="caption">{invite.club._count.chapters}</Text>
-          <Text variant="body2">Members</Text>
-          <Text variant="caption">{invite.club._count.members}</Text>
-          <Text variant="body2">Club Created</Text>
-          <Text variant="caption">
-            {toLuxonDate(invite.club.createdAt).toLocaleString(
-              DateTime.DATE_MED,
-            )}
-          </Text>
+      <div className="space-y-1 text-sm">
+        <div className="">
+          <div className="float-right mt-[2px]">{menu}</div>
+          <span className="font-medium leading-none">
+            {title} but like actually long
+          </span>
         </div>
-
-        <div className="flex flex-col justify-end">
-          <Link
-            to={`/users/${invite.user.id}`}
-            className="flex w-fit items-center justify-start gap-2"
-          >
-            <img
-              src={invite.user.avatar}
-              className="h-10 w-10 flex-shrink-0 rounded-full"
-              alt={`${invite.user.username} avatar`}
-            />
-            <div>
-              <Text as="p" variant="subtitle2">
-                {invite.user.username}
-              </Text>
-            </div>
-          </Link>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{author}</p>
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <img
+            src={user.avatar}
+            className="h-5 w-5 overflow-hidden rounded-full"
+            alt={user.username}
+          />
+          {user.username}
         </div>
       </div>
     </div>
-    {children}
-  </div>
-)
-
-const InviteMenu = ({
-  menuItems,
-}: {
-  menuItems: {
-    activeIcon: JSX.Element
-    inactiveIcon: JSX.Element
-    name: string
-    onClick: Function
-  }[]
-}) => (
-  <Menu as="div" className="relative inline-block text-left">
-    <div>
-      <Menu.Button className="focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-        <DotsVerticalIcon className="mt-[5px] h-5 w-5" />
-      </Menu.Button>
-    </div>
-    <Transition
-      as={Fragment}
-      enter="transition ease-out duration-100"
-      enterFrom="transform opacity-0 scale-95"
-      enterTo="transform opacity-100 scale-100"
-      leave="transition ease-in duration-75"
-      leaveFrom="transform opacity-100 scale-100"
-      leaveTo="transform opacity-0 scale-95"
-    >
-      <Menu.Items className="absolute right-0 mt-1 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-        <div className="px-1 py-1 ">
-          {menuItems.map(item => (
-            <Menu.Item key={item.name}>
-              {({ active }) => (
-                <button
-                  className={`${
-                    active ? 'bg-violet-500 text-white' : 'text-gray-100'
-                  } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                  onClick={() => item.onClick()}
-                >
-                  {active ? item.activeIcon : item.inactiveIcon}
-                  {item.name}
-                </button>
-              )}
-            </Menu.Item>
-          ))}
-        </div>
-      </Menu.Items>
-    </Transition>
-  </Menu>
-)
+  )
+}
