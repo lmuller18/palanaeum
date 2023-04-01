@@ -57,7 +57,9 @@ const UpcomingChapter = ({ chapter }: UpcomingChapterProps) => {
     <>
       <div className="mb-2 text-3xl font-bold">
         <div className="flex w-fit flex-col gap-1">
-          <Link to={`chapters/${chapter.id}`}>{chapter.title}</Link>
+          <Link to={`chapters/${chapter.id}`} className="line-clamp-4">
+            {chapter.title}
+          </Link>
         </div>
       </div>
 

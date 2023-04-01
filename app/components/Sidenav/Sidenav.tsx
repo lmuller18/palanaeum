@@ -102,7 +102,10 @@ const Sidenav = ({
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-  const inClub = !!useMatch('/clubs/:clubId/*')
+  const inClubRoot = !!useMatch('/clubs/:clubId/*')
+  const inNewClub = !!useMatch('/clubs/new/*')
+  const inClub = inClubRoot && !inNewClub
+
   const { clubId, chapterId } = useParams() as {
     clubId: string
     chapterId: string
