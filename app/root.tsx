@@ -24,6 +24,7 @@ import tailwindStylesheetUrl from '~/tailwind.css'
 import PwaMeta from './pwa-meta'
 import { removeEmpty } from './utils'
 import TextLink from './elements/TextLink'
+import { Toaster } from './components/Toaster'
 import { getUser, prepareUserSession } from './session.server'
 import { registerWebPush } from './utils/notifications.server'
 
@@ -104,6 +105,7 @@ export default function App() {
                 __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
               }}
             />
+            <Toaster />
           </div>
           <ScrollRestoration />
           <Scripts />

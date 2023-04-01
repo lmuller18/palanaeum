@@ -27,6 +27,7 @@ import {
 } from '~/models/chapters.server'
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
+import { useToast } from '~/hooks/use-toast'
 import Text from '~/elements/Typography/Text'
 import TextButton from '~/elements/TextButton'
 import { requireUserId } from '~/session.server'
@@ -82,6 +83,18 @@ export default function ManageClubPage() {
     formData.set('_action', 'REORDER_CHAPTERS')
     fetcher.submit(formData, { method: 'post' })
   }
+
+  const { toast } = useToast()
+  useEffect(() => {
+    if (
+      fetcher.submission?.formData?.get('_action') === 'REORDER_CHAPTERS' &&
+      fetcher.data?.success === true
+    ) {
+      toast({
+        description: 'Chapter order successfully updated',
+      })
+    }
+  }, [fetcher.data?.success, fetcher.submission?.formData, toast])
 
   return (
     <div>
