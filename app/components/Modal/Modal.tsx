@@ -29,7 +29,7 @@ const Modal = ({
   return (
     <AnimatePresence>
       {open && (
-        <Dialog className="fixed inset-0 z-50" onClose={onClose} open={true}>
+        <Dialog className="fixed inset-0 z-50" onClose={onClose} open>
           <div className="flex h-full flex-col justify-center px-3 pt-4 sm:block sm:p-0">
             <Dialog.Overlay
               as={motion.div}

@@ -9,9 +9,14 @@ import { useRef, useState, useEffect } from 'react'
 import { notFound, forbidden, badRequest } from 'remix-utils'
 import type { MotionValue, DragControls } from 'framer-motion'
 
+import {
+  Form,
+  useFetcher,
+  useActionData,
+  useLoaderData,
+} from '@remix-run/react'
 import { json } from '@remix-run/node'
 import type { LoaderArgs, ActionFunction } from '@remix-run/node'
-import { Form, useActionData, useLoaderData } from '@remix-run/react'
 
 import {
   createChapter,
@@ -55,23 +60,28 @@ export default function ManageClubPage() {
   const [open, setOpen] = useState(false)
 
   const actionData = useActionData() as ActionData
-  const reorderRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    if (actionData?.errors?.reorder) {
-      reorderRef.current?.focus()
-    }
-  }, [actionData])
 
   useEffect(() => {
     setOrderedChapters(chapters)
   }, [chapters])
 
-  const hasNewOrder =
-    chapters.length === orderedChapters.length &&
-    !chapters.every(
-      (chapter, index) => chapter.id === orderedChapters[index].id,
-    )
+  const formRef = useRef<HTMLFormElement>(null)
+  const fetcher = useFetcher()
+  const saveUpdatedOrder = () => {
+    const hasNewOrder =
+      chapters.length === orderedChapters.length &&
+      !chapters.every(
+        (chapter, index) => chapter.id === orderedChapters[index].id,
+      )
+    if (!hasNewOrder) return
+    if (!formRef.current) {
+      console.error('form not initialized')
+      return
+    }
+    const formData = new FormData(formRef.current)
+    formData.set('_action', 'REORDER_CHAPTERS')
+    fetcher.submit(formData, { method: 'post' })
+  }
 
   return (
     <div>
@@ -83,7 +93,7 @@ export default function ManageClubPage() {
           Add +
         </TextButton>
       </div>
-      <Form method="post" noValidate>
+      <fetcher.Form method="post" noValidate ref={formRef}>
         <Reorder.Group
           values={orderedChapters}
           onReorder={setOrderedChapters}
@@ -91,38 +101,23 @@ export default function ManageClubPage() {
           axis="y"
         >
           {orderedChapters.map((c, i) => (
-            <Chapter key={c.id} chapter={c} order={i} />
+            <Chapter
+              key={c.id}
+              chapter={c}
+              order={i}
+              onDragEnd={saveUpdatedOrder}
+            />
           ))}
         </Reorder.Group>
 
         <div className="grid grid-cols-2 gap-4" id="order-action">
-          <Button
-            type="button"
-            onClick={() => setOrderedChapters(chapters)}
-            variant="secondary"
-            disabled={!hasNewOrder}
-            fullWidth
-          >
-            Reset Order
-          </Button>
-
-          <Button
-            name="_action"
-            value="REORDER_CHAPTERS"
-            disabled={!hasNewOrder}
-            fullWidth
-            ref={reorderRef}
-          >
-            Save Order
-          </Button>
-
           {actionData?.errors?.reorder && (
             <div className="col-span-2 pt-1 text-red-500" id="reorder-error">
               {actionData.errors.reorder}
             </div>
           )}
         </div>
-      </Form>
+      </fetcher.Form>
 
       <NewChapterModal open={open} setOpen={setOpen} />
     </div>
@@ -167,14 +162,6 @@ const EditChapterModal = ({
         <div className="px-3 pb-4 shadow-sm">
           <div className="relative mt-2 text-center">
             <span className="font-medium">Edit Chapter</span>
-            <div className="absolute inset-y-0 right-0">
-              <button
-                className="mr-1 text-blue-500 focus:outline-none"
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-            </div>
           </div>
         </div>
         <div className="flex-1">
@@ -324,17 +311,8 @@ const NewChapterModal = ({
     >
       <div className="flex flex-col pt-3">
         <div className="px-3 pb-4 shadow-sm">
-          <div className="relative mt-2 text-center">
+          <div className="mt-2 text-center">
             <span className="font-medium">Add Chapter</span>
-            <div className="absolute inset-y-0 right-0">
-              <button
-                type="button"
-                className="mr-1 text-blue-500 focus:outline-none"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </button>
-            </div>
           </div>
         </div>
         <div className="flex-1">
@@ -403,9 +381,11 @@ function useRaisedShadow(value: MotionValue<number>) {
 const Chapter = ({
   chapter,
   order,
+  onDragEnd,
 }: {
   chapter: RequiredFuncType<typeof getChapterList>[number]
   order: number
+  onDragEnd: () => void
 }) => {
   const y = useMotionValue(0)
   const boxShadow = useRaisedShadow(y)
@@ -420,6 +400,7 @@ const Chapter = ({
       style={{ boxShadow, y }}
       dragListener={false}
       dragControls={dragControls}
+      onDragEnd={onDragEnd}
       className="relative mb-4 rounded-lg bg-background-secondary p-4"
     >
       <span className="text-xs text-gray-400">
@@ -427,7 +408,7 @@ const Chapter = ({
       </span>
       <label
         htmlFor={chapter.id}
-        className="flex items-center justify-between gap-2"
+        className="flex items-start justify-between gap-4"
       >
         <div className="flex flex-grow items-center gap-2">
           <input
@@ -483,7 +464,7 @@ function ReorderIcon({ dragControls }: { dragControls: DragControls }) {
       viewBox="0 0 39 39"
       width="39"
       height="39"
-      className="h-4 w-4 cursor-grab touch-pan-x select-none"
+      className="h-4 w-4 flex-shrink-0 cursor-grab touch-pan-x select-none"
       onPointerDown={event => dragControls.start(event)}
     >
       <path
