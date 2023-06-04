@@ -35,16 +35,19 @@ export const loader: LoaderFunction = async ({ request }) => {
     )}&products_sort_by=Relevance&response_groups=media,contributors&image_sizes=720`,
   ).then(res => res.json())
 
-  // @ts-ignore
-  const audibles = audibleResults.products.map(b => ({
-    id: b.asin,
-    title: b.title,
-    subtitle: b.subtitle,
-    image: b.product_images?.[720] ?? '/images/no-cover.png',
-    publishDate: b.release_date,
+  const audibles = audibleResults.products
     // @ts-ignore
-    authors: b.authors.map(a => a.name),
-  }))
+    .filter(b => !!b.authors)
+    // @ts-ignore
+    .map(b => ({
+      id: b.asin,
+      title: b.title,
+      subtitle: b.subtitle,
+      image: b.product_images?.[720] ?? '/images/no-cover.png',
+      publishDate: b.release_date,
+      // @ts-ignore
+      authors: b.authors.map(a => a.name),
+    }))
 
   return json({
     results: audibles,
