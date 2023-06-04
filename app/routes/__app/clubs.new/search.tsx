@@ -32,12 +32,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const audibleResults = await fetch(
     `https://api.audible.com/1.0/catalog/products?title=${encodeURIComponent(
       search,
-    )}&products_sort_by=Relevance&response_groups=media,contributors&image_sizes=720`,
+    )}&products_sort_by=Relevance&response_groups=media,contributors&image_sizes=720&content_type=Product`,
   ).then(res => res.json())
 
   const audibles = audibleResults.products
-    // @ts-ignore
-    .filter(b => !!b.authors)
     // @ts-ignore
     .map(b => ({
       id: b.asin,
@@ -46,7 +44,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       image: b.product_images?.[720] ?? '/images/no-cover.png',
       publishDate: b.release_date,
       // @ts-ignore
-      authors: b.authors.map(a => a.name),
+      authors: b.authors?.map(a => a.name) ?? ['Anonymous'],
     }))
 
   return json({
