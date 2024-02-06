@@ -76,5 +76,3 @@ export default function PostsPage() {
 export const handle = {
   backNavigation: () => '.',
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

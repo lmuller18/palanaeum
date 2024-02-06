@@ -303,5 +303,3 @@ const CreateDiscussionModal = ({
     </Modal>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

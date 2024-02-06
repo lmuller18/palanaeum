@@ -164,7 +164,11 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const memberId = await getMemberIdFromUser(clubId, userId)
 
-  if (!memberId) throw new Response(null, {status: 403, statusText: "Member not associated with club"});
+  if (!memberId)
+    throw new Response(null, {
+      status: 403,
+      statusText: 'Member not associated with club',
+    })
 
   const discussion = await createDiscussion({
     memberId,
@@ -179,5 +183,3 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   return redirect(discussionUrl)
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

@@ -163,5 +163,3 @@ const ClubCard = ({
     </div>
   </Link>
 )
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

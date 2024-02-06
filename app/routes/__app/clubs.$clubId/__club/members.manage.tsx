@@ -25,10 +25,14 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     getInvitesWithInvitee(params.clubId),
   ])
 
-  if (!club) throw new Response(null, { status: 404, statusText: 'Club not found'});
+  if (!club)
+    throw new Response(null, { status: 404, statusText: 'Club not found' })
 
   if (club.ownerId !== userId)
-    throw new Response(null, {status: 403, statusText: "Not authorized to manage members"});
+    throw new Response(null, {
+      status: 403,
+      statusText: 'Not authorized to manage members',
+    })
 
   return json({
     members: club.members,
@@ -239,5 +243,3 @@ export const action: ActionFunction = async ({ request, params }) => {
     ok: true,
   })
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

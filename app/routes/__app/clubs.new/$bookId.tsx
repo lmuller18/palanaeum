@@ -12,12 +12,13 @@ import {
   RefreshIcon as ResetInactiveIcon,
   PhotographIcon as ChangeInactiveIcon,
   ArrowsExpandIcon as RepositionInactiveIcon,
+  ChevronLeftIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/outline'
 import { json, redirect } from '@remix-run/node'
 import { Menu, Transition } from '@headlessui/react'
 import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 import { Form, useFetcher, useLoaderData } from '@remix-run/react'
-import { ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/outline'
 
 import Button from '~/elements/Button'
 import Modal from '~/components/Modal'
@@ -519,5 +520,3 @@ export const action: ActionFunction = async ({ request }) => {
   })
   return redirect(`/clubs/${club.id}/members/manage`)
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

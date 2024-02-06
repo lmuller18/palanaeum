@@ -209,5 +209,3 @@ const ThreadLine = () => (
 export const handle = {
   backNavigation: () => 'discussions',
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

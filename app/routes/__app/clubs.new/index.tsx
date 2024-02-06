@@ -407,5 +407,3 @@ export const action: ActionFunction = async ({ request }) => {
 
   return redirect(`/clubs/${club.id}/members/manage`)
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

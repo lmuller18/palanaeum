@@ -4,9 +4,8 @@ import { motion } from 'framer-motion'
 import invariant from 'tiny-invariant'
 
 import { json, redirect } from '@remix-run/node'
-import { ChevronUpIcon } from '@heroicons/react/solid'
+import { ChevronUpIcon, InformationCircleIcon } from '@heroicons/react/solid'
 import { Disclosure, Transition } from '@headlessui/react'
-import { InformationCircleIcon } from '@heroicons/react/solid'
 import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 import { Form, useParams, useActionData, useLoaderData } from '@remix-run/react'
 
@@ -354,5 +353,3 @@ export const action: ActionFunction = async ({ params, request }) => {
       throw new Response('Invalid method', { status: 405 })
   }
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

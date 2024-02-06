@@ -64,5 +64,3 @@ export default function ClubNavigationLayout() {
     </>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

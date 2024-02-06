@@ -250,5 +250,3 @@ export const action: ActionFunction = async ({ request }) => {
     redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
   })
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

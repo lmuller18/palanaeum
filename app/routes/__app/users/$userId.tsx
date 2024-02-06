@@ -44,7 +44,8 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   const user = await getUserById(params.userId)
 
-  if (!user) throw new Response(null, {status: 404, statusText: 'User not found'});
+  if (!user)
+    throw new Response(null, { status: 404, statusText: 'User not found' })
 
   const [userStats, clubs] = await Promise.all([
     getUserStats(user.id),
@@ -763,5 +764,3 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
       throw new Response('Invalid method', { status: 405 })
   }
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

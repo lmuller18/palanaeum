@@ -169,5 +169,3 @@ const PostSort = () => {
     </div>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'
