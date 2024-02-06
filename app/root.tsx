@@ -1,10 +1,6 @@
 import { QueryClient, QueryClientProvider } from 'react-query'
 
-import type {
-  MetaFunction,
-  LinksFunction,
-  LoaderFunction,
-} from '@remix-run/node'
+import type { LinksFunction, LoaderFunction } from '@remix-run/node'
 import {
   Meta,
   Links,
@@ -54,13 +50,17 @@ export const links: LinksFunction = () => {
   ]
 }
 
-export const meta: MetaFunction = () => ({
-  charset: 'utf-8',
-  title: 'Palanaeum',
-  viewport:
-    'width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no',
-  'apple-mobile-web-app-status-bar-style': 'black-translucent',
-})
+export function meta() {
+  return [
+    { charset: 'utf-8' },
+    { title: 'Palanaeum' },
+    {
+      viewport:
+        'width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no',
+    },
+    { 'apple-mobile-web-app-status-bar-style': 'black-translucent' },
+  ]
+}
 
 type LoaderData = {
   user: Awaited<ReturnType<typeof getUser>>
