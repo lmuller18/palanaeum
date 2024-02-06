@@ -26,7 +26,7 @@ export function useMatchesData(
     () => matchingRoutes.find(route => route.id === id),
     [matchingRoutes, id],
   )
-  return route?.data
+  return route?.data as Record<string, unknown> | undefined
 }
 
 function isUser(user: any): user is User {
@@ -117,4 +117,17 @@ export function threadComments(
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+type NavHandleFunction = {
+  nav: (params: {
+    params: { chapterId: string; clubId: string }
+  }) => JSX.Element
+}
+
+export function hasNavHandle(handle: unknown): handle is NavHandleFunction {
+  if (handle == null || !Object.hasOwn(handle, 'nav')) return false
+
+  const h = handle as { nav: any }
+  return typeof h.nav === 'function'
 }
