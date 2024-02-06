@@ -1,6 +1,5 @@
 import cuid from 'cuid'
 import clsx from 'clsx'
-import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
 import AvatarEditor from 'react-avatar-editor'
 import { useRef, useState, useEffect } from 'react'
@@ -45,7 +44,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   const user = await getUserById(params.userId)
 
-  if (!user) throw notFound({ message: 'User not found' })
+  if (!user) throw new Response(null, {status: 404, statusText: 'User not found'});
 
   const [userStats, clubs] = await Promise.all([
     getUserStats(user.id),

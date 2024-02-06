@@ -6,7 +6,6 @@ import {
   startOfToday,
   eachDayOfInterval,
 } from 'date-fns'
-import { notFound } from 'remix-utils'
 
 import { prisma } from '~/db.server'
 
@@ -412,7 +411,7 @@ export async function markPreviousRead(chapterId: string, memberId: string) {
     },
   })
 
-  if (!chapter) throw notFound({ error: 'Chapter not found' })
+  if (!chapter) throw new Response(null, {status: 404, statusText: 'Chapter not found'})
 
   const chapters = await prisma.chapter.findMany({
     where: {

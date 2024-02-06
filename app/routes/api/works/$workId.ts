@@ -1,4 +1,3 @@
-import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
 
 import { json } from '@remix-run/node'
@@ -17,7 +16,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     res => res.json(),
   )
 
-  if (!book?.covers) return notFound({ message: 'book not found' })
+  if (!book?.covers) throw new Response(null, { status: 404, statusText: "Book not found"})
 
   return json({
     covers: book.covers.map(

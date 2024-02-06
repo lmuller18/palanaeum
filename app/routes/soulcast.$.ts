@@ -1,7 +1,5 @@
 import invariant from 'tiny-invariant'
-import { notFound, serverError } from 'remix-utils'
 
-import { Response } from '@remix-run/node'
 import type { LoaderFunction } from '@remix-run/node'
 
 export const loader: LoaderFunction = async ({ params }) => {
@@ -11,7 +9,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   try {
     const data = await fetch(decodeURI(path)).then(res => res.blob())
 
-    if (!data) throw notFound({ message: 'Image not found' })
+    if (!data) throw new Response(null, {status: 404, statusText: 'Image not found'});
 
     return new Response(data, {
       headers: {
@@ -20,6 +18,6 @@ export const loader: LoaderFunction = async ({ params }) => {
       },
     })
   } catch (e) {
-    throw serverError({ error: e })
+    throw e
   }
 }

@@ -1,6 +1,5 @@
 import invariant from 'tiny-invariant'
 import { useRef, useEffect } from 'react'
-import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
 import { XIcon } from '@heroicons/react/outline'
@@ -26,10 +25,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     getInvitesWithInvitee(params.clubId),
   ])
 
-  if (!club) throw notFound({ message: 'Club not found' })
+  if (!club) throw new Response(null, { status: 404, statusText: 'Club not found'});
 
   if (club.ownerId !== userId)
-    throw forbidden({ message: 'Not authorized to manage members' })
+    throw new Response(null, {status: 403, statusText: "Not authorized to manage members"});
 
   return json({
     members: club.members,

@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant'
-import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
 import type { ActionFunctionArgs } from '@remix-run/node'
@@ -28,9 +27,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         },
       })
 
-      if (!club) return notFound({ message: 'club not found' })
+      if (!club) throw new Response(null, { status: 404, statusText: 'Club not found'} )
       if (club.ownerId !== userId)
-        return forbidden({ message: 'not allowed to delete invite' })
+        throw new Response(null, {status: 403, statusText: "Not allowed to delete invite"})
 
       await deleteInvite({ clubId, inviteeId, inviterId })
 

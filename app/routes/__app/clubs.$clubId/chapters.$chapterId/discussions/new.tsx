@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant'
-import { forbidden } from 'remix-utils'
 import { useRef, useState, useEffect } from 'react'
 
 import { useEditor } from '@tiptap/react'
@@ -165,7 +164,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const memberId = await getMemberIdFromUser(clubId, userId)
 
-  if (!memberId) throw forbidden({ message: 'Member not associated with club' })
+  if (!memberId) throw new Response(null, {status: 403, statusText: "Member not associated with club"});
 
   const discussion = await createDiscussion({
     memberId,

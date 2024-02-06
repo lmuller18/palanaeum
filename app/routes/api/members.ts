@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant'
-import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
 import type { ActionFunctionArgs } from '@remix-run/node'
@@ -29,10 +28,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         },
       })
 
-      if (!member) return notFound({ message: 'member not found' })
+      if (!member) throw new Response(null, {status: 404, statusText: 'Member not found'})
 
       if (member.club.ownerId !== userId && member.userId !== userId)
-        return forbidden({ message: 'not allowed to delete member' })
+        throw new Response(null, {status: 403, statusText: 'Not allowed to delete member'})
 
       await prisma.member
         .update({

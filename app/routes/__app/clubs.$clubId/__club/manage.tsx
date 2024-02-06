@@ -6,7 +6,6 @@ import {
 } from 'framer-motion'
 import invariant from 'tiny-invariant'
 import { useRef, useState, useEffect } from 'react'
-import { notFound, forbidden, badRequest } from 'remix-utils'
 import type { MotionValue, DragControls } from 'framer-motion'
 
 import {
@@ -45,10 +44,10 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     getChapterList(params.clubId, userId),
   ])
 
-  if (!club) throw notFound({ message: 'Club not found' })
+  if (!club) throw new Response(null, {status: 404, statusText: 'Club not found'});
 
   if (club.ownerId !== userId)
-    throw forbidden({ message: 'Not authorized to manage club' })
+    throw new Response(null, {status: 403, statusText: 'Not authorized to manage club'});
 
   return json({
     chapters,
@@ -541,7 +540,7 @@ export const action: ActionFunction = async ({ params, request }) => {
   const formData = await request.formData()
 
   const action = formData.get('_action')
-  if (!action) throw badRequest({ message: 'Missing action' })
+  if (!action) throw new Response(null, {status: 400, statusText: 'Missing action'});
 
   switch (action) {
     case 'CREATE_CHAPTER': {
@@ -678,6 +677,6 @@ export const action: ActionFunction = async ({ params, request }) => {
       }
     }
     default:
-      throw badRequest({})
+      throw new Response(null, {status: 400}) 
   }
 }
