@@ -2,7 +2,7 @@ import invariant from 'tiny-invariant'
 import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
 import { Link } from '@remix-run/react'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { BookOpenIcon } from '@heroicons/react/outline'
 
 import { pluralize } from '~/utils'
@@ -13,7 +13,7 @@ import { requireUserId } from '~/session.server'
 import FormattedDate from '~/components/FormattedDate'
 import { getDiscussionsByChapter } from '~/models/discussions.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
   invariant(params.chapterId, 'expected chapterId')
 

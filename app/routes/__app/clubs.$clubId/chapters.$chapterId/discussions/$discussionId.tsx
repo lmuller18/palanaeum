@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import { useMemo, useState } from 'react'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 
 import { toRelative } from '~/utils'
@@ -17,7 +17,7 @@ import { getThreadedDiscussion } from '~/models/discussions.server'
 import CommentReplyComposer from '~/components/CommentReplyComposer'
 import DiscussionReplyComposer from '~/components/DiscussionReplyComposer'
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
   invariant(params.discussionId, userId)
 

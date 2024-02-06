@@ -7,7 +7,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { json, redirect } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
 import Placeholder from '@tiptap/extension-placeholder'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
@@ -16,7 +16,7 @@ import { createDiscussion } from '~/models/discussions.server'
 import DiscussionComposer from '~/components/DiscussionComposer'
 import { notifyNewDiscussion } from '~/models/notifications.server'
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUserId(request)
   return null
 }

@@ -15,7 +15,7 @@ import {
 } from '@heroicons/react/outline'
 import { json, redirect } from '@remix-run/node'
 import { Menu, Transition } from '@headlessui/react'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 import { Form, useFetcher, useLoaderData } from '@remix-run/react'
 import { ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/outline'
 
@@ -56,7 +56,7 @@ const getDetails = async (asin: string) =>
     `https://api.audible.com/1.0/catalog/products/${asin}?response_groups=contributors,media&image_sizes=720`,
   ).then(res => res.json())
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   await requireUserId(request)
 
   invariant(params.bookId, 'expected book id')

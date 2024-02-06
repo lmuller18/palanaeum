@@ -21,7 +21,7 @@ const useChapterActionsFetcher = (chapter: ChapterListItem) => {
     }
   }, [state, fetcher.data?.error])
 
-  const actionType = fetcher.submission?.formData.get('_action')
+  const actionType = fetcher.submission?.formData?.get('_action')
 
   const markingRead = state === 'submitting' && actionType === 'MARK_READ'
   const markingUnread = state === 'submitting' && actionType === 'MARK_UNREAD'

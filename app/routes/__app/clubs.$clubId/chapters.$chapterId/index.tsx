@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import type { ComponentProps } from 'react'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { useParams, useLoaderData } from '@remix-run/react'
 
 import { toLuxonDate } from '~/utils'
@@ -15,7 +15,7 @@ import { getChapterDetails } from '~/models/chapters.server'
 import { getCompletedMembersByChapter } from '~/models/members.server'
 import { getTopDiscussionByChapter } from '~/models/discussions.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)

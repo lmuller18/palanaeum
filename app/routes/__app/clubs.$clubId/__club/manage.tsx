@@ -16,7 +16,7 @@ import {
   useLoaderData,
 } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 
 import {
   createChapter,
@@ -35,7 +35,7 @@ import Header from '~/elements/Typography/Header'
 import OutlinedInput from '~/elements/OutlinedInput'
 import { getClub, getClubWithUserMembers } from '~/models/clubs.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
 
   invariant(params.clubId, 'expected clubId')

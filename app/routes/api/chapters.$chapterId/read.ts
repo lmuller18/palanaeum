@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
 
 import { json } from '@remix-run/node'
-import type { ActionArgs } from '@remix-run/node'
+import type { ActionFunctionArgs } from '@remix-run/node'
 
 import {
   markRead,
@@ -13,7 +13,7 @@ import { requireUserId } from '~/session.server'
 import { getMemberIdFromUserByChapter } from '~/models/users.server'
 import { notifyClubCompletion } from '~/models/notifications.server'
 
-export const action = async ({ params, request }: ActionArgs) => {
+export const action = async ({ params, request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request)
   invariant(params.chapterId, 'chapterId required')
   const chapterId = params.chapterId

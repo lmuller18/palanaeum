@@ -2,7 +2,7 @@ import invariant from 'tiny-invariant'
 import { Fragment, useState } from 'react'
 import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Listbox, Transition } from '@headlessui/react'
 import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
 import { CheckIcon, BookOpenIcon, SelectorIcon } from '@heroicons/react/outline'
@@ -19,7 +19,7 @@ import FormattedDate from '~/components/FormattedDate'
 import { getChapterList } from '~/models/chapters.server'
 import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
   const searchParams = new URL(request.url).searchParams

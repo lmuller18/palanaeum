@@ -2,13 +2,13 @@ import invariant from 'tiny-invariant'
 import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
-import type { ActionArgs } from '@remix-run/node'
+import type { ActionFunctionArgs } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const authedId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {

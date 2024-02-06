@@ -1,7 +1,7 @@
 import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
 import { Link } from '@remix-run/react'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 
 import TextLink from '~/elements/TextLink'
 import { requireUserId } from '~/session.server'
@@ -10,7 +10,7 @@ import { Separator } from '~/components/Separator'
 import { getClubListDetails } from '~/models/clubs.server'
 import { ScrollBar, ScrollArea } from '~/components/ScrollArea'
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
 
   const { currentlyReading, previouslyRead } = await getClubListDetails(userId)

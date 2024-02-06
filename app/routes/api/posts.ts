@@ -6,7 +6,7 @@ import {
   unstable_parseMultipartFormData as parseMultipartFormData,
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
 } from '@remix-run/node'
-import type { ActionArgs } from '@remix-run/node'
+import type { ActionFunctionArgs } from '@remix-run/node'
 
 import { getErrorMessage } from '~/utils'
 import { requireUserId } from '~/session.server'
@@ -14,7 +14,7 @@ import { createPost } from '~/models/posts.server'
 import { getMemberIdFromUserByChapter } from '~/models/users.server'
 import { notifyNewPost, notifyPostReply } from '~/models/notifications.server'
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {

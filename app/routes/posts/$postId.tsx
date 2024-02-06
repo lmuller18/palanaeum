@@ -4,7 +4,7 @@ import { ChevronLeft } from 'react-feather'
 import { useRef, useState, useEffect } from 'react'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { ExclamationIcon } from '@heroicons/react/outline'
 import { useLocation, useNavigate, useLoaderData } from '@remix-run/react'
 
@@ -42,7 +42,7 @@ interface PostDetailsType {
   }
 }
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.postId, 'expected postId')
   const userId = await requireUserId(request)
   const postDetails = await getPosts(params.postId, userId)

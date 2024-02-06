@@ -7,7 +7,7 @@ import { json, redirect } from '@remix-run/node'
 import { ChevronUpIcon } from '@heroicons/react/solid'
 import { Disclosure, Transition } from '@headlessui/react'
 import { InformationCircleIcon } from '@heroicons/react/solid'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 import { Form, useParams, useActionData, useLoaderData } from '@remix-run/react'
 
 import {
@@ -29,7 +29,7 @@ import TopConversations from '~/components/TopConversations'
 import { getTopDiscussionByClub } from '~/models/discussions.server'
 import { getMembersWithProgressByClub } from '~/models/members.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
 

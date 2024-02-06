@@ -4,7 +4,7 @@ import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
 import { XIcon } from '@heroicons/react/outline'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 import { Link, useParams, useFetcher, useLoaderData } from '@remix-run/react'
 
 import { useUser } from '~/utils'
@@ -16,7 +16,7 @@ import { getClubWithUserMembers } from '~/models/clubs.server'
 import { notifyNewInvite } from '~/models/notifications.server'
 import { createInvite, getInvitesWithInvitee } from '~/models/invites.server'
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
 
   invariant(params.clubId, 'expected clubId')

@@ -2,11 +2,11 @@ import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 
 import { requireUserId } from '~/session.server'
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   await requireUserId(request)
 
   const workId = params.workId

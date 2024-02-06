@@ -26,7 +26,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/outline'
 import { useFetcher, useLoaderData } from '@remix-run/react'
-import type { LoaderArgs, ActionArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node'
 
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
@@ -38,7 +38,7 @@ import { getClubsByUserId } from '~/models/clubs.server'
 import { requireUser, requireUserId } from '~/session.server'
 import { updateUser, getUserById, getUserStats } from '~/models/users.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.userId, 'expected userId')
 
   const userId = await requireUserId(request)
@@ -668,7 +668,7 @@ const StatsSection = ({
   )
 }
 
-export const action = async ({ params, request }: ActionArgs) => {
+export const action = async ({ params, request }: ActionFunctionArgs) => {
   const user = await requireUser(request)
   switch (request.method.toLowerCase()) {
     case 'post':
