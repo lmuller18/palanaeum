@@ -44,10 +44,14 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     getChapterList(params.clubId, userId),
   ])
 
-  if (!club) throw new Response(null, {status: 404, statusText: 'Club not found'});
+  if (!club)
+    throw new Response(null, { status: 404, statusText: 'Club not found' })
 
   if (club.ownerId !== userId)
-    throw new Response(null, {status: 403, statusText: 'Not authorized to manage club'});
+    throw new Response(null, {
+      status: 403,
+      statusText: 'Not authorized to manage club',
+    })
 
   return json({
     chapters,
@@ -85,15 +89,20 @@ export default function ManageClubPage() {
 
   const { toast } = useToast()
   useEffect(() => {
+    const hasData = (data: unknown): data is { success: boolean } => {
+      return data != null && Object.hasOwn(data, 'success')
+    }
+
     if (
-      fetcher.submission?.formData?.get('_action') === 'REORDER_CHAPTERS' &&
-      fetcher.data?.success === true
+      fetcher?.formData?.get('_action') === 'REORDER_CHAPTERS' &&
+      hasData(fetcher.data) &&
+      fetcher.data.success === true
     ) {
       toast({
         description: 'Chapter order successfully updated',
       })
     }
-  }, [fetcher.data?.success, fetcher.submission?.formData, toast])
+  }, [fetcher.data, fetcher.formData, toast])
 
   return (
     <div>
@@ -540,7 +549,8 @@ export const action: ActionFunction = async ({ params, request }) => {
   const formData = await request.formData()
 
   const action = formData.get('_action')
-  if (!action) throw new Response(null, {status: 400, statusText: 'Missing action'});
+  if (!action)
+    throw new Response(null, { status: 400, statusText: 'Missing action' })
 
   switch (action) {
     case 'CREATE_CHAPTER': {
@@ -677,6 +687,6 @@ export const action: ActionFunction = async ({ params, request }) => {
       }
     }
     default:
-      throw new Response(null, {status: 400}) 
+      throw new Response(null, { status: 400 })
   }
 }

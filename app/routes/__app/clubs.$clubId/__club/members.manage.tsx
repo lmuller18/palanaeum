@@ -47,10 +47,26 @@ export default function ManageMembersPage() {
   const inviteFetcher = useFetcher()
 
   useEffect(() => {
-    if (inviteFetcher.type === 'done' && inviteFetcher.data.ok) {
+    const hasData = (data: unknown): data is { ok: boolean } => {
+      return data != null && Object.hasOwn(data, 'ok')
+    }
+    if (
+      inviteFetcher.state === 'idle' &&
+      inviteFetcher.data != null &&
+      hasData(inviteFetcher.data) &&
+      inviteFetcher.data.ok
+    ) {
       inviteRef.current?.reset()
     }
   }, [inviteFetcher])
+
+  const hasData = (data: unknown): data is { ok: boolean } => {
+    return data != null && Object.hasOwn(data, 'ok')
+  }
+
+  const hasError = (data: unknown): data is { error: any } => {
+    return data != null && Object.hasOwn(data, 'error')
+  }
 
   return (
     <div className="mb-4 px-4">
@@ -96,12 +112,12 @@ export default function ManageMembersPage() {
             Send invite
           </button>
         </inviteFetcher.Form>
-        {inviteFetcher.type === 'done' ? (
-          inviteFetcher.data.ok ? (
+        {inviteFetcher.state === 'idle' && inviteFetcher.data != null ? (
+          hasData(inviteFetcher.data) && inviteFetcher.data.ok ? (
             <Text as="p" className="mt-2 ml-2">
               Invite Sent!
             </Text>
-          ) : inviteFetcher.data.error ? (
+          ) : hasError(inviteFetcher.data) && inviteFetcher.data.error ? (
             <Text as="p" className="mt-2 ml-2 text-red-500">
               {inviteFetcher.data.error}
             </Text>

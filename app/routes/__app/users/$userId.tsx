@@ -367,18 +367,22 @@ const EditUploadSection = ({
       )
       fetcher.submit(formData, {
         method: 'post',
-        replace: true,
         encType: 'multipart/form-data',
       })
     }
   }
 
   useEffect(() => {
-    if (fetcher.type === 'done') {
-      if (fetcher.data.ok) {
-        onSaveCallback()
-      }
+    const hasData = (data: unknown): data is { ok: boolean } => {
+      return data != null && Object.hasOwn(data, 'ok')
     }
+    if (
+      fetcher.state === 'idle' &&
+      fetcher.data != null &&
+      hasData(fetcher.data) &&
+      fetcher.data.ok
+    )
+      onSaveCallback()
   }, [fetcher, onSaveCallback])
 
   const avatarProps = {

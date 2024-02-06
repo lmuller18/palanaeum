@@ -42,16 +42,18 @@ interface UpcomingChapterProps {
 }
 
 const UpcomingChapter = ({ chapter }: UpcomingChapterProps) => {
-  const nextChapterFetcher = useFetcher()
+  const fetcher = useFetcher()
 
-  const state: 'idle' | 'success' | 'error' | 'submitting' =
-    nextChapterFetcher.submission
-      ? 'submitting'
-      : nextChapterFetcher.data?.ok
-      ? 'success'
-      : nextChapterFetcher.data?.error
-      ? 'error'
-      : 'idle'
+  const hasData = (data: unknown): data is { ok: boolean } => {
+    return data != null && Object.hasOwn(data, 'ok')
+  }
+
+  let state: 'idle' | 'success' | 'error' | 'submitting' = 'idle'
+  if (fetcher.state === 'submitting') {
+    state = 'submitting'
+  } else if (fetcher.state === 'idle' && fetcher.data != null) {
+    state = hasData(fetcher.data) ? 'success' : 'error'
+  }
 
   return (
     <>
@@ -132,7 +134,7 @@ const UpcomingChapter = ({ chapter }: UpcomingChapterProps) => {
         </div>
       )}
 
-      <nextChapterFetcher.Form
+      <fetcher.Form
         method="post"
         action={`/api/chapters/${chapter.id}/read`}
         className="mt-4 flex items-center justify-between gap-2"
@@ -147,7 +149,7 @@ const UpcomingChapter = ({ chapter }: UpcomingChapterProps) => {
           {state === 'idle' && 'Complete'}
           {state === 'submitting' && 'Completing'}
         </Button>
-      </nextChapterFetcher.Form>
+      </fetcher.Form>
     </>
   )
 }

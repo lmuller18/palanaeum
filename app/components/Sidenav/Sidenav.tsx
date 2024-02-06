@@ -94,11 +94,11 @@ const clubNavigation = (clubId: string, chapterId: string): NavItem[] => [
 ]
 
 let LazyBottomNav = lazy(async () => {
-  const BottomNavSection = await import("./BottomNavSection");
+  const BottomNavSection = await import('./BottomNavSection')
 
-  return { default: BottomNavSection.default };
-});
-const BottomNav = React.memo(LazyBottomNav);
+  return { default: BottomNavSection.default }
+})
+const BottomNav = React.memo(LazyBottomNav)
 
 const Sidenav = ({
   open,
@@ -232,8 +232,8 @@ const Sidenav = ({
                     </Button>
                   </Link>
                 </div>
-                <Suspense fallback={<div/>}>
-                  <BottomNav setOpen={setOpen}/>
+                <Suspense fallback={<div />}>
+                  <BottomNav setOpen={setOpen} />
                 </Suspense>
               </Dialog.Panel>
             </Transition.Child>
@@ -285,9 +285,9 @@ const Sidenav = ({
               </Button>
             </Link>
           </div>
-          <ClientOnly>
-            {() => <BottomNavSection setOpen={() => {}} />}
-          </ClientOnly>
+          <Suspense fallback={<div />}>
+            <BottomNav setOpen={() => {}} />
+          </Suspense>
         </div>
       </div>
     </div>
