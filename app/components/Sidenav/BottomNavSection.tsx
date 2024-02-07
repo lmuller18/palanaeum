@@ -26,7 +26,10 @@ const BottomNavSection = ({
 
   const loading =
     isLoading || subFetcher.state !== 'idle' || unsubFetcher.state !== 'idle'
-  const supportsPush = window && 'PushManager' in window
+  const supportsPush =
+    typeof document !== 'undefined' &&
+    typeof window !== 'undefined' &&
+    'PushManager' in window
 
   useEffect(() => {
     const hasData = (data: unknown): data is { ok: boolean } => {
