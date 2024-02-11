@@ -1,7 +1,6 @@
 import invariant from 'tiny-invariant'
-import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
-import { Link } from '@remix-run/react'
+import { Link, json, useLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 import { BookOpenIcon } from '@heroicons/react/outline'
 
@@ -22,13 +21,13 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   if (!discussions)
     throw new Response('Problem finding discussions', { status: 500 })
 
-  return typedjson({
+  return json({
     discussions,
   })
 }
 
 export default function DiscussionsPage() {
-  const { discussions } = useTypedLoaderData<typeof loader>()
+  const { discussions } = useLoaderData<typeof loader>()
 
   return (
     <div>

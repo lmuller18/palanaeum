@@ -1,7 +1,5 @@
-import { typedjson, useTypedLoaderData } from 'remix-typedjson'
-
-import { Link } from '@remix-run/react'
 import type { LoaderFunctionArgs } from '@remix-run/node'
+import { Link, json, useLoaderData } from '@remix-run/react'
 
 import TextLink from '~/elements/TextLink'
 import { requireUserId } from '~/session.server'
@@ -15,15 +13,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const { currentlyReading, previouslyRead } = await getClubListDetails(userId)
 
-  return typedjson({
+  return json({
     currentlyReading,
     previouslyRead,
   })
 }
 
 export default function ClubsPage() {
-  const { currentlyReading, previouslyRead } =
-    useTypedLoaderData<typeof loader>()
+  const { currentlyReading, previouslyRead } = useLoaderData<typeof loader>()
 
   const highlightedCard = currentlyReading[0] ?? null
 
