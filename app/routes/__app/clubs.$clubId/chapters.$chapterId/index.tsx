@@ -28,6 +28,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   ])
 
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
+  if (!members) throw new Response('Error fetching members', { status: 500 })
 
   return json({ members, chapter, topPost, topDiscussion })
 }

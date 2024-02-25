@@ -55,10 +55,14 @@ export function meta() {
     { charset: 'utf-8' },
     { title: 'Palanaeum' },
     {
-      viewport:
+      name: 'viewport',
+      content:
         'width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no',
     },
-    { 'apple-mobile-web-app-status-bar-style': 'black-translucent' },
+    {
+      name: 'apple-mobile-web-app-status-bar-style',
+      content: 'black-translucent',
+    },
   ]
 }
 

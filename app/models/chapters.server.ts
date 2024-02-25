@@ -94,8 +94,8 @@ export async function getPaginatedChapterList(
       c.progress.length === 0
         ? 'not_started'
         : c.progress.length === dbClub.members.length
-        ? 'complete'
-        : 'incomplete'
+          ? 'complete'
+          : 'incomplete'
 
     const chapter: {
       id: string
@@ -271,21 +271,24 @@ export async function getChaptersReadByDay(userId: string, clubId: string) {
       total: dbClub._count.chapters,
     }
 
-  const progress = dbProgress.reduce((acc, cur) => {
-    const key = startOfDay(cur.completedAt).toISOString()
+  const progress = dbProgress.reduce(
+    (acc, cur) => {
+      const key = startOfDay(cur.completedAt).toISOString()
 
-    if (acc[key]) {
-      return {
-        ...acc,
-        [key]: acc[key] + 1,
+      if (acc[key]) {
+        return {
+          ...acc,
+          [key]: acc[key] + 1,
+        }
+      } else {
+        return {
+          ...acc,
+          [key]: 1,
+        }
       }
-    } else {
-      return {
-        ...acc,
-        [key]: 1,
-      }
-    }
-  }, {} as { [key: string]: number })
+    },
+    {} as { [key: string]: number },
+  )
 
   const { counts, remaining } = Object.keys(progress)
     .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
@@ -375,8 +378,8 @@ export async function getChapterDetails(chapterId: string, userId: string) {
   const status: 'complete' | 'not_started' | 'incomplete' = userComplete
     ? 'complete'
     : dbChapter.progress.length === 0
-    ? 'not_started'
-    : 'incomplete'
+      ? 'not_started'
+      : 'incomplete'
 
   return {
     id: dbChapter.id,
@@ -411,7 +414,8 @@ export async function markPreviousRead(chapterId: string, memberId: string) {
     },
   })
 
-  if (!chapter) throw new Response(null, {status: 404, statusText: 'Chapter not found'})
+  if (!chapter)
+    throw new Response(null, { status: 404, statusText: 'Chapter not found' })
 
   const chapters = await prisma.chapter.findMany({
     where: {
