@@ -9,12 +9,11 @@ import { getTopDiscussionByChapter } from '~/models/discussions.server'
 import { getCompletedMembersByChapter } from '~/models/members.server'
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
 
   const [members, chapter, topPost, topDiscussion] = await Promise.all([
-    getCompletedMembersByChapter(params.clubId, params.chapterId),
+    getCompletedMembersByChapter(null, params.chapterId),
     getChapterDetails(params.chapterId, userId),
     getTopPostByChapter(params.chapterId),
     getTopDiscussionByChapter(params.chapterId),

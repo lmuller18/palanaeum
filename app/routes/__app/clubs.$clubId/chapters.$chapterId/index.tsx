@@ -41,7 +41,7 @@ export default function ChapterHome() {
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <>
+    <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
       {/* Member Progress Block */}
       <div className="mb-6 border-b border-t-2 border-pink-500 border-b-background-tertiary bg-gradient-to-b from-pink-300/10 via-transparent p-4">
         <Text variant="title2" as="h3" className="mb-4">
@@ -93,7 +93,7 @@ export default function ChapterHome() {
           topPost={topPost}
         />
       </div>
-    </>
+    </div>
   )
 }
 

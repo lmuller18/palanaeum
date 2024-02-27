@@ -19,6 +19,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   return json({
     club: {
+      id: club.id,
       title: club.title,
       image: club.image,
     },
