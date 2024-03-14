@@ -1,5 +1,4 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import cuid from 'cuid'
 import invariant from 'tiny-invariant'
 
 import { requireUserId } from '~/jwt.server'
@@ -42,9 +41,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json({
     book: {
       chapters:
-        chapters?.content_metadata?.chapter_info.chapters.map(c => {
+        chapters?.content_metadata?.chapter_info.chapters.map((c, i) => {
           return {
-            id: cuid(),
+            id: (i + 1).toString(),
             ...c,
           }
         }) ?? [],

@@ -10,7 +10,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!search) throw new Response('Missing search param', { status: 400 })
 
   const urlSearchParams = new URLSearchParams({
-    title: search,
+    keywords: search,
     products_sort_by: 'Relevance',
     response_groups: 'media,contributors,series',
     image_sizes: '720',

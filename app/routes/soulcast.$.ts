@@ -7,9 +7,11 @@ export const loader: LoaderFunction = async ({ params }) => {
   invariant(path, 'expected path')
 
   try {
-    const data = await fetch(decodeURI(path)).then(res => res.blob())
+    const url = decodeURI(path)
+    const data = await fetch(url).then(res => res.blob())
 
-    if (!data) throw new Response(null, {status: 404, statusText: 'Image not found'});
+    if (!data)
+      throw new Response(null, { status: 404, statusText: 'Image not found' })
 
     return new Response(data, {
       headers: {
