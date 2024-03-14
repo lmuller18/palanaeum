@@ -21,7 +21,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '~/components/DropdownMenu'
-import TextLink from '~/elements/TextLink'
 import { requireUserId } from '~/session.server'
 import PageHeader from '~/components/PageHeader'
 import { Separator } from '~/components/Separator'
