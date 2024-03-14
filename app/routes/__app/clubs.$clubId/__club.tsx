@@ -3,14 +3,14 @@ import invariant from 'tiny-invariant'
 import { useMatch } from 'react-router'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
 
 import { getClub } from '~/models/clubs.server'
 import PageHeader from '~/components/PageHeader'
 import { requireUserId } from '~/session.server'
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
   const club = await getClub(params.clubId, userId)
@@ -64,5 +64,3 @@ export default function ClubNavigationLayout() {
     </>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

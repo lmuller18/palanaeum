@@ -26,10 +26,22 @@ const BottomNavSection = ({
 
   const loading =
     isLoading || subFetcher.state !== 'idle' || unsubFetcher.state !== 'idle'
-  const supportsPush = window && 'PushManager' in window
+  const supportsPush =
+    typeof document !== 'undefined' &&
+    typeof window !== 'undefined' &&
+    'PushManager' in window
 
   useEffect(() => {
-    if (subFetcher.type === 'done' && subFetcher.data.ok) {
+    const hasData = (data: unknown): data is { ok: boolean } => {
+      return data != null && Object.hasOwn(data, 'ok')
+    }
+
+    if (
+      subFetcher.state === 'idle' &&
+      subFetcher.data != null &&
+      hasData(subFetcher.data) &&
+      subFetcher.data.ok
+    ) {
       refetch()
     }
   }, [refetch, subFetcher])
@@ -39,7 +51,16 @@ const BottomNavSection = ({
   }, [data])
 
   useEffect(() => {
-    if (unsubFetcher.type === 'done' && unsubFetcher.data.ok) {
+    const hasData = (data: unknown): data is { ok: boolean } => {
+      return data != null && Object.hasOwn(data, 'ok')
+    }
+
+    if (
+      unsubFetcher.state === 'idle' &&
+      unsubFetcher.data != null &&
+      hasData(unsubFetcher.data) &&
+      unsubFetcher.data.ok
+    ) {
       doUnsub()
     }
   }, [doUnsub, refetch, unsubFetcher])
@@ -52,7 +73,6 @@ const BottomNavSection = ({
         },
         {
           method: 'delete',
-          replace: true,
           action: '/api/subscriptions',
         },
       )
@@ -68,7 +88,6 @@ const BottomNavSection = ({
         },
         {
           method: 'post',
-          replace: true,
           action: '/api/subscriptions',
         },
       )

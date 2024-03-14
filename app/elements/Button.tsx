@@ -61,8 +61,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             fullWidth === true
               ? 'always'
               : fullWidth === false
-              ? 'none'
-              : fullWidth
+                ? 'none'
+                : fullWidth
           ],
           className,
         )}

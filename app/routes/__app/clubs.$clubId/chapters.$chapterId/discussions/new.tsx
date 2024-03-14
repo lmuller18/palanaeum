@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant'
-import { forbidden } from 'remix-utils'
 import { useRef, useState, useEffect } from 'react'
 
 import { useEditor } from '@tiptap/react'
@@ -7,7 +6,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { json, redirect } from '@remix-run/node'
 import { Form, useActionData } from '@remix-run/react'
 import Placeholder from '@tiptap/extension-placeholder'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 
 import { requireUserId } from '~/session.server'
 import Header from '~/elements/Typography/Header'
@@ -16,7 +15,7 @@ import { createDiscussion } from '~/models/discussions.server'
 import DiscussionComposer from '~/components/DiscussionComposer'
 import { notifyNewDiscussion } from '~/models/notifications.server'
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUserId(request)
   return null
 }
@@ -165,7 +164,11 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const memberId = await getMemberIdFromUser(clubId, userId)
 
-  if (!memberId) throw forbidden({ message: 'Member not associated with club' })
+  if (!memberId)
+    throw new Response(null, {
+      status: 403,
+      statusText: 'Member not associated with club',
+    })
 
   const discussion = await createDiscussion({
     memberId,
@@ -180,5 +183,3 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   return redirect(discussionUrl)
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

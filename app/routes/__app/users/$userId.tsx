@@ -1,6 +1,5 @@
 import cuid from 'cuid'
 import clsx from 'clsx'
-import { notFound } from 'remix-utils'
 import invariant from 'tiny-invariant'
 import AvatarEditor from 'react-avatar-editor'
 import { useRef, useState, useEffect } from 'react'
@@ -26,7 +25,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/outline'
 import { useFetcher, useLoaderData } from '@remix-run/react'
-import type { LoaderArgs, ActionArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node'
 
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
@@ -38,14 +37,15 @@ import { getClubsByUserId } from '~/models/clubs.server'
 import { requireUser, requireUserId } from '~/session.server'
 import { updateUser, getUserById, getUserStats } from '~/models/users.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.userId, 'expected userId')
 
   const userId = await requireUserId(request)
 
   const user = await getUserById(params.userId)
 
-  if (!user) throw notFound({ message: 'User not found' })
+  if (!user)
+    throw new Response(null, { status: 404, statusText: 'User not found' })
 
   const [userStats, clubs] = await Promise.all([
     getUserStats(user.id),
@@ -367,18 +367,22 @@ const EditUploadSection = ({
       )
       fetcher.submit(formData, {
         method: 'post',
-        replace: true,
         encType: 'multipart/form-data',
       })
     }
   }
 
   useEffect(() => {
-    if (fetcher.type === 'done') {
-      if (fetcher.data.ok) {
-        onSaveCallback()
-      }
+    const hasData = (data: unknown): data is { ok: boolean } => {
+      return data != null && Object.hasOwn(data, 'ok')
     }
+    if (
+      fetcher.state === 'idle' &&
+      fetcher.data != null &&
+      hasData(fetcher.data) &&
+      fetcher.data.ok
+    )
+      onSaveCallback()
   }, [fetcher, onSaveCallback])
 
   const avatarProps = {
@@ -668,7 +672,7 @@ const StatsSection = ({
   )
 }
 
-export const action = async ({ params, request }: ActionArgs) => {
+export const action = async ({ params, request }: ActionFunctionArgs) => {
   const user = await requireUser(request)
   switch (request.method.toLowerCase()) {
     case 'post':
@@ -764,5 +768,3 @@ export const action = async ({ params, request }: ActionArgs) => {
       throw new Response('Invalid method', { status: 405 })
   }
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

@@ -6,7 +6,6 @@ import {
 } from 'framer-motion'
 import invariant from 'tiny-invariant'
 import { useRef, useState, useEffect } from 'react'
-import { notFound, forbidden, badRequest } from 'remix-utils'
 import type { MotionValue, DragControls } from 'framer-motion'
 
 import {
@@ -16,7 +15,7 @@ import {
   useLoaderData,
 } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 
 import {
   createChapter,
@@ -35,7 +34,7 @@ import Header from '~/elements/Typography/Header'
 import OutlinedInput from '~/elements/OutlinedInput'
 import { getClub, getClubWithUserMembers } from '~/models/clubs.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
 
   invariant(params.clubId, 'expected clubId')
@@ -45,10 +44,14 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     getChapterList(params.clubId, userId),
   ])
 
-  if (!club) throw notFound({ message: 'Club not found' })
+  if (!club)
+    throw new Response(null, { status: 404, statusText: 'Club not found' })
 
   if (club.ownerId !== userId)
-    throw forbidden({ message: 'Not authorized to manage club' })
+    throw new Response(null, {
+      status: 403,
+      statusText: 'Not authorized to manage club',
+    })
 
   return json({
     chapters,
@@ -86,15 +89,20 @@ export default function ManageClubPage() {
 
   const { toast } = useToast()
   useEffect(() => {
+    const hasData = (data: unknown): data is { success: boolean } => {
+      return data != null && Object.hasOwn(data, 'success')
+    }
+
     if (
-      fetcher.submission?.formData?.get('_action') === 'REORDER_CHAPTERS' &&
-      fetcher.data?.success === true
+      fetcher?.formData?.get('_action') === 'REORDER_CHAPTERS' &&
+      hasData(fetcher.data) &&
+      fetcher.data.success === true
     ) {
       toast({
         description: 'Chapter order successfully updated',
       })
     }
-  }, [fetcher.data?.success, fetcher.submission?.formData, toast])
+  }, [fetcher.data, fetcher.formData, toast])
 
   return (
     <div>
@@ -541,7 +549,8 @@ export const action: ActionFunction = async ({ params, request }) => {
   const formData = await request.formData()
 
   const action = formData.get('_action')
-  if (!action) throw badRequest({ message: 'Missing action' })
+  if (!action)
+    throw new Response(null, { status: 400, statusText: 'Missing action' })
 
   switch (action) {
     case 'CREATE_CHAPTER': {
@@ -678,6 +687,6 @@ export const action: ActionFunction = async ({ params, request }) => {
       }
     }
     default:
-      throw badRequest({})
+      throw new Response(null, { status: 400 })
   }
 }

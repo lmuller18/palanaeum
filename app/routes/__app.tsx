@@ -16,6 +16,7 @@ export default function AppLayout() {
   const matches = useMatches()
 
   const secondaryNav = matches
+    // @ts-ignore
     .filter(match => match.handle && match.handle.topNav)
     .at(-1)
 
@@ -55,6 +56,7 @@ export default function AppLayout() {
               animate={{ y: 0 }}
               exit={{ y: -50 }}
             >
+              {/* @ts-ignore */}
               {secondaryNav.handle?.topNav({
                 data: secondaryNav.data,
                 params: secondaryNav.params,

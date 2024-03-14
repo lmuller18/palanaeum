@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { useParams, useLoaderData } from '@remix-run/react'
 
 import Post from '~/components/Post'
@@ -11,7 +11,7 @@ import PostComposer from '~/components/PostComposer'
 import { getPostsByChapter } from '~/models/posts.server'
 import { getChapterDetails } from '~/models/chapters.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
 
@@ -76,5 +76,3 @@ export default function PostsPage() {
 export const handle = {
   backNavigation: () => '.',
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

@@ -1,15 +1,14 @@
 import invariant from 'tiny-invariant'
-import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
-import type { ActionArgs } from '@remix-run/node'
+import type { ActionFunctionArgs } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
 import { deleteInvite } from '~/models/invites.server'
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {
@@ -28,9 +27,9 @@ export const action = async ({ request }: ActionArgs) => {
         },
       })
 
-      if (!club) return notFound({ message: 'club not found' })
+      if (!club) throw new Response(null, { status: 404, statusText: 'Club not found'} )
       if (club.ownerId !== userId)
-        return forbidden({ message: 'not allowed to delete invite' })
+        throw new Response(null, {status: 403, statusText: "Not allowed to delete invite"})
 
       await deleteInvite({ clubId, inviteeId, inviterId })
 

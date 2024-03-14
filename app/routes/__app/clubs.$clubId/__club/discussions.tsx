@@ -1,12 +1,18 @@
 import invariant from 'tiny-invariant'
 import { Fragment, useState } from 'react'
-import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Listbox, Transition } from '@headlessui/react'
 import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
 import { CheckIcon, BookOpenIcon, SelectorIcon } from '@heroicons/react/outline'
-import { Link, useParams, useNavigate, useSearchParams } from '@remix-run/react'
+import {
+  json,
+  Link,
+  useParams,
+  useNavigate,
+  useSearchParams,
+  useLoaderData,
+} from '@remix-run/react'
 
 import { pluralize } from '~/utils'
 import Modal from '~/components/Modal'
@@ -19,7 +25,7 @@ import FormattedDate from '~/components/FormattedDate'
 import { getChapterList } from '~/models/chapters.server'
 import { getDiscussionsForReadChapters } from '~/models/discussions.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
   const searchParams = new URL(request.url).searchParams
@@ -33,7 +39,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   if (!discussions)
     throw new Response('Problem finding discussions', { status: 500 })
 
-  return typedjson({
+  return json({
     discussions,
     chapters,
   })
@@ -41,7 +47,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 
 export default function DiscussionsPage() {
   const [open, setOpen] = useState(false)
-  const { discussions } = useTypedLoaderData<typeof loader>()
+  const { discussions } = useLoaderData<typeof loader>()
 
   const onOpen = () => setOpen(true)
   const onClose = () => setOpen(false)
@@ -215,7 +221,7 @@ const CreateDiscussionModal = ({
 }) => {
   const { clubId } = useParams()
   const navigate = useNavigate()
-  const { chapters } = useTypedLoaderData<typeof loader>()
+  const { chapters } = useLoaderData<typeof loader>()
   const [selected, setSelected] = useState(chapters[0])
 
   const toCreateDiscussion = () => {
@@ -303,5 +309,3 @@ const CreateDiscussionModal = ({
     </Modal>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

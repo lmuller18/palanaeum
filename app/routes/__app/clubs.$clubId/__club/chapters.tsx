@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import type { ComponentProps } from 'react'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 
 import { pluralize } from '~/utils'
@@ -14,7 +14,7 @@ import { getPaginatedChapterList } from '~/models/chapters.server'
 
 const PAGE_SIZE = 10
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
 
@@ -224,5 +224,3 @@ function PlayPauseIcon({
     </svg>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

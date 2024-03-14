@@ -6,22 +6,31 @@ import type { ChapterListItem } from '~/models/chapter.server'
 
 const useChapterActionsFetcher = (chapter: ChapterListItem) => {
   const fetcher = useFetcher()
-  const state: 'idle' | 'success' | 'error' | 'submitting' = fetcher.submission
-    ? 'submitting'
-    : fetcher.data?.subscription
-    ? 'success'
-    : fetcher.data?.error
-    ? 'error'
-    : 'idle'
+
+  const hasData = (data: unknown): data is { subscription: any } => {
+    return data != null && Object.hasOwn(data, 'subscription')
+  }
+
+  const hasError = (data: unknown): data is { error: any } => {
+    return data != null && Object.hasOwn(data, 'error')
+  }
+
+  let state: 'idle' | 'success' | 'error' | 'submitting' = 'idle'
+  if (fetcher.state === 'submitting') {
+    state = 'submitting'
+  } else if (fetcher.state === 'idle' && fetcher.data != null) {
+    state = hasData(fetcher.data) ? 'success' : 'error'
+  }
 
   useEffect(() => {
     if (state === 'error') {
-      console.error(fetcher.data.error)
-      // toast.error(fetcher.data.error)
+      if (hasError(fetcher.data)) {
+        console.error(fetcher.data.error)
+      }
     }
-  }, [state, fetcher.data?.error])
+  }, [state, fetcher.data])
 
-  const actionType = fetcher.submission?.formData.get('_action')
+  const actionType = fetcher.formData?.get('_action')
 
   const markingRead = state === 'submitting' && actionType === 'MARK_READ'
   const markingUnread = state === 'submitting' && actionType === 'MARK_UNREAD'

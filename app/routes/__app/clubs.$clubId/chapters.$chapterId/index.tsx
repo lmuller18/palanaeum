@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant'
 import type { ComponentProps } from 'react'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { useParams, useLoaderData } from '@remix-run/react'
 
 import { toLuxonDate } from '~/utils'
@@ -15,7 +15,7 @@ import { getChapterDetails } from '~/models/chapters.server'
 import { getCompletedMembersByChapter } from '~/models/members.server'
 import { getTopDiscussionByChapter } from '~/models/discussions.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
@@ -28,6 +28,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   ])
 
   if (!chapter) throw new Response('Chapter not found', { status: 404 })
+  if (!members) throw new Response('Error fetching members', { status: 500 })
 
   return json({ members, chapter, topPost, topDiscussion })
 }
@@ -40,7 +41,7 @@ export default function ChapterHome() {
   if (!clubId) throw new Error('Club Id Not Found')
 
   return (
-    <>
+    <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
       {/* Member Progress Block */}
       <div className="mb-6 border-b border-t-2 border-pink-500 border-b-background-tertiary bg-gradient-to-b from-pink-300/10 via-transparent p-4">
         <Text variant="title2" as="h3" className="mb-4">
@@ -92,7 +93,7 @@ export default function ChapterHome() {
           topPost={topPost}
         />
       </div>
-    </>
+    </div>
   )
 }
 
@@ -118,5 +119,3 @@ function ReadIcon({
 export const handle = {
   backNavigation: () => '..',
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

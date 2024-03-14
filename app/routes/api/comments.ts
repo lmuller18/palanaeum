@@ -1,14 +1,14 @@
 import invariant from 'tiny-invariant'
 
 import { json } from '@remix-run/node'
-import type { ActionArgs } from '@remix-run/node'
+import type { ActionFunctionArgs } from '@remix-run/node'
 
 import { requireUserId } from '~/session.server'
 import { createComment } from '~/models/comments.server'
 import { getErrorMessage, parseStringFormData } from '~/utils'
 import { getMemberIdFromUserByDiscussion } from '~/models/users.server'
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {

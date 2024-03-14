@@ -8,18 +8,21 @@ import {
   BookmarkAltIcon as ChaptersIcon,
   NewspaperIcon as DiscussionsIcon,
 } from '@heroicons/react/outline'
-import type { RouteMatch } from '@remix-run/react'
+import type { UIMatch } from '@remix-run/react'
 import { Outlet, useMatches } from '@remix-run/react'
 
 import TabLink from '~/components/TabLink'
 import useValueChanged from '~/hooks/use-value-changed'
+import { hasNavHandle } from '~/utils'
 
 export default function ClubNavigationLayout() {
   const matches = useMatches()
 
   const secondaryNavSections = matches
     // skip routes that don't have a breadcrumb
-    .filter(match => match.handle && match.handle.nav)
+    .filter(
+      match => match.handle && hasNavHandle(match.handle) && match.handle.nav,
+    )
 
   return (
     <>
@@ -39,7 +42,7 @@ export default function ClubNavigationLayout() {
 const NavSection = ({
   secondaryNavSections,
 }: {
-  secondaryNavSections?: RouteMatch[]
+  secondaryNavSections?: UIMatch<unknown, unknown>[]
 }) => {
   const hasSecondaryNav =
     !!secondaryNavSections && secondaryNavSections.length > 0
@@ -59,9 +62,13 @@ const NavSection = ({
             exit={{ y: 50, animationDelay: '.5s' }}
           >
             {secondaryNavSections.map((match, index) =>
-              match.handle?.nav ? (
+              hasNavHandle(match.handle) && match.handle?.nav ? (
                 <div key={index} className="rounded-t-lg p-2">
-                  {match.handle.nav(match)}
+                  {match.handle.nav(
+                    match as unknown as {
+                      params: { chapterId: string; clubId: string }
+                    },
+                  )}
                 </div>
               ) : null,
             )}

@@ -1,10 +1,6 @@
 import * as React from 'react'
 
-import type {
-  MetaFunction,
-  LoaderFunction,
-  ActionFunction,
-} from '@remix-run/node'
+import type { LoaderFunction, ActionFunction } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react'
 
@@ -18,10 +14,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   return null
 }
 
-export const meta: MetaFunction = () => {
-  return {
-    title: 'Sign Up',
-  }
+export function meta() {
+  return [{ title: 'Sign Up' }]
 }
 
 export default function Join() {
@@ -250,5 +244,3 @@ export const action: ActionFunction = async ({ request }) => {
     redirectTo: typeof redirectTo === 'string' ? redirectTo : '/',
   })
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

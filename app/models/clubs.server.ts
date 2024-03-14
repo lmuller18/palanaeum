@@ -6,6 +6,15 @@ export async function getClub(clubId: string, userId: string) {
   })
 }
 
+export async function getClubByChapterId(chapterId: string, userId: string) {
+  return prisma.club.findFirst({
+    where: {
+      chapters: { some: { id: chapterId } },
+      members: { some: { userId, removed: false } },
+    },
+  })
+}
+
 export async function getClubWithUserMembers(clubId: string, userId: string) {
   const club = await prisma.club.findFirst({
     where: {

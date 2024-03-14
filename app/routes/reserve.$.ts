@@ -1,7 +1,5 @@
 import invariant from 'tiny-invariant'
-import { notFound, forbidden, serverError } from 'remix-utils'
 
-import { Response } from '@remix-run/node'
 import type { LoaderFunction } from '@remix-run/node'
 import { GetObjectCommand } from '@aws-sdk/client-s3'
 
@@ -19,9 +17,9 @@ export const loader: LoaderFunction = async ({ params }) => {
       }),
     )
 
-    if (!data.Body) throw notFound({ message: 'Image not found' })
-
-    return new Response(data.Body, {
+    if (!data.Body) throw new Response(null, { status: 404, statusText: "Image not found"})
+    
+    return new Response(data.Body as Blob, {
       headers: {
         type: data.ContentType ?? 'image/jpeg',
         'Cache-Control': 'private, max-age=604800',
@@ -29,12 +27,12 @@ export const loader: LoaderFunction = async ({ params }) => {
     })
   } catch (e) {
     if (isResourceNotFoundException(e)) {
-      throw notFound({ message: 'Image not found' })
+      throw new Response(null, { status: 404, statusText: 'Image not found'})
     } else if (isAccessDeniedException(e)) {
-      throw forbidden({ message: 'Access Denied' })
+      throw new Response(null, {status: 403, statusText: "Access Denied"})
     }
 
-    throw serverError({ error: e })
+    throw e
   }
 }
 

@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
 
 import { json } from '@remix-run/node'
-import type { ActionArgs } from '@remix-run/node'
+import type { ActionFunctionArgs } from '@remix-run/node'
 
 import {
   createNewSubscription,
@@ -11,7 +11,7 @@ import { requireUserId } from '~/session.server'
 import { getErrorMessage, parseStringFormData } from '~/utils'
 import { toWebNotification } from '~/utils/notifications.utils'
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {

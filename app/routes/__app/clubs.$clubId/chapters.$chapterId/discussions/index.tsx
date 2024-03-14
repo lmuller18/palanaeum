@@ -1,8 +1,7 @@
 import invariant from 'tiny-invariant'
-import { typedjson, useTypedLoaderData } from 'remix-typedjson'
 
-import { Link } from '@remix-run/react'
-import type { LoaderArgs } from '@remix-run/node'
+import { Link, json, useLoaderData } from '@remix-run/react'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { BookOpenIcon } from '@heroicons/react/outline'
 
 import { pluralize } from '~/utils'
@@ -13,7 +12,7 @@ import { requireUserId } from '~/session.server'
 import FormattedDate from '~/components/FormattedDate'
 import { getDiscussionsByChapter } from '~/models/discussions.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
   invariant(params.chapterId, 'expected chapterId')
 
@@ -22,13 +21,13 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   if (!discussions)
     throw new Response('Problem finding discussions', { status: 500 })
 
-  return typedjson({
+  return json({
     discussions,
   })
 }
 
 export default function DiscussionsPage() {
-  const { discussions } = useTypedLoaderData<typeof loader>()
+  const { discussions } = useLoaderData<typeof loader>()
 
   return (
     <div>
@@ -141,5 +140,3 @@ const DiscussionEntry = ({
 export const handle = {
   backNavigation: () => '.',
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

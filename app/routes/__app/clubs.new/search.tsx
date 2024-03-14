@@ -32,19 +32,20 @@ export const loader: LoaderFunction = async ({ request }) => {
   const audibleResults = await fetch(
     `https://api.audible.com/1.0/catalog/products?title=${encodeURIComponent(
       search,
-    )}&products_sort_by=Relevance&response_groups=media,contributors&image_sizes=720`,
+    )}&products_sort_by=Relevance&response_groups=media,contributors&image_sizes=720&content_type=Product`,
   ).then(res => res.json())
 
-  // @ts-ignore
-  const audibles = audibleResults.products.map(b => ({
-    id: b.asin,
-    title: b.title,
-    subtitle: b.subtitle,
-    image: b.product_images?.[720] ?? '/images/no-cover.png',
-    publishDate: b.release_date,
+  const audibles = audibleResults.products
     // @ts-ignore
-    authors: b.authors.map(a => a.name),
-  }))
+    .map(b => ({
+      id: b.asin,
+      title: b.title,
+      subtitle: b.subtitle,
+      image: b.product_images?.[720] ?? '/images/no-cover.png',
+      publishDate: b.release_date,
+      // @ts-ignore
+      authors: b.authors?.map(a => a.name) ?? ['Anonymous'],
+    }))
 
   return json({
     results: audibles,
@@ -144,5 +145,3 @@ export default function Page() {
     </div>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

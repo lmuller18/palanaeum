@@ -49,11 +49,24 @@ export async function getMembersWithProgressByClub(clubId: string) {
 }
 
 export async function getCompletedMembersByChapter(
-  clubId: string,
+  clubId: string | null,
   chapterId: string,
 ) {
+  let clubIdVar: string
+  if (!clubId) {
+    const club = await prisma.club.findFirst({
+      where: { chapters: { some: { id: chapterId } } },
+      select: { id: true },
+    })
+
+    if (!club) return
+    clubIdVar = club.id
+  } else {
+    clubIdVar = clubId
+  }
+
   const members = await prisma.member.findMany({
-    where: { clubId },
+    where: { clubId: clubIdVar },
     select: {
       progress: { where: { chapterId }, select: { createdAt: true } },
       user: {

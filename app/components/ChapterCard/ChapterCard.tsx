@@ -27,7 +27,6 @@ const ChapterCard = ({ chapter }: ChapterCardProps) => {
       },
       {
         method: 'post',
-        replace: true,
         action: `/clubs/${clubId}/chapter-actions`,
       },
     )

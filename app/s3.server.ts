@@ -1,7 +1,6 @@
 import { Readable } from 'stream'
 
 import mime from 'mime-types'
-import { notFound } from 'remix-utils'
 
 import { Upload } from '@aws-sdk/lib-storage'
 import type { UploadHandler } from '@remix-run/node'
@@ -17,7 +16,7 @@ export async function getObject(key: string) {
     }),
   )
 
-  if (!data.Body) throw notFound({ message: 'Image not found' })
+  if (!data.Body) throw new Response(null, { status: 404, statusText: 'Image not found'})
 
   return data
 }

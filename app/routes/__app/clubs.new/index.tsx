@@ -15,7 +15,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/outline'
 import { Disclosure, Transition } from '@headlessui/react'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 import { Form, useNavigate, useActionData } from '@remix-run/react'
 
 import Button from '~/elements/Button'
@@ -24,7 +24,7 @@ import { requireUserId } from '~/session.server'
 import OutlinedInput from '~/elements/OutlinedInput'
 import { createManualClub } from '~/models/clubs.server'
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireUserId(request)
   return null
 }
@@ -407,5 +407,3 @@ export const action: ActionFunction = async ({ request }) => {
 
   return redirect(`/clubs/${club.id}/members/manage`)
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

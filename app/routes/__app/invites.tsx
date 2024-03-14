@@ -8,7 +8,7 @@ import {
   DotsVerticalIcon,
 } from '@heroicons/react/outline'
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { useFetcher, useLoaderData } from '@remix-run/react'
 
 import { useUser } from '~/utils'
@@ -21,14 +21,13 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '~/components/DropdownMenu'
-import TextLink from '~/elements/TextLink'
 import { requireUserId } from '~/session.server'
 import PageHeader from '~/components/PageHeader'
 import { Separator } from '~/components/Separator'
 import { ScrollBar, ScrollArea } from '~/components/ScrollArea'
 import { getSentInvites, getReceivedInvites } from '~/models/invites.server'
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
 
   const [sentInvites, receivedInvites] = await Promise.all([

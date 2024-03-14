@@ -1,5 +1,4 @@
 import invariant from 'tiny-invariant'
-import { unauthorized } from 'remix-utils'
 
 import { json, redirect, createCookieSessionStorage } from '@remix-run/node'
 
@@ -55,9 +54,6 @@ export async function requireUserId(
   const userId = await getUserId(request)
   if (!userId) {
     const searchParams = new URLSearchParams([['redirectTo', redirectTo]])
-    if (getIsNativeApp(request)) {
-      throw unauthorized({ message: 'not authorized' })
-    }
     throw redirect(`/login?${searchParams}`)
   }
   return userId

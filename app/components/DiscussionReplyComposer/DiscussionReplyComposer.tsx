@@ -42,12 +42,20 @@ const DiscussionReplyComposer = ({
   })
 
   useEffect(() => {
-    if (fetcher.type === 'done') {
-      if (fetcher.data.ok) {
+    const hasData = (data: unknown): data is { ok: boolean } => {
+      return data != null && Object.hasOwn(data, 'ok')
+    }
+
+    const hasError = (data: unknown): data is { error: any } => {
+      return data != null && Object.hasOwn(data, 'error')
+    }
+
+    if (fetcher.state === 'idle' && fetcher.data != null) {
+      if (hasData(fetcher.data) && fetcher.data.ok) {
         editor?.commands.clearContent()
         submitRef?.current?.blur()
       } else {
-        console.log(fetcher.data.error)
+        if (hasError(fetcher.data)) console.log(fetcher.data.error)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,7 +75,6 @@ const DiscussionReplyComposer = ({
     fetcher.submit(removeEmpty(newPost), {
       action: '/api/comments',
       method: 'post',
-      replace: true,
     })
   }
 

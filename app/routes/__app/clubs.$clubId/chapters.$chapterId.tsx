@@ -6,7 +6,7 @@ import type { ReactNode } from 'react'
 import { useMatch } from 'react-router'
 
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { Outlet, NavLink, useParams, useLoaderData } from '@remix-run/react'
 
 import Text from '~/elements/Typography/Text'
@@ -15,7 +15,7 @@ import { requireUserId } from '~/session.server'
 import PageHeader from '~/components/PageHeader'
 import { getChapter } from '~/models/chapters.server'
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   invariant(params.chapterId, 'expected chapterId')
   const userId = await requireUserId(request)
@@ -143,5 +143,3 @@ export const handle = {
     </div>
   ),
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

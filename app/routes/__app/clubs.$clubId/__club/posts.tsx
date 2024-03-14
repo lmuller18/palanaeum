@@ -8,7 +8,7 @@ import {
   useSearchParams,
 } from '@remix-run/react'
 import { defer } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import SortIcon from '@heroicons/react/outline/AdjustmentsIcon'
 
 import Post from '~/components/Post'
@@ -30,7 +30,7 @@ const getPostsLong = async (
   return posts
 }
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   invariant(params.clubId, 'expected clubId')
   const userId = await requireUserId(request)
   const searchParams = new URL(request.url).searchParams
@@ -169,5 +169,3 @@ const PostSort = () => {
     </div>
   )
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

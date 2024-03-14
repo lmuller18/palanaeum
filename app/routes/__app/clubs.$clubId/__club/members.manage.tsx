@@ -1,10 +1,9 @@
 import invariant from 'tiny-invariant'
 import { useRef, useEffect } from 'react'
-import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
 import { XIcon } from '@heroicons/react/outline'
-import type { LoaderArgs, ActionFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, ActionFunction } from '@remix-run/node'
 import { Link, useParams, useFetcher, useLoaderData } from '@remix-run/react'
 
 import { useUser } from '~/utils'
@@ -16,7 +15,7 @@ import { getClubWithUserMembers } from '~/models/clubs.server'
 import { notifyNewInvite } from '~/models/notifications.server'
 import { createInvite, getInvitesWithInvitee } from '~/models/invites.server'
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request)
 
   invariant(params.clubId, 'expected clubId')
@@ -26,10 +25,14 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     getInvitesWithInvitee(params.clubId),
   ])
 
-  if (!club) throw notFound({ message: 'Club not found' })
+  if (!club)
+    throw new Response(null, { status: 404, statusText: 'Club not found' })
 
   if (club.ownerId !== userId)
-    throw forbidden({ message: 'Not authorized to manage members' })
+    throw new Response(null, {
+      status: 403,
+      statusText: 'Not authorized to manage members',
+    })
 
   return json({
     members: club.members,
@@ -44,10 +47,26 @@ export default function ManageMembersPage() {
   const inviteFetcher = useFetcher()
 
   useEffect(() => {
-    if (inviteFetcher.type === 'done' && inviteFetcher.data.ok) {
+    const hasData = (data: unknown): data is { ok: boolean } => {
+      return data != null && Object.hasOwn(data, 'ok')
+    }
+    if (
+      inviteFetcher.state === 'idle' &&
+      inviteFetcher.data != null &&
+      hasData(inviteFetcher.data) &&
+      inviteFetcher.data.ok
+    ) {
       inviteRef.current?.reset()
     }
   }, [inviteFetcher])
+
+  const hasData = (data: unknown): data is { ok: boolean } => {
+    return data != null && Object.hasOwn(data, 'ok')
+  }
+
+  const hasError = (data: unknown): data is { error: any } => {
+    return data != null && Object.hasOwn(data, 'error')
+  }
 
   return (
     <div className="mb-4 px-4">
@@ -93,12 +112,12 @@ export default function ManageMembersPage() {
             Send invite
           </button>
         </inviteFetcher.Form>
-        {inviteFetcher.type === 'done' ? (
-          inviteFetcher.data.ok ? (
+        {inviteFetcher.state === 'idle' && inviteFetcher.data != null ? (
+          hasData(inviteFetcher.data) && inviteFetcher.data.ok ? (
             <Text as="p" className="mt-2 ml-2">
               Invite Sent!
             </Text>
-          ) : inviteFetcher.data.error ? (
+          ) : hasError(inviteFetcher.data) && inviteFetcher.data.error ? (
             <Text as="p" className="mt-2 ml-2 text-red-500">
               {inviteFetcher.data.error}
             </Text>
@@ -240,5 +259,3 @@ export const action: ActionFunction = async ({ request, params }) => {
     ok: true,
   })
 }
-
-export { default as CatchBoundary } from '~/components/CatchBoundary'

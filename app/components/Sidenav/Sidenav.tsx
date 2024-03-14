@@ -1,6 +1,5 @@
 import clsx from 'clsx'
-import { ClientOnly } from 'remix-utils'
-import React, { memo, Fragment } from 'react'
+import React, { memo, Fragment, Suspense, lazy } from 'react'
 import { useMatch, useParams } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -21,7 +20,6 @@ import { Dialog, Transition } from '@headlessui/react'
 import Button from '~/elements/Button'
 
 import { Separator } from '../Separator'
-import BottomNavSection from './BottomNavSection'
 
 type NavItem = {
   name: string
@@ -94,6 +92,13 @@ const clubNavigation = (clubId: string, chapterId: string): NavItem[] => [
       : [],
   },
 ]
+
+let LazyBottomNav = lazy(async () => {
+  const BottomNavSection = await import('./BottomNavSection')
+
+  return { default: BottomNavSection.default }
+})
+const BottomNav = React.memo(LazyBottomNav)
 
 const Sidenav = ({
   open,
@@ -227,9 +232,9 @@ const Sidenav = ({
                     </Button>
                   </Link>
                 </div>
-                <ClientOnly>
-                  {() => <BottomNavSection setOpen={setOpen} />}
-                </ClientOnly>
+                <Suspense fallback={<div />}>
+                  <BottomNav setOpen={setOpen} />
+                </Suspense>
               </Dialog.Panel>
             </Transition.Child>
 
@@ -280,9 +285,9 @@ const Sidenav = ({
               </Button>
             </Link>
           </div>
-          <ClientOnly>
-            {() => <BottomNavSection setOpen={() => {}} />}
-          </ClientOnly>
+          <Suspense fallback={<div />}>
+            <BottomNav setOpen={() => {}} />
+          </Suspense>
         </div>
       </div>
     </div>

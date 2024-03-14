@@ -252,7 +252,7 @@ export async function getDiscussionsByChapter(
       id: d.id,
       title: d.title,
       replyCount: d._count.replies,
-      createdAt: d.createdAt,
+      createdAt: d.createdAt.toISOString(),
     },
     chapter: {
       id: d.chapter.id,
@@ -322,7 +322,7 @@ export async function getDiscussionsForReadChapters(
       id: d.id,
       title: d.title,
       replyCount: d._count.replies,
-      createdAt: d.createdAt,
+      createdAt: d.createdAt.toISOString(),
     },
     chapter: {
       id: d.chapter.id,

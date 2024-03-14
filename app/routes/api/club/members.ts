@@ -1,14 +1,13 @@
 import invariant from 'tiny-invariant'
-import { notFound, forbidden } from 'remix-utils'
 
 import { json } from '@remix-run/node'
-import type { ActionArgs } from '@remix-run/node'
+import type { ActionFunctionArgs } from '@remix-run/node'
 
 import { prisma } from '~/db.server'
 import { parseStringFormData } from '~/utils'
 import { requireUserId } from '~/session.server'
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const authedId = await requireUserId(request)
 
   switch (request.method.toLowerCase()) {
@@ -30,10 +29,10 @@ export const action = async ({ request }: ActionArgs) => {
         },
       })
 
-      if (!member) throw notFound({ message: 'member  not found' })
+      if (!member) throw new Response(null, {status: 401, statusText: 'Member not found'})
 
       if (member.club.ownerId !== authedId && member.userId !== authedId)
-        throw forbidden({ message: 'not allowed to delete member' })
+        throw new Response(null, {status: 403, statusText: 'Not allowed to delete member'})
 
       await prisma.member
         .update({
