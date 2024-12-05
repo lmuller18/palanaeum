@@ -31,6 +31,7 @@ import type { LoaderArgs, ActionArgs } from '@remix-run/node'
 import Modal from '~/components/Modal'
 import Button from '~/elements/Button'
 import { getErrorMessage } from '~/utils'
+import { useToast } from '~/hooks/use-toast'
 import Text from '~/elements/Typography/Text'
 import SheetModal from '~/components/SheetModal'
 import { putObject, removeObject } from '~/s3.server'
@@ -114,6 +115,9 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {isProfile && editing && <ChangePasswordSection />}
+
       <div className="content-wrapper px-4 pb-4">
         <div className="mb-2 flex items-center justify-between">
           <Text variant="title2">{user.username}</Text>
@@ -123,6 +127,116 @@ export default function ProfilePage() {
           <ClubsSection clubs={clubs} />
           <StatsSection userStats={userStats} />
         </div>
+      </div>
+    </div>
+  )
+}
+
+const ChangePasswordSection = () => {
+  const fetcher = useFetcher()
+  const formRef = useRef<HTMLFormElement>(null)
+  const toast = useToast()
+
+  useEffect(() => {
+    if (fetcher.type === 'done') {
+      if (fetcher.data.ok) {
+        toast.toast({ description: 'Password changed successfully' })
+        formRef.current?.reset()
+      }
+    }
+  }, [fetcher, toast])
+
+  const actionData = fetcher.data
+
+  return (
+    <div className="content-wrapper px-4 pb-4">
+      <div className="rounded-lg bg-background-secondary px-4 py-3 shadow sm:px-6 sm:py-4">
+        <Text variant="body1">Change Password</Text>
+
+        <fetcher.Form method="post" action="/api/change-password" ref={formRef}>
+          <div>
+            <label
+              htmlFor="currentPassword"
+              className="block text-sm font-medium text-gray-100"
+            >
+              Current Password
+            </label>
+            <div className="mt-1">
+              <input
+                id="currentPassword"
+                name="currentPassword"
+                type="password"
+                autoComplete="current-password"
+                required
+                aria-describedby="current-password-error"
+                className="block w-full appearance-none rounded-md border border-background-tertiary bg-background-tertiary px-3 py-2 text-white placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+            {actionData?.errors?.currentPassword && (
+              <div className="pt-1 text-red-700" id="current-password-error">
+                {actionData.errors.currentPassword}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="newPassword"
+              className="block text-sm font-medium text-gray-100"
+            >
+              New Password
+            </label>
+            <div className="mt-1">
+              <input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                aria-describedby="new-password-error"
+                className="block w-full appearance-none rounded-md border border-background-tertiary bg-background-tertiary px-3 py-2 text-white placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+            {actionData?.errors?.newPassword && (
+              <div className="pt-1 text-red-700" id="new-password-error">
+                {actionData.errors.newPassword}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-100"
+            >
+              Confirm Password
+            </label>
+            <div className="mt-1">
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                aria-describedby="confirm-password-error"
+                className="block w-full appearance-none rounded-md border border-background-tertiary bg-background-tertiary px-3 py-2 text-white placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+            {actionData?.errors?.confirmPassword && (
+              <div className="pt-1 text-red-700" id="confirm-password-error">
+                {actionData.errors.confirmPassword}
+              </div>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            disabled={fetcher.state === 'submitting'}
+            className="mt-2"
+          >
+            Submit
+          </Button>
+        </fetcher.Form>
       </div>
     </div>
   )

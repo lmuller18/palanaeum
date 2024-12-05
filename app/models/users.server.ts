@@ -14,6 +14,18 @@ export async function getUserByEmail(email: string) {
   return prisma.user.findUnique({ where: { email } })
 }
 
+async function generatePassword(plaintext: string) {
+  return bcrypt.hash(plaintext, 10)
+}
+
+export async function updatePassword(userId: string, password: string) {
+  const hashedPassword = await generatePassword(password)
+  return prisma.password.update({
+    where: { userId },
+    data: { hash: hashedPassword },
+  })
+}
+
 export async function createUser({
   email,
   username,
@@ -25,7 +37,7 @@ export async function createUser({
   avatar: string
   password: string
 }) {
-  const hashedPassword = await bcrypt.hash(password, 10)
+  const hashedPassword = await generatePassword(password)
   const user = await prisma.user.create({
     data: {
       email,
@@ -208,6 +220,10 @@ export async function getUserStats(userId: string) {
     postTotal,
     posts30Days,
   }
+}
+
+export async function getPassword(userId: string) {
+  return prisma.password.findUnique({ where: { userId } })
 }
 
 export async function updateUser(
