@@ -291,7 +291,7 @@ const InviteCard = ({
         <div className="">
           <div className="float-right mt-[2px]">{menu}</div>
           <span className="font-medium leading-none">
-            {title} but like actually long
+            {title}
           </span>
         </div>
         <p className="text-xs text-slate-500 dark:text-slate-400">{author}</p>
