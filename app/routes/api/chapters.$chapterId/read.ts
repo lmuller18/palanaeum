@@ -11,7 +11,6 @@ import {
 import { getErrorMessage } from '~/utils'
 import { requireUserId } from '~/session.server'
 import { getMemberIdFromUserByChapter } from '~/models/users.server'
-import { notifyClubCompletion } from '~/models/notifications.server'
 
 export const action = async ({ params, request }: ActionArgs) => {
   const userId = await requireUserId(request)
@@ -32,7 +31,8 @@ export const action = async ({ params, request }: ActionArgs) => {
               chapterId,
             )
             const progress = await markRead(chapterId, memberId)
-            await notifyClubCompletion(chapterId, memberId)
+            // not working currently, potentially causing memory leak
+            // await notifyClubCompletion(chapterId, memberId)
             return json({ ok: true, progress })
           } catch (error) {
             return json({ error: getErrorMessage(error) }, { status: 500 })
@@ -45,7 +45,8 @@ export const action = async ({ params, request }: ActionArgs) => {
               chapterId,
             )
             const progress = await markPreviousRead(chapterId, memberId)
-            await notifyClubCompletion(chapterId, memberId)
+            // not working currently, potentially causing memory leak
+            // await notifyClubCompletion(chapterId, memberId)
             return json({ ok: true, progress })
           } catch (error) {
             return json({ error: getErrorMessage(error) }, { status: 500 })
