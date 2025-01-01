@@ -58,12 +58,18 @@ export async function putObject({
   data: AsyncIterable<Uint8Array> | File
   contentType: string
 }) {
+  let stream
+
+  if (!(data instanceof File)) {
+    stream = Readable.from(data)
+  }
+
   const upload = new Upload({
     client: s3Client,
     params: {
       Bucket: process.env.S3_BUCKET,
       Key: key,
-      Body: data instanceof File ? data : Readable.from(data),
+      Body: data instanceof File ? data : stream,
       ContentType: contentType,
       Metadata: {
         filename: filename,
@@ -72,6 +78,9 @@ export async function putObject({
   })
 
   const res = await upload.done()
+
+  if (stream) stream.destroy()
+
   return res.$metadata
 }
 

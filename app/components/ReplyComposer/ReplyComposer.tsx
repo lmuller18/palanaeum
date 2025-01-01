@@ -182,6 +182,7 @@ const ReplyComposer = ({
   const submitDisabled =
     // submitting
     fetcher.state === 'submitting' ||
+    fetcher.state === 'loading' ||
     // empty
     (!hasImage && !hasText) ||
     // invalid
