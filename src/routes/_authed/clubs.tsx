@@ -113,7 +113,7 @@ function RouteComponent() {
             <TextLink to="/clubs/new" color="blue">
               Start a new club
             </TextLink>{' '}
-            or revist a past club below.
+            or revisit a past club below.
           </p>
         )}
 

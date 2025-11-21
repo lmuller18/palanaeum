@@ -39,12 +39,6 @@ export async function verifyLogin(email: string, password: string) {
   return userWithoutPassword
 }
 
-export const logout = createServerOnlyFn(async () => {
-  const session = await useAppSession()
-  await session.clear()
-  throw redirect({ to: '/login' })
-})
-
 export const useServerUser = createServerOnlyFn(async () => {
   const session = await useAppSession()
   const user = session.data

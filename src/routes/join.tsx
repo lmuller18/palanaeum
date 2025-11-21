@@ -187,7 +187,7 @@ function RouteComponent() {
 
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="block text-sm font-medium text-gray-100"
               >
                 Username
