@@ -1,43 +1,11 @@
 {
-  "css.customData": [".vscode/css_custom_data.json"],
-  "eslint.lintTask.enable": true,
-  "eslint.lintTask.options": "-c ./.eslintrc.js .",
-  "eslint.probe": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact",
-    "html",
-    "vue",
-    "markdown",
-    "json"
-  ],
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
-  "githubPullRequests.ignoredPullRequestBranches": ["dev"],
-  "search.exclude": {
-    ".cache": true,
-    "build": true,
-    "prisma/migrations": true,
-    "public/build": true,
-    "yarn.lock": true,
-    "package-lock.json": true,
-    "api/_build": true,
-    "/postgres-data": true,
-    "app/styles": true
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
   },
-  "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true,
-    "node_modules": true,
-    "/postgres-data": true
+  "search.exclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
   }
 }

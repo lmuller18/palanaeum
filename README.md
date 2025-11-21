@@ -1,228 +1,310 @@
-# Remix Blues Stack
+Welcome to your new TanStack app! 
 
-![The Remix Blues Stack](https://repository-images.githubusercontent.com/461012689/37d5bd8b-fa9c-4ab0-893c-f0a199d5012d)
+# Getting Started
 
-Learn more about [Remix Stacks](https://remix.run/stacks).
+To run this application:
 
+```bash
+pnpm install
+pnpm start
 ```
-npx create-remix --template remix-run/blues-stack
+
+# Building For Production
+
+To build this application for production:
+
+```bash
+pnpm build
 ```
-
-## What's in the stack
-
-- [Multi-region Fly app deployment](https://fly.io/docs/reference/scaling/) with
-  [Docker](https://www.docker.com/)
-- [Multi-region Fly PostgreSQL Cluster](https://fly.io/docs/getting-started/multi-region-databases/)
-- Healthcheck endpoint for
-  [Fly backups region fallbacks](https://fly.io/docs/reference/configuration/#services-http_checks)
-- [GitHub Actions](https://github.com/features/actions) for deploy on merge to
-  production and staging environments
-- Email/Password Authentication with
-  [cookie-based sessions](https://remix.run/docs/en/v1/api/remix#createcookiesessionstorage)
-- Database ORM with [Prisma](https://prisma.io)
-- Styling with [Tailwind](https://tailwindcss.com/)
-- End-to-end testing with [Cypress](https://cypress.io)
-- Local third party request mocking with [MSW](https://mswjs.io)
-- Unit testing with [Vitest](https://vitest.dev) and
-  [Testing Library](https://testing-library.com)
-- Code formatting with [Prettier](https://prettier.io)
-- Linting with [ESLint](https://eslint.org)
-- Static Types with [TypeScript](https://typescriptlang.org)
-
-Not a fan of bits of the stack? Fork it, change it, and use
-`npx create-remix --template your/repo`! Make it your own.
-
-## Development
-
-- Start the Postgres Database in [Docker](https://www.docker.com/get-started):
-
-  ```sh
-  npm run docker
-  ```
-
-- Initial setup:
-
-  ```sh
-  npm run setup
-  ```
-
-- Start dev server:
-
-  ```sh
-  npm run dev
-  ```
-
-This starts your app in development mode, rebuilding assets on file changes.
-
-The database seed script creates a new user with some data you can use to get
-started:
-
-- Email: `rachel@remix.run`
-- Password: `rachelrox`
-
-If you'd prefer not to use Docker, you can also use Fly's Wireguard VPN to
-connect to a development database (or even your production database). You can
-find the instructions to set up Wireguard
-[here](https://fly.io/docs/reference/private-networking/#install-your-wireguard-app),
-and the instructions for creating a development database
-[here](https://fly.io/docs/reference/postgres/).
-
-### Relevant code:
-
-This is a pretty simple note-taking app, but it's a good example of how you can
-build a full stack app with Prisma and Remix. The main functionality is creating
-users, logging in and out, and creating and deleting notes.
-
-- creating users, and logging in and out
-  [./app/models/user.server.ts](./app/models/user.server.ts)
-- user sessions, and verifying them
-  [./app/session.server.ts](./app/session.server.ts)
-- creating, and deleting notes
-  [./app/models/note.server.ts](./app/models/note.server.ts)
-
-## Deployment
-
-This Remix Stack comes with two GitHub Actions that handle automatically
-deploying your app to production and staging environments.
-
-Prior to your first deployment, you'll need to do a few things:
-
-- [Install Fly](https://fly.io/docs/getting-started/installing-flyctl/)
-
-- Sign up and log in to Fly
-
-  ```sh
-  fly auth signup
-  ```
-
-- Create two apps on Fly, one for staging and one for production:
-
-  ```sh
-  fly create palanaeum-stack-f86c
-  fly create palanaeum-stack-f86c-staging
-  ```
-
-- Create a new [GitHub Repository](https://repo.new)
-
-- Add a `FLY_API_TOKEN` to your GitHub repo. To do this, go to your user
-  settings on Fly and create a new
-  [token](https://web.fly.io/user/personal_access_tokens/new), then add it to
-  [your repo secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-  with the name `FLY_API_TOKEN`.
-
-- Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the
-  following commands:
-
-  ```sh
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app palanaeum-stack-f86c
-  fly secrets set SESSION_SECRET=$(openssl rand -hex 32) --app palanaeum-stack-f86c-staging
-  ```
-
-  If you don't have openssl installed, you can also use
-  [1password](https://1password.com/generate-password) to generate a random
-  secret, just replace `$(openssl rand -hex 32)` with the generated secret.
-
-- Create a database for both your staging and production environments. Run the
-  following:
-
-  ```sh
-  fly postgres create --name palanaeum-stack-f86c-db
-  fly postgres attach --postgres-app palanaeum-stack-f86c-db --app palanaeum-stack-f86c
-
-  fly postgres create --name palanaeum-stack-f86c-staging-db
-  fly postgres attach --postgres-app palanaeum-stack-f86c-staging-db --app palanaeum-stack-f86c-staging
-  ```
-
-  Fly will take care of setting the DATABASE_URL secret for you.
-
-Now that every is set up you can commit and push your changes to your repo.
-Every commit to your `main` branch will trigger a deployment to your production
-environment, and every commit to your `dev` branch will trigger a deployment to
-your staging environment.
-
-### Multi-region deploys
-
-Once you have your site and database running in a single region, you can add
-more regions by following
-[Fly's Scaling](https://fly.io/docs/reference/scaling/) and
-[Multi-region PostgreSQL](https://fly.io/docs/getting-started/multi-region-databases/)
-docs.
-
-Make certain to set a `PRIMARY_REGION` environment variable for your app. You
-can use `[env]` config in the `fly.toml` to set that to the region you want to
-use as the primary region for both your app and database.
-
-#### Testing your app in other regions
-
-Install the [ModHeader](https://modheader.com/) browser extension (or something
-similar) and use it to load your app with the header `fly-prefer-region` set to
-the region name you would like to test.
-
-You can check the `x-fly-region` header on the response to know which region
-your request was handled by.
-
-## GitHub Actions
-
-We use GitHub Actions for continuous integration and deployment. Anything that
-gets into the `main` branch will be deployed to production after running
-tests/build/etc. Anything in the `dev` branch will be deployed to staging.
 
 ## Testing
 
-### Cypress
+This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
-We use Cypress for our End-to-End tests in this project. You'll find those in
-the `cypress` directory. As you make changes, add to an existing file or create
-a new file in the `cypress/e2e` directory to test your changes.
-
-We use [`@testing-library/cypress`](https://testing-library.com/cypress) for
-selecting elements on the page semantically.
-
-To run these tests in development, run `npm run test:e2e:dev` which will start
-the dev server for the app as well as the Cypress client. Make sure the database
-is running in docker as described above.
-
-We have a utility for testing authenticated features without having to go
-through the login flow:
-
-```ts
-cy.login()
-// you are now logged in as a new user
+```bash
+pnpm test
 ```
 
-We also have a utility to auto-delete the user at the end of your test. Just
-make sure to add this in each test file:
+## Styling
 
-```ts
-afterEach(() => {
-  cy.cleanupUser()
+This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+
+
+## Linting & Formatting
+
+
+This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+
+```bash
+pnpm lint
+pnpm format
+pnpm check
+```
+
+
+## Shadcn
+
+Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+
+```bash
+pnpx shadcn@latest add button
+```
+
+
+
+## Routing
+This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+
+### Adding A Route
+
+To add a new route to your application just add another a new file in the `./src/routes` directory.
+
+TanStack will automatically generate the content of the route file for you.
+
+Now that you have two routes you can use a `Link` component to navigate between them.
+
+### Adding Links
+
+To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+
+```tsx
+import { Link } from "@tanstack/react-router";
+```
+
+Then anywhere in your JSX you can use it like so:
+
+```tsx
+<Link to="/about">About</Link>
+```
+
+This will create a link that will navigate to the `/about` route.
+
+More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+
+### Using A Layout
+
+In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
+
+Here is an example layout that includes a header:
+
+```tsx
+import { Outlet, createRootRoute } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+
+import { Link } from "@tanstack/react-router";
+
+export const Route = createRootRoute({
+  component: () => (
+    <>
+      <header>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/about">About</Link>
+        </nav>
+      </header>
+      <Outlet />
+      <TanStackRouterDevtools />
+    </>
+  ),
 })
 ```
 
-That way, we can keep your local db clean and keep your tests isolated from one
-another.
+The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
 
-### Vitest
+More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
 
-For lower level tests of utilities and individual components, we use `vitest`.
-We have DOM-specific assertion helpers via
-[`@testing-library/jest-dom`](https://testing-library.com/jest-dom).
 
-### Type Checking
+## Data Fetching
 
-This project uses TypeScript. It's recommended to get TypeScript set up for your
-editor to get a really great in-editor experience with type checking and
-auto-complete. To run type checking across the whole project, run
-`npm run typecheck`.
+There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
 
-### Linting
+For example:
 
-This project uses ESLint for linting. That is configured in `.eslintrc.js`.
+```tsx
+const peopleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/people",
+  loader: async () => {
+    const response = await fetch("https://swapi.dev/api/people");
+    return response.json() as Promise<{
+      results: {
+        name: string;
+      }[];
+    }>;
+  },
+  component: () => {
+    const data = peopleRoute.useLoaderData();
+    return (
+      <ul>
+        {data.results.map((person) => (
+          <li key={person.name}>{person.name}</li>
+        ))}
+      </ul>
+    );
+  },
+});
+```
 
-### Formatting
+Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
 
-We use [Prettier](https://prettier.io/) for auto-formatting in this project.
-It's recommended to install an editor plugin (like the
-[VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode))
-to get auto-formatting on save. There's also a `npm run format` script you can
-run to format all files in the project.
+### React-Query
+
+React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
+
+First add your dependencies:
+
+```bash
+pnpm add @tanstack/react-query @tanstack/react-query-devtools
+```
+
+Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
+
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// ...
+
+const queryClient = new QueryClient();
+
+// ...
+
+if (!rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+
+  root.render(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
+}
+```
+
+You can also add TanStack Query Devtools to the root route (optional).
+
+```tsx
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const rootRoute = createRootRoute({
+  component: () => (
+    <>
+      <Outlet />
+      <ReactQueryDevtools buttonPosition="top-right" />
+      <TanStackRouterDevtools />
+    </>
+  ),
+});
+```
+
+Now you can use `useQuery` to fetch your data.
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+
+import "./App.css";
+
+function App() {
+  const { data } = useQuery({
+    queryKey: ["people"],
+    queryFn: () =>
+      fetch("https://swapi.dev/api/people")
+        .then((res) => res.json())
+        .then((data) => data.results as { name: string }[]),
+    initialData: [],
+  });
+
+  return (
+    <div>
+      <ul>
+        {data.map((person) => (
+          <li key={person.name}>{person.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+```
+
+You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+
+## State Management
+
+Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
+
+First you need to add TanStack Store as a dependency:
+
+```bash
+pnpm add @tanstack/store
+```
+
+Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+
+```tsx
+import { useStore } from "@tanstack/react-store";
+import { Store } from "@tanstack/store";
+import "./App.css";
+
+const countStore = new Store(0);
+
+function App() {
+  const count = useStore(countStore);
+  return (
+    <div>
+      <button onClick={() => countStore.setState((n) => n + 1)}>
+        Increment - {count}
+      </button>
+    </div>
+  );
+}
+
+export default App;
+```
+
+One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
+
+Let's check this out by doubling the count using derived state.
+
+```tsx
+import { useStore } from "@tanstack/react-store";
+import { Store, Derived } from "@tanstack/store";
+import "./App.css";
+
+const countStore = new Store(0);
+
+const doubledStore = new Derived({
+  fn: () => countStore.state * 2,
+  deps: [countStore],
+});
+doubledStore.mount();
+
+function App() {
+  const count = useStore(countStore);
+  const doubledCount = useStore(doubledStore);
+
+  return (
+    <div>
+      <button onClick={() => countStore.setState((n) => n + 1)}>
+        Increment - {count}
+      </button>
+      <div>Doubled - {doubledCount}</div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
+
+Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
+
+You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
+
+# Demo files
+
+Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+
+# Learn More
+
+You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).

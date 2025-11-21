@@ -1,4 +1,4 @@
-import bcrypt from '@node-rs/bcrypt'
+import bcrypt from 'bcryptjs'
 import { PrismaClient } from '@prisma/client'
 import type { Club, User } from '@prisma/client'
 
@@ -90,8 +90,8 @@ async function seed() {
 }
 
 seed()
-  .catch(e => {
-    console.error(e)
+  .catch((e) => {
+    console.error('❌ Error seeding database:', e)
     process.exit(1)
   })
   .finally(async () => {
